@@ -396,6 +396,14 @@ function mostrarUltimasTransacciones(ventas) {
     }
     
     const esDevolucion = venta.fields['Devolución'] && venta.fields['Devolución'].length > 0;
+    
+    // Obtener quien autorizó la devolución
+    let autorizadoPor = '';
+    if (esDevolucion && venta.fields['Box Observaciones']) {
+      autorizadoPor = `<div style="margin-top: 8px; padding: 8px; background: #fff3cd; border-radius: 6px; font-size: 11px; color: #856404;">
+        <strong>✓ Autorizado por:</strong> ${venta.fields['Box Observaciones']}
+      </div>`;
+    }
 
     return `
       <div class="transaction-item">
@@ -409,8 +417,9 @@ function mostrarUltimasTransacciones(ventas) {
           <div style="margin-bottom: 3px;">📦 ${items}</div>
           <div style="display: flex; justify-content: space-between;">
             <span>📅 ${fechaHoraTexto}</span>
-            <span style="font-weight: 600; color: #667eea;">$${Math.round(total).toLocaleString('es-CL')}</span>
+            <span style="font-weight: 600; color: #667eea;">${Math.round(total).toLocaleString('es-CL')}</span>
           </div>
+          ${autorizadoPor}
         </div>
       </div>
     `;
