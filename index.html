@@ -19,6 +19,185 @@
       min-height: 100vh;
     }
 
+    /* Pantalla de Login */
+    #loginScreen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    .login-container {
+      background: white;
+      padding: 30px 24px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .login-icon {
+      font-size: 60px;
+      margin-bottom: 16px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .login-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #10b981;
+      margin-bottom: 8px;
+    }
+
+    .login-subtitle {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 24px;
+    }
+
+    .password-input-group {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    #passwordInput {
+      width: 100%;
+      padding: 14px 45px 14px 14px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      font-size: 16px;
+      transition: all 0.3s;
+      font-family: monospace;
+      letter-spacing: 2px;
+    }
+
+    #passwordInput:focus {
+      outline: none;
+      border-color: #10b981;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+
+    #passwordInput.error {
+      border-color: #ef4444;
+      animation: shake 0.5s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px;
+      opacity: 0.6;
+      transition: opacity 0.3s;
+    }
+
+    .toggle-password:active {
+      opacity: 1;
+    }
+
+    .password-requirements {
+      text-align: left;
+      font-size: 11px;
+      color: #6b7280;
+      margin-bottom: 20px;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+
+    .password-requirements div {
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .requirement-icon {
+      font-size: 12px;
+    }
+
+    .requirement-met {
+      color: #10b981;
+    }
+
+    .requirement-unmet {
+      color: #ef4444;
+    }
+
+    #loginButton {
+      width: 100%;
+      padding: 14px;
+      background: #10b981;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 0;
+    }
+
+    #loginButton:active {
+      background: #059669;
+      transform: scale(0.98);
+    }
+
+    #loginButton:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
+    }
+
+    .error-message {
+      color: #ef4444;
+      font-size: 12px;
+      margin-top: 12px;
+      font-weight: 500;
+      display: none;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-footer {
+      margin-top: 20px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    /* Dashboard (oculto inicialmente) */
+    #dashboardApp {
+      display: none;
+    }
+
     .container {
       max-width: 480px;
       margin: 0 auto;
@@ -31,6 +210,28 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       margin-bottom: 12px;
       text-align: center;
+      position: relative;
+    }
+
+    .logout-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .logout-btn:active {
+      background: #dc2626;
+      transform: translateY(-50%) scale(0.95);
     }
 
     .header h1 {
@@ -559,24 +760,72 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>📊 Dashboard Punto Secreto</h1>
-      <p id="lastUpdate">Cargando datos...</p>
+  <!-- Pantalla de Login -->
+  <div id="loginScreen">
+    <div class="login-container">
+      <div class="login-icon">🔐</div>
+      <div class="login-title">Acceso Restringido</div>
+      <div class="login-subtitle">Dashboard Punto Secreto - Solo Jefes</div>
+      
+      <div class="password-input-group">
+        <input 
+          type="password" 
+          id="passwordInput" 
+          placeholder="Ingresa la contraseña"
+          autocomplete="off"
+          maxlength="20"
+        >
+        <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">👁️</button>
+      </div>
+
+      <div class="password-requirements">
+        <div id="req-length">
+          <span class="requirement-icon">⭕</span>
+          <span>Mínimo 14 caracteres</span>
+        </div>
+        <div id="req-uppercase">
+          <span class="requirement-icon">⭕</span>
+          <span>2 letras mayúsculas</span>
+        </div>
+        <div id="req-numbers">
+          <span class="requirement-icon">⭕</span>
+          <span>2 números</span>
+        </div>
+      </div>
+
+      <button id="loginButton" onclick="verificarPassword()">🔓 Ingresar al Dashboard</button>
+      
+      <div class="error-message" id="errorMessage">
+        ❌ Contraseña incorrecta. Intenta nuevamente.
+      </div>
+
+      <div class="login-footer">
+        🔒 Acceso protegido - Información confidencial
+      </div>
     </div>
+  </div>
+
+  <!-- Dashboard (oculto hasta login exitoso) -->
+  <div id="dashboardApp">
+    <div class="container">
+      <div class="header">
+        <button class="logout-btn" onclick="cerrarSesion()">🚪 Salir</button>
+        <h1>📊 Dashboard Punto Secreto</h1>
+        <p id="lastUpdate">Cargando datos...</p>
+      </div>
 
     <div class="filters">
       <label>📅 Rango de Fechas</label>
-<div class="date-range" style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; width: 100%; max-width: 100%;">
-  <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-    <input type="date" id="fechaDesde" onchange="aplicarFiltros()" style="width: 100%; max-width: 180px;">
-    <small style="color: #666; font-size: 11px;">Desde</small>
-  </div>
-  <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-    <input type="date" id="fechaHasta" onchange="aplicarFiltros()" style="width: 100%; max-width: 180px;">
-    <small style="color: #666; font-size: 11px;">Hasta</small>
-  </div>
-</div>
+      <div class="date-range">
+        <div>
+          <input type="date" id="fechaDesde" onchange="aplicarFiltros()">
+          <small style="color: #666; font-size: 10px;">Desde</small>
+        </div>
+        <div>
+          <input type="date" id="fechaHasta" onchange="aplicarFiltros()">
+          <small style="color: #666; font-size: 10px;">Hasta</small>
+        </div>
+      </div>
 
       <label>⚡ Accesos Rápidos</label>
       <select id="filterPeriodo" onchange="cambiarPeriodoRapido()">
@@ -689,7 +938,119 @@
 
     <div class="refresh-time" id="refreshTime"></div>
   </div>
+  </div>
 
   <script src="main.js"></script>
+  
+  <script>
+    // Sistema de autenticación
+    const CORRECT_PASSWORD = 'PuntoSecreto01';
+    let passwordVisible = false;
+
+    // Verificar si ya está autenticado
+    window.addEventListener('DOMContentLoaded', () => {
+      const isAuthenticated = sessionStorage.getItem('ps_authenticated');
+      if (isAuthenticated === 'true') {
+        mostrarDashboard();
+      }
+      
+      // Verificar requisitos en tiempo real
+      document.getElementById('passwordInput').addEventListener('input', verificarRequisitos);
+      
+      // Enter para login
+      document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          verificarPassword();
+        }
+      });
+    });
+
+    function verificarRequisitos() {
+      const password = document.getElementById('passwordInput').value;
+      
+      // Verificar longitud (14 caracteres)
+      const hasLength = password.length >= 14;
+      actualizarRequisito('req-length', hasLength);
+      
+      // Verificar 2 mayúsculas
+      const uppercaseCount = (password.match(/[A-Z]/g) || []).length;
+      const hasUppercase = uppercaseCount >= 2;
+      actualizarRequisito('req-uppercase', hasUppercase);
+      
+      // Verificar 2 números
+      const numberCount = (password.match(/[0-9]/g) || []).length;
+      const hasNumbers = numberCount >= 2;
+      actualizarRequisito('req-numbers', hasNumbers);
+      
+      return hasLength && hasUppercase && hasNumbers;
+    }
+
+    function actualizarRequisito(id, cumplido) {
+      const elemento = document.getElementById(id);
+      const icon = elemento.querySelector('.requirement-icon');
+      
+      if (cumplido) {
+        icon.textContent = '✅';
+        elemento.classList.add('requirement-met');
+        elemento.classList.remove('requirement-unmet');
+      } else {
+        icon.textContent = '⭕';
+        elemento.classList.remove('requirement-met');
+        elemento.classList.add('requirement-unmet');
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const input = document.getElementById('passwordInput');
+      const btn = document.querySelector('.toggle-password');
+      
+      passwordVisible = !passwordVisible;
+      input.type = passwordVisible ? 'text' : 'password';
+      btn.textContent = passwordVisible ? '🙈' : '👁️';
+    }
+
+    function verificarPassword() {
+      const password = document.getElementById('passwordInput').value;
+      const errorMsg = document.getElementById('errorMessage');
+      const input = document.getElementById('passwordInput');
+      
+      // Verificar requisitos
+      if (!verificarRequisitos()) {
+        errorMsg.textContent = '❌ La contraseña no cumple los requisitos.';
+        errorMsg.style.display = 'block';
+        input.classList.add('error');
+        setTimeout(() => input.classList.remove('error'), 500);
+        return;
+      }
+      
+      // Verificar contraseña correcta
+      if (password === CORRECT_PASSWORD) {
+        sessionStorage.setItem('ps_authenticated', 'true');
+        errorMsg.style.display = 'none';
+        mostrarDashboard();
+      } else {
+        errorMsg.textContent = '❌ Contraseña incorrecta. Intenta nuevamente.';
+        errorMsg.style.display = 'block';
+        input.classList.add('error');
+        input.value = '';
+        setTimeout(() => input.classList.remove('error'), 500);
+      }
+    }
+
+    function mostrarDashboard() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboardApp').style.display = 'block';
+    }
+
+    function cerrarSesion() {
+      if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
+        sessionStorage.removeItem('ps_authenticated');
+        document.getElementById('dashboardApp').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('passwordInput').value = '';
+        document.getElementById('errorMessage').style.display = 'none';
+      }
+    }
+  </script>
 </body>
 </html>
