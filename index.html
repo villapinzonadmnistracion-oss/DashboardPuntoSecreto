@@ -823,16 +823,17 @@
 
     <div class="filters">
       <label>📅 Rango de Fechas</label>
-      <div class="date-range">
-        <div>
-          <input type="date" id="fechaDesde" onchange="aplicarFiltros()">
-          <small style="color: #666; font-size: 10px;">Desde</small>
-        </div>
-        <div>
-          <input type="date" id="fechaHasta" onchange="aplicarFiltros()">
-          <small style="color: #666; font-size: 10px;">Hasta</small>
-        </div>
-      </div>
+<div class="date-range" style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; width: 100%; max-width: 100%;">
+  <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+    <input type="date" id="fechaDesde" onchange="aplicarFiltros()" style="width: 100%; max-width: 180px;">
+    <small style="color: #666; font-size: 11px;">Desde</small>
+  </div>
+  <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+    <input type="date" id="fechaHasta" onchange="aplicarFiltros()" style="width: 100%; max-width: 180px;">
+    <small style="color: #666; font-size: 11px;">Hasta</small>
+  </div>
+</div>
+
 
       <label>⚡ Accesos Rápidos</label>
       <select id="filterPeriodo" onchange="cambiarPeriodoRapido()">
