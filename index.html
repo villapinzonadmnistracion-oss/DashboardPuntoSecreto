@@ -38,10 +38,6 @@
     .header h1 {
       font-size: 24px;
       margin-bottom: 5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
     }
 
     .header p {
@@ -97,8 +93,8 @@
       margin-top: 10px;
     }
 
-    .filters button:active {
-      transform: scale(0.98);
+    .filters button:hover {
+      transform: translateY(-2px);
     }
 
     .kpi-grid {
@@ -114,11 +110,6 @@
       padding: 15px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       text-align: center;
-      transition: transform 0.2s;
-    }
-
-    .kpi-card:active {
-      transform: scale(0.98);
     }
 
     .kpi-icon {
@@ -153,9 +144,6 @@
       font-weight: bold;
       color: #667eea;
       margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
 
     .ranking-item {
@@ -166,11 +154,6 @@
       background: #f8f9ff;
       border-radius: 10px;
       margin-bottom: 8px;
-      transition: background 0.2s;
-    }
-
-    .ranking-item:active {
-      background: #e0e7ff;
     }
 
     .ranking-name {
@@ -307,15 +290,24 @@
       color: #991b1b;
     }
 
-    .debug-info {
-      background: #fff3cd;
+    .error-message {
+      background: white;
+      color: #991b1b;
+      padding: 20px;
+      border-radius: 15px;
+      margin: 20px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .error-details {
+      background: #fee2e2;
       padding: 10px;
       border-radius: 8px;
-      font-size: 11px;
       margin-top: 10px;
-      color: #856404;
-      max-height: 150px;
-      overflow-y: auto;
+      font-size: 12px;
+      text-align: left;
+      word-break: break-word;
     }
   </style>
 </head>
@@ -330,32 +322,32 @@
       <label>📅 Rango de Fechas</label>
       <div class="date-range">
         <div>
-          <input type="date" id="fechaDesde" onchange="aplicarFiltros()">
+          <input type="date" id="fechaDesde">
           <small style="color: #666; font-size: 11px;">Desde</small>
         </div>
         <div>
-          <input type="date" id="fechaHasta" onchange="aplicarFiltros()">
+          <input type="date" id="fechaHasta">
           <small style="color: #666; font-size: 11px;">Hasta</small>
         </div>
       </div>
 
       <label style="margin-top: 10px;">⚡ Accesos Rápidos</label>
-      <select id="filterPeriodo" onchange="cambiarPeriodoRapido()">
+      <select id="filterPeriodo">
         <option value="">Selecciona período...</option>
         <option value="hoy">Hoy</option>
         <option value="7dias">Últimos 7 días</option>
-        <option value="30dias">Últimos 30 días</option>
+        <option value="30dias" selected>Últimos 30 días</option>
         <option value="mes">Este mes</option>
         <option value="year">Este año</option>
         <option value="all">Todo el tiempo</option>
       </select>
 
       <label>👤 Anfitrión</label>
-      <select id="filterAnfitrion" onchange="aplicarFiltros()">
+      <select id="filterAnfitrion">
         <option value="">Todos los anfitriones</option>
       </select>
 
-      <button onclick="cargarDatos()">🔄 Actualizar Datos</button>
+      <button id="btnActualizar">🔄 Actualizar Datos</button>
     </div>
 
     <div id="loading" class="loading">
@@ -364,7 +356,6 @@
     </div>
 
     <div id="content" style="display: none;">
-      <!-- KPIs Principales -->
       <div class="kpi-grid">
         <div class="kpi-card">
           <div class="kpi-icon">💰</div>
@@ -388,25 +379,21 @@
         </div>
       </div>
 
-      <!-- Top Anfitriones -->
       <div class="section">
         <div class="section-title">🏆 Top Anfitriones</div>
         <div id="rankingAnfitriones"></div>
       </div>
 
-      <!-- Top Productos -->
       <div class="section">
         <div class="section-title">📦 Productos Más Vendidos</div>
         <div id="topProductos"></div>
       </div>
 
-      <!-- Top Clientes -->
       <div class="section">
         <div class="section-title">👥 Top Clientes</div>
         <div id="topClientes"></div>
       </div>
 
-      <!-- Últimas Transacciones -->
       <div class="section">
         <div class="section-title">🕐 Últimas Transacciones</div>
         <div id="ultimasTransacciones"></div>
@@ -417,19 +404,47 @@
   </div>
 
   <script>
-    const AIRTABLE_TOKEN = 'patdPlC6a9JBF1Pns.f0473e12b798d8bca06c064eb53136db51d890261f85226c4f17d0c0b3d92252';
-    const BASE_ID = 'app9mioaVtaFhzILs';
-    const VENTAS_TABLE_ID = 'tblC7aADITb6A6iYP';
-    const CLIENTES_TABLE_ID = 'tbl1fRI4vdXspaNNlD';
-    const ANFITRIONES_TABLE_ID = 'tblrtLcB3dUASCfnL';
+    // Configuración de Airtable
+    const CONFIG = {
+      token: 'patdPlC6a9JBF1Pns.f0473e12b798d8bca06c064eb53136db51d890261f85226c4f17d0c0b3d92252',
+      baseId: 'app9mioaVtaFhzILs',
+      tables: {
+        ventas: 'tblC7aADITb6A6iYP',
+        clientes: 'tbl1fRI4vdXspaNNlD',
+        anfitriones: 'tblrtLcB3dUASCfnL'
+      }
+    };
 
-    let ventasData = [];
-    let clientesData = [];
-    let anfitrionesData = [];
-    let clientesMap = {};
-    let anfitrionesMap = {};
+    // Estado de la aplicación
+    const state = {
+      ventasData: [],
+      clientesData: [],
+      anfitrionesData: [],
+      clientesMap: {},
+      anfitrionesMap: {}
+    };
 
-    // Inicializar fechas (últimos 30 días por defecto)
+    // Utilidades
+    function formatCurrency(value) {
+      return `$${Math.round(value).toLocaleString('es-CL')}`;
+    }
+
+    function parseNumber(value) {
+      if (value === null || value === undefined) return 0;
+      const num = parseFloat(value);
+      return isNaN(num) ? 0 : num;
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return 'Sin fecha';
+      try {
+        return new Date(dateString).toLocaleDateString('es-CL');
+      } catch (e) {
+        return 'Fecha inválida';
+      }
+    }
+
+    // Inicialización de fechas
     function inicializarFechas() {
       const hoy = new Date();
       const hace30dias = new Date();
@@ -439,6 +454,7 @@
       document.getElementById('fechaDesde').valueAsDate = hace30dias;
     }
 
+    // Cambio de período rápido
     function cambiarPeriodoRapido() {
       const periodo = document.getElementById('filterPeriodo').value;
       if (!periodo) return;
@@ -480,116 +496,162 @@
       aplicarFiltros();
     }
 
+    // Fetch de Airtable con manejo de paginación
+    async function fetchAirtableTable(tableId) {
+      let allRecords = [];
+      let offset = null;
+      
+      try {
+        do {
+          const url = `https://api.airtable.com/v0/${CONFIG.baseId}/${tableId}${offset ? `?offset=${offset}` : ''}`;
+          
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${CONFIG.token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+          }
+
+          const data = await response.json();
+          allRecords = allRecords.concat(data.records || []);
+          offset = data.offset;
+          
+        } while (offset);
+
+        return allRecords;
+      } catch (error) {
+        console.error(`Error fetching ${tableId}:`, error);
+        throw error;
+      }
+    }
+
+    // Cargar datos principales
     async function cargarDatos() {
       try {
-        document.getElementById('loading').style.display = 'block';
-        document.getElementById('content').style.display = 'none';
-
-        console.log('🔄 Cargando datos desde Airtable...');
+        mostrarCargando(true);
+        console.log('🔄 Iniciando carga de datos...');
 
         // Cargar todas las tablas en paralelo
         const [ventas, clientes, anfitriones] = await Promise.all([
-          fetchAirtable(VENTAS_TABLE_ID),
-          fetchAirtable(CLIENTES_TABLE_ID),
-          fetchAirtable(ANFITRIONES_TABLE_ID)
+          fetchAirtableTable(CONFIG.tables.ventas),
+          fetchAirtableTable(CONFIG.tables.clientes),
+          fetchAirtableTable(CONFIG.tables.anfitriones)
         ]);
 
-        ventasData = ventas;
-        clientesData = clientes;
-        anfitrionesData = anfitriones;
+        state.ventasData = ventas;
+        state.clientesData = clientes;
+        state.anfitrionesData = anfitriones;
 
-        // Crear mapas para búsqueda rápida
-        clientesMap = {};
-        clientesData.forEach(c => {
-          clientesMap[c.id] = c.fields;
+        // Crear mapas para acceso rápido
+        state.clientesMap = {};
+        clientes.forEach(c => {
+          if (c.id && c.fields) {
+            state.clientesMap[c.id] = c.fields;
+          }
         });
 
-        anfitrionesMap = {};
-        anfitrionesData.forEach(a => {
-          anfitrionesMap[a.id] = a.fields;
+        state.anfitrionesMap = {};
+        anfitriones.forEach(a => {
+          if (a.id && a.fields) {
+            state.anfitrionesMap[a.id] = a.fields;
+          }
         });
 
-        console.log('✅ Ventas cargadas:', ventasData.length);
-        console.log('✅ Clientes cargados:', clientesData.length);
-        console.log('✅ Anfitriones cargados:', anfitrionesData.length);
-
-        // Debug: Ver estructura de primera venta
-        if (ventasData.length > 0) {
-          console.log('📋 Ejemplo de venta:', ventasData[0].fields);
-          console.log('📋 Campos disponibles:', Object.keys(ventasData[0].fields));
-        }
+        console.log('✅ Datos cargados:', {
+          ventas: state.ventasData.length,
+          clientes: state.clientesData.length,
+          anfitriones: state.anfitrionesData.length
+        });
 
         cargarAnfitrionesEnFiltro();
         aplicarFiltros();
-
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('content').style.display = 'block';
-
-        const now = new Date();
-        document.getElementById('lastUpdate').textContent = `Última actualización: ${now.toLocaleTimeString('es-CL')}`;
-        document.getElementById('refreshTime').textContent = `Actualizado: ${now.toLocaleString('es-CL')}`;
+        actualizarTimestamps();
+        mostrarCargando(false);
 
       } catch (error) {
         console.error('❌ Error al cargar datos:', error);
-        document.getElementById('loading').innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state-icon">❌</div>
-            <p>Error al cargar datos: ${error.message}</p>
-            <button onclick="cargarDatos()" style="margin-top: 20px; padding: 10px 20px; background: white; border: none; border-radius: 10px; cursor: pointer;">Reintentar</button>
+        mostrarError(error);
+      }
+    }
+
+    // Mostrar/ocultar loading
+    function mostrarCargando(mostrar) {
+      document.getElementById('loading').style.display = mostrar ? 'block' : 'none';
+      document.getElementById('content').style.display = mostrar ? 'none' : 'block';
+    }
+
+    // Mostrar error
+    function mostrarError(error) {
+      document.getElementById('loading').innerHTML = `
+        <div class="error-message">
+          <div style="font-size: 48px; margin-bottom: 10px;">❌</div>
+          <h3 style="margin-bottom: 10px;">Error al cargar datos</h3>
+          <p style="color: #666; margin-bottom: 15px;">No se pudieron cargar los datos de Airtable</p>
+          <div class="error-details">
+            <strong>Detalles técnicos:</strong><br>
+            ${error.message}
           </div>
-        `;
-      }
+          <button onclick="cargarDatos()" style="margin-top: 20px; padding: 12px 24px; background: #667eea; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600;">
+            🔄 Reintentar
+          </button>
+        </div>
+      `;
     }
 
-    async function fetchAirtable(tableId) {
-      const url = `https://api.airtable.com/v0/${BASE_ID}/${tableId}`;
-      console.log('🔗 Fetching:', url);
-      
-      const response = await fetch(url, {
-        headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      return data.records || [];
+    // Actualizar timestamps
+    function actualizarTimestamps() {
+      const now = new Date();
+      document.getElementById('lastUpdate').textContent = 
+        `Última actualización: ${now.toLocaleTimeString('es-CL')}`;
+      document.getElementById('refreshTime').textContent = 
+        `Actualizado: ${now.toLocaleString('es-CL')}`;
     }
 
+    // Cargar anfitriones en filtro
     function cargarAnfitrionesEnFiltro() {
       const select = document.getElementById('filterAnfitrion');
       select.innerHTML = '<option value="">Todos los anfitriones</option>';
       
-      anfitrionesData.forEach(anfitrion => {
-        const option = document.createElement('option');
-        option.value = anfitrion.id;
-        option.textContent = anfitrion.fields.Nombre || 'Sin nombre';
-        select.appendChild(option);
+      state.anfitrionesData.forEach(anfitrion => {
+        if (anfitrion.fields && anfitrion.fields.Nombre) {
+          const option = document.createElement('option');
+          option.value = anfitrion.id;
+          option.textContent = anfitrion.fields.Nombre;
+          select.appendChild(option);
+        }
       });
     }
 
+    // Aplicar filtros
     function aplicarFiltros() {
       const fechaDesde = document.getElementById('fechaDesde').value;
       const fechaHasta = document.getElementById('fechaHasta').value;
       const anfitrionId = document.getElementById('filterAnfitrion').value;
 
-      let ventasFiltradas = [...ventasData];
+      let ventasFiltradas = [...state.ventasData];
 
-      // Filtrar por rango de fechas
+      // Filtrar por fechas
       if (fechaDesde || fechaHasta) {
         ventasFiltradas = ventasFiltradas.filter(venta => {
           const fechaVenta = venta.fields['Fecha de compra'];
           if (!fechaVenta) return false;
           
           const fecha = new Date(fechaVenta);
+          const desde = fechaDesde ? new Date(fechaDesde + 'T00:00:00') : null;
+          const hasta = fechaHasta ? new Date(fechaHasta + 'T23:59:59') : null;
           
-          if (fechaDesde && fechaHasta) {
-            return fecha >= new Date(fechaDesde) && fecha <= new Date(fechaHasta + 'T23:59:59');
-          } else if (fechaDesde) {
-            return fecha >= new Date(fechaDesde);
-          } else if (fechaHasta) {
-            return fecha <= new Date(fechaHasta + 'T23:59:59');
+          if (desde && hasta) {
+            return fecha >= desde && fecha <= hasta;
+          } else if (desde) {
+            return fecha >= desde;
+          } else if (hasta) {
+            return fecha <= hasta;
           }
           return true;
         });
@@ -603,20 +665,22 @@
         });
       }
 
-      console.log(`🔍 Ventas filtradas: ${ventasFiltradas.length} de ${ventasData.length}`);
+      console.log(`🔍 Ventas filtradas: ${ventasFiltradas.length} de ${state.ventasData.length}`);
       calcularEstadisticas(ventasFiltradas);
     }
 
+    // Calcular estadísticas
     function calcularEstadisticas(ventas) {
-      // Separar ventas y devoluciones
-      const ventasReales = ventas.filter(v => !v.fields['Devolución'] || v.fields['Devolución'].length === 0);
-      const devoluciones = ventas.filter(v => v.fields['Devolución'] && v.fields['Devolución'].length > 0);
+      const ventasReales = ventas.filter(v => 
+        !v.fields['Devolución'] || v.fields['Devolución'].length === 0
+      );
+      const devoluciones = ventas.filter(v => 
+        v.fields['Devolución'] && v.fields['Devolución'].length > 0
+      );
 
-      console.log(`📊 Ventas reales: ${ventasReales.length}, Devoluciones: ${devoluciones.length}`);
-
-      // KPIs - USAR EL CAMPO CORRECTO
+      // KPIs
       const totalVentas = ventasReales.reduce((sum, v) => {
-        const total = v.fields['Total Neto Numerico'] || v.fields['Total de venta'] || 0;
+        const total = parseNumber(v.fields['Total Neto Numerico'] || v.fields['Total de venta']);
         return sum + total;
       }, 0);
       
@@ -624,82 +688,90 @@
       const promedioVenta = numVentas > 0 ? totalVentas / numVentas : 0;
       const tasaDevolucion = ventas.length > 0 ? (devoluciones.length / ventas.length * 100) : 0;
 
-      console.log(`💰 Total ventas calculado: $${totalVentas}`);
-
-      document.getElementById('kpiTotalVentas').textContent = `$${Math.round(totalVentas).toLocaleString('es-CL')}`;
-      document.getElementById('kpiPromedioVenta').textContent = `$${Math.round(promedioVenta).toLocaleString('es-CL')}`;
+      // Actualizar UI
+      document.getElementById('kpiTotalVentas').textContent = formatCurrency(totalVentas);
+      document.getElementById('kpiPromedioVenta').textContent = formatCurrency(promedioVenta);
       document.getElementById('kpiNumVentas').textContent = ventas.length;
       document.getElementById('kpiTasaDevolucion').textContent = `${tasaDevolucion.toFixed(1)}%`;
 
-      // Rankings
+      // Actualizar secciones
       mostrarTopAnfitriones(ventasReales);
       mostrarTopProductos(ventasReales);
       mostrarTopClientes(ventasReales);
-      mostrarUltimasTransacciones(ventas.slice(0, 10));
+      mostrarUltimasTransacciones(ventas);
     }
 
+    // Top Anfitriones
     function mostrarTopAnfitriones(ventas) {
-      const anfitrionesStats = {};
+      const stats = {};
 
       ventas.forEach(venta => {
-        const anfitrionesIds = venta.fields['Anfitrión'] || [];
-        const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
+        const ids = venta.fields['Anfitrión'] || [];
+        const total = parseNumber(venta.fields['Total Neto Numerico'] || venta.fields['Total de venta']);
 
-        anfitrionesIds.forEach(id => {
-          if (!anfitrionesStats[id]) {
-            anfitrionesStats[id] = { total: 0, cantidad: 0, id: id };
+        ids.forEach(id => {
+          if (!stats[id]) {
+            stats[id] = { total: 0, cantidad: 0, id: id };
           }
-          anfitrionesStats[id].total += total;
-          anfitrionesStats[id].cantidad += 1;
+          stats[id].total += total;
+          stats[id].cantidad += 1;
         });
       });
 
-      const ranking = Object.values(anfitrionesStats)
+      const ranking = Object.values(stats)
         .sort((a, b) => b.total - a.total)
         .slice(0, 5);
 
       const container = document.getElementById('rankingAnfitriones');
+      
       if (ranking.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay datos</p></div>';
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <p>No hay datos disponibles</p>
+          </div>
+        `;
         return;
       }
 
       const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
-      container.innerHTML = ranking.map((anf, index) => {
-        const nombre = anfitrionesMap[anf.id]?.Nombre || 'Desconocido';
+      container.innerHTML = ranking.map((item, index) => {
+        const nombre = state.anfitrionesMap[item.id]?.Nombre || 'Desconocido';
         return `
           <div class="ranking-item">
             <div class="ranking-name">
               <span class="ranking-medal">${medals[index]}</span>
               <span>${nombre}</span>
             </div>
-            <div class="ranking-value">$${Math.round(anf.total).toLocaleString('es-CL')}</div>
+            <div class="ranking-value">${formatCurrency(item.total)}</div>
           </div>
         `;
       }).join('');
     }
 
+    // Top Productos
     function mostrarTopProductos(ventas) {
       const productosCount = {};
 
       ventas.forEach(venta => {
         const items = venta.fields['Items'] || '';
         
-        // Método 1: Extraer del formato "Parka (x3), Chaqueta (x2)"
-        const regex1 = /(\w+)\s*\(x(\d+)\)/gi;
+        // Extraer productos con formato "Producto (x2)"
+        const regex = /([^,(]+?)\s*\(x(\d+)\)/gi;
         let match;
-        while ((match = regex1.exec(items)) !== null) {
+        
+        while ((match = regex.exec(items)) !== null) {
           const producto = match[1].trim();
           const cantidad = parseInt(match[2]) || 1;
           productosCount[producto] = (productosCount[producto] || 0) + cantidad;
         }
         
-        // Método 2: Extraer nombres individuales separados por coma (backup)
+        // Fallback: separar por comas
         if (Object.keys(productosCount).length === 0 && items) {
           const partes = items.split(',');
           partes.forEach(parte => {
             const nombre = parte.replace(/\([^)]*\)/g, '').trim();
-            if (nombre && nombre.length > 0) {
+            if (nombre.length > 2) {
               productosCount[nombre] = (productosCount[nombre] || 0) + 1;
             }
           });
@@ -711,8 +783,14 @@
         .slice(0, 5);
 
       const container = document.getElementById('topProductos');
+      
       if (ranking.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay productos registrados</p></div>';
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <p>No hay productos registrados</p>
+          </div>
+        `;
         return;
       }
 
@@ -733,61 +811,82 @@
       }).join('');
     }
 
+    // Top Clientes
     function mostrarTopClientes(ventas) {
-      const clientesStats = {};
+      const stats = {};
 
       ventas.forEach(venta => {
-        const clienteIds = venta.fields['Cliente'] || [];
-        const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
+        const ids = venta.fields['Cliente'] || [];
+        const total = parseNumber(venta.fields['Total Neto Numerico'] || venta.fields['Total de venta']);
 
-        clienteIds.forEach(id => {
-          if (!clientesStats[id]) {
-            clientesStats[id] = { total: 0, cantidad: 0, id: id };
+        ids.forEach(id => {
+          if (!stats[id]) {
+            stats[id] = { total: 0, cantidad: 0, id: id };
           }
-          clientesStats[id].total += total;
-          clientesStats[id].cantidad += 1;
+          stats[id].total += total;
+          stats[id].cantidad += 1;
         });
       });
 
-      const ranking = Object.values(clientesStats)
+      const ranking = Object.values(stats)
         .sort((a, b) => b.total - a.total)
         .slice(0, 5);
 
       const container = document.getElementById('topClientes');
+      
       if (ranking.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay datos</p></div>';
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <p>No hay datos disponibles</p>
+          </div>
+        `;
         return;
       }
 
       const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
-      container.innerHTML = ranking.map((cli, index) => {
-        const nombre = clientesMap[cli.id]?.Nombre || 'Cliente desconocido';
+      container.innerHTML = ranking.map((item, index) => {
+        const nombre = state.clientesMap[item.id]?.Nombre || 'Cliente desconocido';
         return `
           <div class="ranking-item">
             <div class="ranking-name">
               <span class="ranking-medal">${medals[index]}</span>
               <span>${nombre}</span>
             </div>
-            <div class="ranking-value">$${Math.round(cli.total).toLocaleString('es-CL')}</div>
+            <div class="ranking-value">${formatCurrency(item.total)}</div>
           </div>
         `;
       }).join('');
     }
 
+    // Últimas Transacciones
     function mostrarUltimasTransacciones(ventas) {
       const container = document.getElementById('ultimasTransacciones');
+      
       if (ventas.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay transacciones</p></div>';
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <p>No hay transacciones</p>
+          </div>
+        `;
         return;
       }
 
-      container.innerHTML = ventas.map(venta => {
+      // Ordenar por fecha descendente
+      const ventasOrdenadas = [...ventas].sort((a, b) => {
+        const fechaA = new Date(a.fields['Fecha de compra'] || 0);
+        const fechaB = new Date(b.fields['Fecha de compra'] || 0);
+        return fechaB - fechaA;
+      });
+
+      container.innerHTML = ventasOrdenadas.slice(0, 10).map(venta => {
         const clienteId = venta.fields['Cliente'] ? venta.fields['Cliente'][0] : null;
-        const nombreCliente = clientesMap[clienteId]?.Nombre || 'Sin cliente';
+        const nombreCliente = state.clientesMap[clienteId]?.Nombre || 'Sin cliente';
         
-        const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
+        const total = parseNumber(venta.fields['Total Neto Numerico'] || venta.fields['Total de venta']);
         const items = venta.fields['Items'] || 'Sin items';
-        const fecha = venta.fields['Fecha de compra'] ? new Date(venta.fields['Fecha de compra']).toLocaleDateString('es-CL') : 'Sin fecha';
+        const fecha = formatDate(venta.fields['Fecha de compra']);
         const esDevolucion = venta.fields['Devolución'] && venta.fields['Devolución'].length > 0;
 
         return `
@@ -802,7 +901,7 @@
               <div style="margin-bottom: 3px;">📦 ${items}</div>
               <div style="display: flex; justify-content: space-between;">
                 <span>📅 ${fecha}</span>
-                <span style="font-weight: 600; color: #667eea;">${Math.round(total).toLocaleString('es-CL')}</span>
+                <span style="font-weight: 600; color: #667eea;">${formatCurrency(total)}</span>
               </div>
             </div>
           </div>
@@ -810,7 +909,15 @@
       }).join('');
     }
 
-    // Inicializar
+    // Event Listeners
+    document.getElementById('filterPeriodo').addEventListener('change', cambiarPeriodoRapido);
+    document.getElementById('filterAnfitrion').addEventListener('change', aplicarFiltros);
+    document.getElementById('fechaDesde').addEventListener('change', aplicarFiltros);
+    document.getElementById('fechaHasta').addEventListener('change', aplicarFiltros);
+    document.getElementById('btnActualizar').addEventListener('click', cargarDatos);
+
+    // Inicialización
+    console.log('🚀 Iniciando Dashboard...');
     inicializarFechas();
     cargarDatos();
 
