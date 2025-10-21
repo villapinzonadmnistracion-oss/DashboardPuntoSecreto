@@ -4,8 +4,8 @@ let clientesData = [];
 let anfitrionesData = [];
 let clientesMap = {};
 let anfitrionesMap = {};
-let todasLasTransacciones = []; // Para guardar todas las transacciones
-let filtroTransaccionActual = 'todas'; // Estado del filtro
+let todasLasTransacciones = [];
+let filtroTransaccionActual = 'todas';
 
 // Inicializar fechas (últimos 30 días por defecto)
 function inicializarFechas() {
@@ -65,11 +65,11 @@ async function cargarDatos() {
 
     console.log('🔄 Cargando datos desde Airtable...');
 
-    // Cargar todas las tablas en paralelo - IDs CORRECTAS
+    // Cargar todas las tablas en paralelo
     const [ventas, clientes, anfitriones] = await Promise.all([
-      fetchFromProxy('tblC7aADITb6A6iYP'),  // VENTAS ✅
-      fetchFromProxy('tblfRI4vdXspaNNlD'),  // CLIENTES ✅
-      fetchFromProxy('tblrtLcB3dUASCfnL')   // ANFITRIONES ✅
+      fetchFromProxy('tblC7aADITb6A6iYP'),  // VENTAS
+      fetchFromProxy('tblfRI4vdXspaNNlD'),  // CLIENTES
+      fetchFromProxy('tblrtLcB3dUASCfnL')   // ANFITRIONES
     ]);
 
     ventasData = ventas;
@@ -90,24 +90,6 @@ async function cargarDatos() {
     console.log('✅ Ventas cargadas:', ventasData.length);
     console.log('✅ Clientes cargados:', clientesData.length);
     console.log('✅ Anfitriones cargados:', anfitrionesData.length);
-
-    // Debug: Ver estructura de primera venta
-    if (ventasData.length > 0) {
-      console.log('📋 Ejemplo de venta:', ventasData[0].fields);
-      console.log('📋 Campos disponibles:', Object.keys(ventasData[0].fields));
-    }
-
-    // Debug: Ver estructura de clientes
-    if (clientesData.length > 0) {
-      console.log('👤 Ejemplo de cliente:', clientesData[0].fields);
-      console.log('👤 Campos de clientes:', Object.keys(clientesData[0].fields));
-    }
-
-    // Debug: Ver estructura de anfitriones
-    if (anfitrionesData.length > 0) {
-      console.log('🎭 Ejemplo de anfitrión:', anfitrionesData[0].fields);
-      console.log('🎭 Campos de anfitriones:', Object.keys(anfitrionesData[0].fields));
-    }
 
     cargarAnfitrionesEnFiltro();
     aplicarFiltros();
@@ -133,6 +115,7 @@ async function cargarDatos() {
 
 async function fetchFromProxy(tableId) {
   try {
+    // Las credenciales deben estar en variables de entorno del servidor
     const response = await fetch(`/api/airtable?action=getRecords&tableId=${tableId}`);
     
     if (!response.ok) {
@@ -166,7 +149,6 @@ function aplicarFiltros() {
 
   let ventasFiltradas = [...ventasData];
 
-  // Filtrar por rango de fechas
   if (fechaDesde || fechaHasta) {
     ventasFiltradas = ventasFiltradas.filter(venta => {
       const fechaVenta = venta.fields['Fecha de compra'];
@@ -185,7 +167,6 @@ function aplicarFiltros() {
     });
   }
 
-  // Filtrar por anfitrión
   if (anfitrionId) {
     ventasFiltradas = ventasFiltradas.filter(venta => {
       const anfitriones = venta.fields['Anfitrión'] || [];
@@ -198,13 +179,9 @@ function aplicarFiltros() {
 }
 
 function calcularEstadisticas(ventas) {
-  // Separar ventas y devoluciones
   const ventasReales = ventas.filter(v => !v.fields['Devolución'] || v.fields['Devolución'].length === 0);
   const devoluciones = ventas.filter(v => v.fields['Devolución'] && v.fields['Devolución'].length > 0);
 
-  console.log(`📊 Ventas reales: ${ventasReales.length}, Devoluciones: ${devoluciones.length}`);
-
-  // KPIs
   const totalVentas = ventasReales.reduce((sum, v) => {
     const total = v.fields['Total Neto Numerico'] || v.fields['Total de venta'] || 0;
     return sum + total;
@@ -214,22 +191,18 @@ function calcularEstadisticas(ventas) {
   const promedioVenta = numVentas > 0 ? totalVentas / numVentas : 0;
   const tasaDevolucion = ventas.length > 0 ? (devoluciones.length / ventas.length * 100) : 0;
 
-  console.log(`💰 Total ventas calculado: $${totalVentas}`);
-
   document.getElementById('kpiTotalVentas').textContent = `$${Math.round(totalVentas).toLocaleString('es-CL')}`;
   document.getElementById('kpiPromedioVenta').textContent = `$${Math.round(promedioVenta).toLocaleString('es-CL')}`;
   document.getElementById('kpiNumVentas').textContent = ventas.length;
   document.getElementById('kpiTasaDevolucion').textContent = `${tasaDevolucion.toFixed(1)}%`;
 
-  // Rankings
   mostrarTopAnfitriones(ventasReales);
   mostrarTopProductos(ventasReales);
   mostrarTopClientes(ventasReales);
   mostrarClasificacionClientes(ventasReales);
   
-  // Guardar todas las transacciones para filtrar
-  todasLasTransacciones = ventas.slice(0, 50); // Guardamos hasta 50 transacciones
-  filtrarTransacciones(filtroTransaccionActual); // Aplicar filtro actual
+  todasLasTransacciones = ventas.slice(0, 50);
+  filtrarTransacciones(filtroTransaccionActual);
 }
 
 function mostrarTopAnfitriones(ventas) {
@@ -260,12 +233,10 @@ function mostrarTopAnfitriones(ventas) {
 
   const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
   container.innerHTML = ranking.map((anf, index) => {
-    // Intentar múltiples campos para obtener el nombre
     const anfitrionData = anfitrionesMap[anf.id];
     const nombre = anfitrionData?.Nombre || 
                    anfitrionData?.Name || 
                    anfitrionData?.['Nombre completo'] ||
-                   anfitrionData?.nombre ||
                    'Desconocido';
     
     return `
@@ -284,14 +255,11 @@ function mostrarTopProductos(ventas) {
   const productosCount = {};
 
   ventas.forEach(venta => {
-    // Buscar TODAS las columnas que empiecen con "Cantidad real de ventas"
     Object.keys(venta.fields).forEach(campo => {
       if (campo.startsWith('Cantidad real de ventas')) {
         const cantidad = parseInt(venta.fields[campo]) || 0;
         
         if (cantidad > 0) {
-          // Extraer el nombre del producto del campo
-          // "Cantidad real de ventas Parkas" → "Parkas"
           const nombreProducto = campo.replace('Cantidad real de ventas ', '').trim();
           productosCount[nombreProducto] = (productosCount[nombreProducto] || 0) + cantidad;
         }
@@ -316,7 +284,7 @@ function mostrarTopProductos(ventas) {
       <div class="product-bar">
         <div class="product-name">
           <span>${producto}</span>
-          <span style="color: #667eea;">${cantidad} unid.</span>
+          <span style="color: #10b981;">${cantidad} unid.</span>
         </div>
         <div class="bar-container">
           <div class="bar-fill" style="width: ${porcentaje}%"></div>
@@ -330,7 +298,6 @@ function mostrarTopClientes(ventas) {
   const clientesStats = {};
 
   ventas.forEach(venta => {
-    // Usar directamente el campo "Nombre" que ya trae el nombre del cliente
     const nombreCliente = venta.fields['Nombre'] || 'Cliente desconocido';
     const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
 
@@ -366,30 +333,42 @@ function mostrarTopClientes(ventas) {
 }
 
 function mostrarClasificacionClientes(ventas) {
-  const clientesClasificacion = {};
-
-  // Contar clientes por clasificación
+  // Obtener IDs únicos de clientes de las ventas
+  const clientesEnVentas = new Set();
   ventas.forEach(venta => {
-    const nombreCliente = venta.fields['Nombre'] || 'Sin cliente';
-    const clasificacion = venta.fields['Clasificación Cliente'] || 'Cliente Normal';
-    
-    if (!clientesClasificacion[nombreCliente]) {
-      clientesClasificacion[nombreCliente] = clasificacion;
-    }
+    const clienteIds = venta.fields['Cliente'] || [];
+    clienteIds.forEach(id => clientesEnVentas.add(id));
   });
 
-  // Agrupar por tipo de clasificación
-  const gold = [];
-  const frecuente = [];
-  const normal = [];
+  // Clasificar clientes según la fórmula de Airtable
+  const clasificaciones = {
+    premium: [],
+    gold: [],
+    frecuente: [],
+    normal: []
+  };
 
-  Object.entries(clientesClasificacion).forEach(([nombre, clasificacion]) => {
-    if (clasificacion.includes('Gold')) {
-      gold.push(nombre);
-    } else if (clasificacion.includes('Frecuente')) {
-      frecuente.push(nombre);
+  clientesEnVentas.forEach(clienteId => {
+    const clienteData = clientesMap[clienteId];
+    if (!clienteData) return;
+
+    const nombre = clienteData.Nombre || clienteData.Name || 'Sin nombre';
+    const cantidadUnidades = clienteData['Cantidad de unidades General x Cliente'] || 0;
+
+    // Aplicar lógica de clasificación según Airtable:
+    // 0 unidades = Cliente Normal
+    // <= 3 unidades = Cliente Frecuente
+    // <= 6 unidades = Cliente Gold
+    // > 6 unidades = Cliente Premium
+    
+    if (cantidadUnidades === 0) {
+      clasificaciones.normal.push(nombre);
+    } else if (cantidadUnidades <= 3) {
+      clasificaciones.frecuente.push(nombre);
+    } else if (cantidadUnidades <= 6) {
+      clasificaciones.gold.push(nombre);
     } else {
-      normal.push(nombre);
+      clasificaciones.premium.push(nombre);
     }
   });
 
@@ -399,18 +378,23 @@ function mostrarClasificacionClientes(ventas) {
   const resumenHTML = `
     <div class="clasificacion-grid">
       <div class="clasificacion-card">
+        <div class="clasificacion-icon">💎</div>
+        <div class="clasificacion-count">${clasificaciones.premium.length}</div>
+        <div class="clasificacion-label">Premium</div>
+      </div>
+      <div class="clasificacion-card">
         <div class="clasificacion-icon">👑</div>
-        <div class="clasificacion-count">${gold.length}</div>
+        <div class="clasificacion-count">${clasificaciones.gold.length}</div>
         <div class="clasificacion-label">Gold</div>
       </div>
       <div class="clasificacion-card">
         <div class="clasificacion-icon">⭐</div>
-        <div class="clasificacion-count">${frecuente.length}</div>
+        <div class="clasificacion-count">${clasificaciones.frecuente.length}</div>
         <div class="clasificacion-label">Frecuente</div>
       </div>
       <div class="clasificacion-card">
         <div class="clasificacion-icon">👤</div>
-        <div class="clasificacion-count">${normal.length}</div>
+        <div class="clasificacion-count">${clasificaciones.normal.length}</div>
         <div class="clasificacion-label">Normal</div>
       </div>
     </div>
@@ -418,16 +402,20 @@ function mostrarClasificacionClientes(ventas) {
 
   // Lista detallada
   const todosClientes = [
-    ...gold.map(n => ({ nombre: n, tipo: 'gold', label: 'Gold' })),
-    ...frecuente.map(n => ({ nombre: n, tipo: 'frecuente', label: 'Frecuente' })),
-    ...normal.slice(0, 10).map(n => ({ nombre: n, tipo: 'normal', label: 'Normal' }))
+    ...clasificaciones.premium.map(n => ({ nombre: n, tipo: 'premium', label: 'Premium', icon: '💎' })),
+    ...clasificaciones.gold.map(n => ({ nombre: n, tipo: 'gold', label: 'Gold', icon: '👑' })),
+    ...clasificaciones.frecuente.map(n => ({ nombre: n, tipo: 'frecuente', label: 'Frecuente', icon: '⭐' })),
+    ...clasificaciones.normal.slice(0, 10).map(n => ({ nombre: n, tipo: 'normal', label: 'Normal', icon: '👤' }))
   ];
 
   const listaHTML = todosClientes.length > 0 ? `
     <div class="clasificacion-list">
       ${todosClientes.map(cliente => `
         <div class="clasificacion-item">
-          <span class="clasificacion-nombre">${cliente.nombre}</span>
+          <span class="clasificacion-nombre">
+            <span style="margin-right: 8px;">${cliente.icon}</span>
+            ${cliente.nombre}
+          </span>
           <span class="clasificacion-badge badge-${cliente.tipo}">${cliente.label}</span>
         </div>
       `).join('')}
@@ -445,13 +433,10 @@ function mostrarUltimasTransacciones(ventas) {
   }
 
   container.innerHTML = ventas.map(venta => {
-    // Usar directamente el campo "Nombre" de la venta
     const nombreCliente = venta.fields['Nombre'] || 'Sin cliente';
-    
     const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
     const items = venta.fields['Items'] || 'Sin items';
     
-    // Formatear fecha y hora
     let fechaHoraTexto = 'Sin fecha';
     if (venta.fields['Fecha de compra']) {
       const fechaCompleta = new Date(venta.fields['Fecha de compra']);
@@ -470,7 +455,6 @@ function mostrarUltimasTransacciones(ventas) {
     
     const esDevolucion = venta.fields['Devolución'] && venta.fields['Devolución'].length > 0;
     
-    // Obtener quien autorizó la devolución
     let autorizadoPor = '';
     if (esDevolucion && venta.fields['Box Observaciones']) {
       autorizadoPor = `<div style="margin-top: 8px; padding: 8px; background: #fff3cd; border-radius: 6px; font-size: 11px; color: #856404;">
@@ -490,7 +474,7 @@ function mostrarUltimasTransacciones(ventas) {
           <div style="margin-bottom: 3px;">📦 ${items}</div>
           <div style="display: flex; justify-content: space-between;">
             <span>📅 ${fechaHoraTexto}</span>
-            <span style="font-weight: 600; color: #667eea;">${Math.round(total).toLocaleString('es-CL')}</span>
+            <span style="font-weight: 600; color: #10b981;">$${Math.round(total).toLocaleString('es-CL')}</span>
           </div>
           ${autorizadoPor}
         </div>
@@ -499,11 +483,9 @@ function mostrarUltimasTransacciones(ventas) {
   }).join('');
 }
 
-// Función para filtrar transacciones
 function filtrarTransacciones(tipo) {
   filtroTransaccionActual = tipo;
   
-  // Actualizar botones activos
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.classList.remove('active');
     if (btn.dataset.filter === tipo) {
