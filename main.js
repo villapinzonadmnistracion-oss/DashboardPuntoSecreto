@@ -95,6 +95,18 @@ async function cargarDatos() {
       console.log('📋 Campos disponibles:', Object.keys(ventasData[0].fields));
     }
 
+    // Debug: Ver estructura de clientes
+    if (clientesData.length > 0) {
+      console.log('👤 Ejemplo de cliente:', clientesData[0].fields);
+      console.log('👤 Campos de clientes:', Object.keys(clientesData[0].fields));
+    }
+
+    // Debug: Ver estructura de anfitriones
+    if (anfitrionesData.length > 0) {
+      console.log('🎭 Ejemplo de anfitrión:', anfitrionesData[0].fields);
+      console.log('🎭 Campos de anfitriones:', Object.keys(anfitrionesData[0].fields));
+    }
+
     cargarAnfitrionesEnFiltro();
     aplicarFiltros();
 
@@ -242,7 +254,14 @@ function mostrarTopAnfitriones(ventas) {
 
   const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
   container.innerHTML = ranking.map((anf, index) => {
-    const nombre = anfitrionesMap[anf.id]?.Nombre || 'Desconocido';
+    // Intentar múltiples campos para obtener el nombre
+    const anfitrionData = anfitrionesMap[anf.id];
+    const nombre = anfitrionData?.Nombre || 
+                   anfitrionData?.Name || 
+                   anfitrionData?.['Nombre completo'] ||
+                   anfitrionData?.nombre ||
+                   'Desconocido';
+    
     return `
       <div class="ranking-item">
         <div class="ranking-name">
@@ -259,27 +278,19 @@ function mostrarTopProductos(ventas) {
   const productosCount = {};
 
   ventas.forEach(venta => {
-    const items = venta.fields['Items'] || '';
-    
-    // Método 1: Extraer del formato "Parka (x3), Chaqueta (x2)"
-    const regex1 = /(\w+)\s*\(x(\d+)\)/gi;
-    let match;
-    while ((match = regex1.exec(items)) !== null) {
-      const producto = match[1].trim();
-      const cantidad = parseInt(match[2]) || 1;
-      productosCount[producto] = (productosCount[producto] || 0) + cantidad;
-    }
-    
-    // Método 2: Extraer nombres individuales separados por coma (backup)
-    if (Object.keys(productosCount).length === 0 && items) {
-      const partes = items.split(',');
-      partes.forEach(parte => {
-        const nombre = parte.replace(/\([^)]*\)/g, '').trim();
-        if (nombre && nombre.length > 0) {
-          productosCount[nombre] = (productosCount[nombre] || 0) + 1;
+    // Buscar TODAS las columnas que empiecen con "Cantidad real de ventas"
+    Object.keys(venta.fields).forEach(campo => {
+      if (campo.startsWith('Cantidad real de ventas')) {
+        const cantidad = parseInt(venta.fields[campo]) || 0;
+        
+        if (cantidad > 0) {
+          // Extraer el nombre del producto del campo
+          // "Cantidad real de ventas Parkas" → "Parkas"
+          const nombreProducto = campo.replace('Cantidad real de ventas ', '').trim();
+          productosCount[nombreProducto] = (productosCount[nombreProducto] || 0) + cantidad;
         }
-      });
-    }
+      }
+    });
   });
 
   const ranking = Object.entries(productosCount)
@@ -337,7 +348,14 @@ function mostrarTopClientes(ventas) {
 
   const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
   container.innerHTML = ranking.map((cli, index) => {
-    const nombre = clientesMap[cli.id]?.Nombre || 'Cliente desconocido';
+    // Intentar múltiples campos para obtener el nombre
+    const clienteData = clientesMap[cli.id];
+    const nombre = clienteData?.Nombre || 
+                   clienteData?.Name || 
+                   clienteData?.['Nombre completo'] ||
+                   clienteData?.nombre ||
+                   'Cliente desconocido';
+    
     return `
       <div class="ranking-item">
         <div class="ranking-name">
@@ -359,7 +377,12 @@ function mostrarUltimasTransacciones(ventas) {
 
   container.innerHTML = ventas.map(venta => {
     const clienteId = venta.fields['Cliente'] ? venta.fields['Cliente'][0] : null;
-    const nombreCliente = clientesMap[clienteId]?.Nombre || 'Sin cliente';
+    const clienteData = clientesMap[clienteId];
+    const nombreCliente = clienteData?.Nombre || 
+                          clienteData?.Name || 
+                          clienteData?.['Nombre completo'] ||
+                          clienteData?.nombre ||
+                          'Sin cliente';
     
     const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
     const items = venta.fields['Items'] || 'Sin items';
