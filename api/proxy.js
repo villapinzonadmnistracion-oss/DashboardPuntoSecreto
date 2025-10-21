@@ -11,9 +11,16 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Obtener variables de entorno
-  const AIRTABLE_TOKEN = process.env.TOKEN;
+  // Obtener variables de entorno - USAR LOS NOMBRES CORRECTOS DE VERCEL
+  const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN;
   const BASE_ID = process.env.BASE_ID;
+
+  console.log('🔍 Verificando variables:', {
+    hasToken: !!AIRTABLE_TOKEN,
+    hasBaseId: !!BASE_ID,
+    tokenPreview: AIRTABLE_TOKEN ? AIRTABLE_TOKEN.substring(0, 10) + '...' : 'NO DEFINIDO',
+    baseId: BASE_ID || 'NO DEFINIDO'
+  });
 
   // Validar configuración
   if (!AIRTABLE_TOKEN || !BASE_ID) {
@@ -23,18 +30,22 @@ export default async function handler(req, res) {
     });
     return res.status(500).json({ 
       error: 'Configuración de servidor incompleta',
-      details: 'Faltan variables de entorno necesarias'
+      details: 'Faltan AIRTABLE_TOKEN o BASE_ID en variables de entorno',
+      hasToken: !!AIRTABLE_TOKEN,
+      hasBaseId: !!BASE_ID
     });
   }
 
   try {
     const { action, tableId } = req.query;
 
+    console.log('📥 Request recibido:', { action, tableId });
+
     if (action === 'getRecords' && tableId) {
       // Obtener registros de una tabla específica
       const airtableUrl = `https://api.airtable.com/v0/${BASE_ID}/${tableId}`;
       
-      console.log('🔄 Fetching from Airtable:', tableId);
+      console.log('🔄 Fetching from Airtable:', airtableUrl);
 
       const response = await fetch(airtableUrl, {
         method: 'GET',
@@ -50,7 +61,8 @@ export default async function handler(req, res) {
         return res.status(response.status).json({ 
           error: 'Error al consultar Airtable',
           status: response.status,
-          details: errorText
+          details: errorText,
+          url: airtableUrl
         });
       }
 
@@ -60,16 +72,27 @@ export default async function handler(req, res) {
       return res.status(200).json(data);
     }
 
+    if (action === 'test') {
+      return res.status(200).json({ 
+        status: 'OK',
+        message: 'API funcionando',
+        hasToken: !!AIRTABLE_TOKEN,
+        hasBaseId: !!BASE_ID
+      });
+    }
+
     return res.status(400).json({ 
       error: 'Acción no válida',
-      validActions: ['getRecords']
+      validActions: ['getRecords', 'test'],
+      received: { action, tableId }
     });
 
   } catch (error) {
     console.error('❌ Error en proxy:', error);
     return res.status(500).json({ 
       error: 'Error interno del servidor',
-      message: error.message 
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 }
