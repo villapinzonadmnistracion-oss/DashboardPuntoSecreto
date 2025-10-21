@@ -4,6 +4,8 @@ let clientesData = [];
 let anfitrionesData = [];
 let clientesMap = {};
 let anfitrionesMap = {};
+let todasLasTransacciones = []; // Para guardar todas las transacciones
+let filtroTransaccionActual = 'todas'; // Estado del filtro
 
 // Inicializar fechas (últimos 30 días por defecto)
 function inicializarFechas() {

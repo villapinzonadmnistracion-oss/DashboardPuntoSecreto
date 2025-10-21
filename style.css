@@ -326,3 +326,36 @@ body {
   max-height: 150px;
   overflow-y: auto;
 }
+
+/* Filtro de Transacciones */
+.transaction-filter {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #f8f9ff;
+  border-radius: 10px;
+}
+
+.filter-btn {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #e0e7ff;
+  background: white;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #667eea;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-btn:active {
+  transform: scale(0.98);
+}
+
+.filter-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}

@@ -96,6 +96,20 @@
       <!-- Últimas Transacciones -->
       <div class="section">
         <div class="section-title">🕐 Últimas Transacciones</div>
+        
+        <!-- NUEVO: Filtro Ventas/Devoluciones -->
+        <div class="transaction-filter">
+          <button class="filter-btn active" data-filter="todas" onclick="filtrarTransacciones('todas')">
+            Todas
+          </button>
+          <button class="filter-btn" data-filter="ventas" onclick="filtrarTransacciones('ventas')">
+            🛍️ Ventas
+          </button>
+          <button class="filter-btn" data-filter="devoluciones" onclick="filtrarTransacciones('devoluciones')">
+            ↩️ Devoluciones
+          </button>
+        </div>
+        
         <div id="ultimasTransacciones"></div>
       </div>
     </div>
