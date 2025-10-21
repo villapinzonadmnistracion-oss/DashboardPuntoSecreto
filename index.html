@@ -441,17 +441,118 @@
       padding-bottom: 8px;
     }
 
+    /* Nota Inteligente */
+    .nota-inteligente {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border: 2px solid #fbbf24;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 10px;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .nota-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .nota-content {
+      flex: 1;
+    }
+
+    .nota-title {
+      font-weight: 700;
+      color: #92400e;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .nota-text {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #78350f;
+    }
+
+    /* Gráfico Circular */
+    #chartCanvas {
+      max-width: 100%;
+      height: auto;
+      margin: 0 auto;
+      display: block;
+    }
+
+    /* Leyenda */
+    .leyenda-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .leyenda-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      background: #f9fafb;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .leyenda-item:active {
+      background: #f0fdf4;
+    }
+
+    .leyenda-color {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .leyenda-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .leyenda-nombre {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .leyenda-valor {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
     /* Scrollbar personalizado */
-    .clasificacion-list::-webkit-scrollbar {
+    .clasificacion-list::-webkit-scrollbar,
+    .leyenda-container::-webkit-scrollbar {
       width: 4px;
     }
 
-    .clasificacion-list::-webkit-scrollbar-track {
+    .clasificacion-list::-webkit-scrollbar-track,
+    .leyenda-container::-webkit-scrollbar-track {
       background: #f3f4f6;
       border-radius: 10px;
     }
 
-    .clasificacion-list::-webkit-scrollbar-thumb {
+    .clasificacion-list::-webkit-scrollbar-thumb,
+    .leyenda-container::-webkit-scrollbar-thumb {
       background: #10b981;
       border-radius: 10px;
     }
@@ -466,17 +567,16 @@
 
     <div class="filters">
       <label>📅 Rango de Fechas</label>
-<div class="date-range" style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; width: 100%; max-width: 100%;">
-  <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-    <input type="date" id="fechaDesde" onchange="aplicarFiltros()" style="width: 100%; max-width: 180px;">
-    <small style="color: #666; font-size: 11px;">Desde</small>
-  </div>
-  <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-    <input type="date" id="fechaHasta" onchange="aplicarFiltros()" style="width: 100%; max-width: 180px;">
-    <small style="color: #666; font-size: 11px;">Hasta</small>
-  </div>
-</div>
-
+      <div class="date-range">
+        <div>
+          <input type="date" id="fechaDesde" onchange="aplicarFiltros()">
+          <small style="color: #666; font-size: 10px;">Desde</small>
+        </div>
+        <div>
+          <input type="date" id="fechaHasta" onchange="aplicarFiltros()">
+          <small style="color: #666; font-size: 10px;">Hasta</small>
+        </div>
+      </div>
 
       <label>⚡ Accesos Rápidos</label>
       <select id="filterPeriodo" onchange="cambiarPeriodoRapido()">
@@ -513,7 +613,7 @@
         <div class="kpi-card">
           <div class="kpi-icon">📈</div>
           <div class="kpi-value" id="kpiPromedioVenta">$0</div>
-          <div class="kpi-label">Ticket Promedio</div>
+          <div class="kpi-label">Promedio</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-icon">🛍️</div>
@@ -537,6 +637,22 @@
       <div class="section">
         <div class="section-title">📦 Productos Más Vendidos</div>
         <div id="topProductos"></div>
+      </div>
+
+      <!-- NUEVO: Gráfico Circular de Productos -->
+      <div class="section">
+        <div class="section-title">🎯 Distribución de Ventas por Producto</div>
+        
+        <!-- Nota Inteligente -->
+        <div id="notaInteligente"></div>
+        
+        <!-- Gráfico -->
+        <div id="graficoProductos" style="text-align: center; margin: 20px 0;">
+          <canvas id="chartCanvas"></canvas>
+        </div>
+        
+        <!-- Leyenda -->
+        <div id="leyendaProductos" class="leyenda-container"></div>
       </div>
 
       <!-- Top Clientes -->

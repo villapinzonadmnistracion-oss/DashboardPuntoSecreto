@@ -198,6 +198,7 @@ function calcularEstadisticas(ventas) {
 
   mostrarTopAnfitriones(ventasReales);
   mostrarTopProductos(ventasReales);
+  mostrarGraficoProductos(ventasReales);
   mostrarTopClientes(ventasReales);
   mostrarClasificacionClientes(ventasReales);
   
@@ -292,6 +293,189 @@ function mostrarTopProductos(ventas) {
       </div>
     `;
   }).join('');
+}
+
+function mostrarGraficoProductos(ventas) {
+  const productosCount = {};
+  const productosPorFecha = {}; // Para calcular frecuencia
+
+  ventas.forEach(venta => {
+    const fechaVenta = venta.fields['Fecha de compra'];
+    
+    Object.keys(venta.fields).forEach(campo => {
+      if (campo.startsWith('Cantidad real de ventas')) {
+        const cantidad = parseInt(venta.fields[campo]) || 0;
+        
+        if (cantidad > 0) {
+          const nombreProducto = campo.replace('Cantidad real de ventas ', '').trim();
+          productosCount[nombreProducto] = (productosCount[nombreProducto] || 0) + cantidad;
+          
+          // Registrar venta por fecha para calcular frecuencia
+          if (fechaVenta) {
+            if (!productosPorFecha[nombreProducto]) {
+              productosPorFecha[nombreProducto] = [];
+            }
+            productosPorFecha[nombreProducto].push(new Date(fechaVenta));
+          }
+        }
+      }
+    });
+  });
+
+  const productosArray = Object.entries(productosCount).sort((a, b) => b[1] - a[1]);
+
+  if (productosArray.length === 0) {
+    document.getElementById('graficoProductos').innerHTML = 
+      '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay datos</p></div>';
+    document.getElementById('notaInteligente').innerHTML = '';
+    return;
+  }
+
+  // Calcular análisis inteligente
+  const productoMasVendido = productosArray[0];
+  const productoMenosVendido = productosArray[productosArray.length - 1];
+  
+  // Calcular frecuencia (días entre ventas promedio)
+  let frecuenciaTexto = '';
+  if (productosPorFecha[productoMasVendido[0]] && productosPorFecha[productoMasVendido[0]].length > 1) {
+    const fechas = productosPorFecha[productoMasVendido[0]].sort((a, b) => a - b);
+    let sumaIntervalos = 0;
+    for (let i = 1; i < fechas.length; i++) {
+      const dias = (fechas[i] - fechas[i-1]) / (1000 * 60 * 60 * 24);
+      sumaIntervalos += dias;
+    }
+    const promedioDias = Math.round(sumaIntervalos / (fechas.length - 1));
+    
+    if (promedioDias < 1) {
+      frecuenciaTexto = 'varias veces al día';
+    } else if (promedioDias === 1) {
+      frecuenciaTexto = 'diariamente';
+    } else if (promedioDias <= 3) {
+      frecuenciaTexto = `cada ${promedioDias} días`;
+    } else if (promedioDias <= 7) {
+      frecuenciaTexto = 'semanalmente';
+    } else if (promedioDias <= 14) {
+      frecuenciaTexto = 'cada 2 semanas';
+    } else {
+      frecuenciaTexto = `cada ${Math.round(promedioDias / 7)} semanas`;
+    }
+  } else {
+    frecuenciaTexto = 'ocasionalmente';
+  }
+
+  // Obtener rango de fechas actual
+  const fechaDesde = document.getElementById('fechaDesde').value;
+  const fechaHasta = document.getElementById('fechaHasta').value;
+  let periodoTexto = '';
+  
+  if (fechaDesde && fechaHasta) {
+    const desde = new Date(fechaDesde).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' });
+    const hasta = new Date(fechaHasta).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' });
+    periodoTexto = `del ${desde} al ${hasta}`;
+  } else if (fechaDesde) {
+    const desde = new Date(fechaDesde).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' });
+    periodoTexto = `desde el ${desde}`;
+  } else if (fechaHasta) {
+    const hasta = new Date(fechaHasta).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' });
+    periodoTexto = `hasta el ${hasta}`;
+  } else {
+    periodoTexto = 'en el período seleccionado';
+  }
+
+  // Generar nota inteligente
+  const notaHTML = `
+    <div class="nota-inteligente">
+      <div class="nota-icon">💡</div>
+      <div class="nota-content">
+        <div class="nota-title">Análisis Inteligente</div>
+        <div class="nota-text">
+          <strong style="color: #10b981;">${productoMasVendido[0]}</strong> es el producto más vendido 
+          con <strong>${productoMasVendido[1]} unidades</strong> ${periodoTexto}. 
+          Se vende aproximadamente <strong>${frecuenciaTexto}</strong>. 
+          ${productosArray.length > 1 ? `Por otro lado, <strong style="color: #ef4444;">${productoMenosVendido[0]}</strong> 
+          tiene el menor volumen con ${productoMenosVendido[1]} unidad${productoMenosVendido[1] > 1 ? 'es' : ''}.` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('notaInteligente').innerHTML = notaHTML;
+
+  // Generar gráfico circular (pie chart) con Canvas
+  const canvas = document.getElementById('chartCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  // Ajustar para alta resolución
+  const dpr = window.devicePixelRatio || 1;
+  const size = 280;
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  canvas.style.width = size + 'px';
+  canvas.style.height = size + 'px';
+  ctx.scale(dpr, dpr);
+
+  const centerX = size / 2;
+  const centerY = size / 2;
+  const radius = 90;
+
+  // Colores vibrantes
+  const colores = [
+    '#10b981', '#059669', '#34d399', '#6ee7b7', '#a7f3d0',
+    '#14b8a6', '#0d9488', '#2dd4bf', '#5eead4', '#99f6e4',
+    '#06b6d4', '#0891b2', '#22d3ee', '#67e8f9', '#a5f3fc'
+  ];
+
+  const total = productosArray.reduce((sum, [_, count]) => sum + count, 0);
+  let currentAngle = -Math.PI / 2;
+
+  // Dibujar segmentos
+  productosArray.forEach(([nombre, cantidad], index) => {
+    const sliceAngle = (cantidad / total) * 2 * Math.PI;
+    
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
+    ctx.closePath();
+    ctx.fillStyle = colores[index % colores.length];
+    ctx.fill();
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    currentAngle += sliceAngle;
+  });
+
+  // Círculo blanco central
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius * 0.5, 0, 2 * Math.PI);
+  ctx.fillStyle = 'white';
+  ctx.fill();
+
+  // Texto central
+  ctx.fillStyle = '#10b981';
+  ctx.font = 'bold 20px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(total, centerX, centerY - 8);
+  ctx.font = '12px -apple-system, sans-serif';
+  ctx.fillStyle = '#6b7280';
+  ctx.fillText('unidades', centerX, centerY + 10);
+
+  // Leyenda
+  const leyendaHTML = productosArray.slice(0, 8).map(([nombre, cantidad], index) => {
+    const porcentaje = ((cantidad / total) * 100).toFixed(1);
+    return `
+      <div class="leyenda-item">
+        <div class="leyenda-color" style="background: ${colores[index % colores.length]}"></div>
+        <div class="leyenda-info">
+          <div class="leyenda-nombre">${nombre}</div>
+          <div class="leyenda-valor">${cantidad} unid. (${porcentaje}%)</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('leyendaProductos').innerHTML = leyendaHTML;
 }
 
 function mostrarTopClientes(ventas) {
