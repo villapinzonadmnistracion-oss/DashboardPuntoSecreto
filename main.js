@@ -324,16 +324,15 @@ function mostrarTopClientes(ventas) {
   const clientesStats = {};
 
   ventas.forEach(venta => {
-    const clienteIds = venta.fields['Cliente'] || [];
+    // Usar directamente el campo "Nombre" que ya trae el nombre del cliente
+    const nombreCliente = venta.fields['Nombre'] || 'Cliente desconocido';
     const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
 
-    clienteIds.forEach(id => {
-      if (!clientesStats[id]) {
-        clientesStats[id] = { total: 0, cantidad: 0, id: id };
-      }
-      clientesStats[id].total += total;
-      clientesStats[id].cantidad += 1;
-    });
+    if (!clientesStats[nombreCliente]) {
+      clientesStats[nombreCliente] = { total: 0, cantidad: 0, nombre: nombreCliente };
+    }
+    clientesStats[nombreCliente].total += total;
+    clientesStats[nombreCliente].cantidad += 1;
   });
 
   const ranking = Object.values(clientesStats)
@@ -348,21 +347,13 @@ function mostrarTopClientes(ventas) {
 
   const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
   container.innerHTML = ranking.map((cli, index) => {
-    // Intentar múltiples campos para obtener el nombre
-    const clienteData = clientesMap[cli.id];
-    const nombre = clienteData?.Nombre || 
-                   clienteData?.Name || 
-                   clienteData?.['Nombre completo'] ||
-                   clienteData?.nombre ||
-                   'Cliente desconocido';
-    
     return `
       <div class="ranking-item">
         <div class="ranking-name">
           <span class="ranking-medal">${medals[index]}</span>
-          <span>${nombre}</span>
+          <span>${cli.nombre}</span>
         </div>
-        <div class="ranking-value">$${Math.round(cli.total).toLocaleString('es-CL')}</div>
+        <div class="ranking-value">${Math.round(cli.total).toLocaleString('es-CL')}</div>
       </div>
     `;
   }).join('');
@@ -376,13 +367,8 @@ function mostrarUltimasTransacciones(ventas) {
   }
 
   container.innerHTML = ventas.map(venta => {
-    const clienteId = venta.fields['Cliente'] ? venta.fields['Cliente'][0] : null;
-    const clienteData = clientesMap[clienteId];
-    const nombreCliente = clienteData?.Nombre || 
-                          clienteData?.Name || 
-                          clienteData?.['Nombre completo'] ||
-                          clienteData?.nombre ||
-                          'Sin cliente';
+    // Usar directamente el campo "Nombre" de la venta
+    const nombreCliente = venta.fields['Nombre'] || 'Sin cliente';
     
     const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
     const items = venta.fields['Items'] || 'Sin items';
@@ -401,7 +387,7 @@ function mostrarUltimasTransacciones(ventas) {
           <div style="margin-bottom: 3px;">📦 ${items}</div>
           <div style="display: flex; justify-content: space-between;">
             <span>📅 ${fecha}</span>
-            <span style="font-weight: 600; color: #667eea;">$${Math.round(total).toLocaleString('es-CL')}</span>
+            <span style="font-weight: 600; color: #667eea;">${Math.round(total).toLocaleString('es-CL')}</span>
           </div>
         </div>
       </div>
