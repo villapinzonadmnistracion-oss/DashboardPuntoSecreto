@@ -225,7 +225,10 @@ function calcularEstadisticas(ventas) {
   mostrarTopAnfitriones(ventasReales);
   mostrarTopProductos(ventasReales);
   mostrarTopClientes(ventasReales);
-  mostrarUltimasTransacciones(ventas.slice(0, 10));
+  
+  // Guardar todas las transacciones para filtrar
+  todasLasTransacciones = ventas.slice(0, 50); // Guardamos hasta 50 transacciones
+  filtrarTransacciones(filtroTransaccionActual); // Aplicar filtro actual
 }
 
 function mostrarTopAnfitriones(ventas) {
@@ -412,6 +415,33 @@ function mostrarUltimasTransacciones(ventas) {
       </div>
     `;
   }).join('');
+}
+
+// Función para filtrar transacciones
+function filtrarTransacciones(tipo) {
+  filtroTransaccionActual = tipo;
+  
+  // Actualizar botones activos
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.filter === tipo) {
+      btn.classList.add('active');
+    }
+  });
+
+  let transaccionesFiltradas = [...todasLasTransacciones];
+
+  if (tipo === 'ventas') {
+    transaccionesFiltradas = todasLasTransacciones.filter(v => 
+      !v.fields['Devolución'] || v.fields['Devolución'].length === 0
+    );
+  } else if (tipo === 'devoluciones') {
+    transaccionesFiltradas = todasLasTransacciones.filter(v => 
+      v.fields['Devolución'] && v.fields['Devolución'].length > 0
+    );
+  }
+
+  mostrarUltimasTransacciones(transaccionesFiltradas.slice(0, 10));
 }
 
 // Inicializar
