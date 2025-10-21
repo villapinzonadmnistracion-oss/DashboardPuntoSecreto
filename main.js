@@ -418,11 +418,16 @@ function mostrarGraficoProductos(ventas) {
   const centerY = size / 2;
   const radius = 90;
 
-  // Colores vibrantes
+  // Paleta de colores vibrante y variada (30 colores)
   const colores = [
-    '#10b981', '#059669', '#34d399', '#6ee7b7', '#a7f3d0',
-    '#14b8a6', '#0d9488', '#2dd4bf', '#5eead4', '#99f6e4',
-    '#06b6d4', '#0891b2', '#22d3ee', '#67e8f9', '#a5f3fc'
+    '#10b981', '#06b6d4', '#8b5cf6', '#ec4899', '#f59e0b',
+    '#059669', '#0891b2', '#7c3aed', '#db2777', '#d97706',
+    '#34d399', '#22d3ee', '#a78bfa', '#f472b6', '#fbbf24',
+    '#6ee7b7', '#67e8f9', '#c4b5fd', '#f9a8d4', '#fcd34d',
+    '#14b8a6', '#0284c7', '#6366f1', '#e11d48', '#ea580c',
+    '#2dd4bf', '#38bdf8', '#818cf8', '#fb7185', '#fb923c',
+    '#5eead4', '#7dd3fc', '#a5b4fc', '#fda4af', '#fdba74',
+    '#99f6e4', '#bae6fd', '#c7d2fe', '#fecdd3', '#fed7aa'
   ];
 
   const total = productosArray.reduce((sum, [_, count]) => sum + count, 0);
