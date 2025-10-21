@@ -353,7 +353,7 @@ function mostrarTopClientes(ventas) {
           <span class="ranking-medal">${medals[index]}</span>
           <span>${cli.nombre}</span>
         </div>
-        <div class="ranking-value">${Math.round(cli.total).toLocaleString('es-CL')}</div>
+        <div class="ranking-value">$${Math.round(cli.total).toLocaleString('es-CL')}</div>
       </div>
     `;
   }).join('');
@@ -372,7 +372,24 @@ function mostrarUltimasTransacciones(ventas) {
     
     const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
     const items = venta.fields['Items'] || 'Sin items';
-    const fecha = venta.fields['Fecha de compra'] ? new Date(venta.fields['Fecha de compra']).toLocaleDateString('es-CL') : 'Sin fecha';
+    
+    // Formatear fecha y hora
+    let fechaHoraTexto = 'Sin fecha';
+    if (venta.fields['Fecha de compra']) {
+      const fechaCompleta = new Date(venta.fields['Fecha de compra']);
+      const fecha = fechaCompleta.toLocaleDateString('es-CL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+      const hora = fechaCompleta.toLocaleTimeString('es-CL', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+      fechaHoraTexto = `${fecha} - ${hora}`;
+    }
+    
     const esDevolucion = venta.fields['Devolución'] && venta.fields['Devolución'].length > 0;
 
     return `
@@ -386,8 +403,8 @@ function mostrarUltimasTransacciones(ventas) {
         <div class="transaction-details">
           <div style="margin-bottom: 3px;">📦 ${items}</div>
           <div style="display: flex; justify-content: space-between;">
-            <span>📅 ${fecha}</span>
-            <span style="font-weight: 600; color: #667eea;">${Math.round(total).toLocaleString('es-CL')}</span>
+            <span>📅 ${fechaHoraTexto}</span>
+            <span style="font-weight: 600; color: #667eea;">$${Math.round(total).toLocaleString('es-CL')}</span>
           </div>
         </div>
       </div>
