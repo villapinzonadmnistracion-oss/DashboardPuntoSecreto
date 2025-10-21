@@ -210,28 +210,33 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       margin-bottom: 12px;
       text-align: center;
-      position: relative;
     }
 
     .logout-btn {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
       background: #ef4444;
       color: white;
       border: none;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 11px;
+      padding: 12px 16px;
+      border-radius: 50%;
+      font-size: 20px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+      z-index: 1000;
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .logout-btn:active {
       background: #dc2626;
-      transform: translateY(-50%) scale(0.95);
+      transform: scale(0.95);
     }
 
     .header h1 {
@@ -807,9 +812,11 @@
 
   <!-- Dashboard (oculto hasta login exitoso) -->
   <div id="dashboardApp">
+    <!-- Botón flotante de salir -->
+    <button class="logout-btn" onclick="cerrarSesion()" title="Cerrar sesión">🚪</button>
+    
     <div class="container">
       <div class="header">
-        <button class="logout-btn" onclick="cerrarSesion()">🚪 Salir</button>
         <h1>📊 Dashboard Punto Secreto</h1>
         <p id="lastUpdate">Cargando datos...</p>
       </div>
