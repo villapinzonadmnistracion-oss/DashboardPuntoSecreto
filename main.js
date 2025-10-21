@@ -225,6 +225,7 @@ function calcularEstadisticas(ventas) {
   mostrarTopAnfitriones(ventasReales);
   mostrarTopProductos(ventasReales);
   mostrarTopClientes(ventasReales);
+  mostrarClasificacionClientes(ventasReales);
   
   // Guardar todas las transacciones para filtrar
   todasLasTransacciones = ventas.slice(0, 50); // Guardamos hasta 50 transacciones
@@ -362,6 +363,78 @@ function mostrarTopClientes(ventas) {
       </div>
     `;
   }).join('');
+}
+
+function mostrarClasificacionClientes(ventas) {
+  const clientesClasificacion = {};
+
+  // Contar clientes por clasificación
+  ventas.forEach(venta => {
+    const nombreCliente = venta.fields['Nombre'] || 'Sin cliente';
+    const clasificacion = venta.fields['Clasificación Cliente'] || 'Cliente Normal';
+    
+    if (!clientesClasificacion[nombreCliente]) {
+      clientesClasificacion[nombreCliente] = clasificacion;
+    }
+  });
+
+  // Agrupar por tipo de clasificación
+  const gold = [];
+  const frecuente = [];
+  const normal = [];
+
+  Object.entries(clientesClasificacion).forEach(([nombre, clasificacion]) => {
+    if (clasificacion.includes('Gold')) {
+      gold.push(nombre);
+    } else if (clasificacion.includes('Frecuente')) {
+      frecuente.push(nombre);
+    } else {
+      normal.push(nombre);
+    }
+  });
+
+  const container = document.getElementById('clasificacionClientes');
+  
+  // Tarjetas de resumen
+  const resumenHTML = `
+    <div class="clasificacion-grid">
+      <div class="clasificacion-card">
+        <div class="clasificacion-icon">👑</div>
+        <div class="clasificacion-count">${gold.length}</div>
+        <div class="clasificacion-label">Gold</div>
+      </div>
+      <div class="clasificacion-card">
+        <div class="clasificacion-icon">⭐</div>
+        <div class="clasificacion-count">${frecuente.length}</div>
+        <div class="clasificacion-label">Frecuente</div>
+      </div>
+      <div class="clasificacion-card">
+        <div class="clasificacion-icon">👤</div>
+        <div class="clasificacion-count">${normal.length}</div>
+        <div class="clasificacion-label">Normal</div>
+      </div>
+    </div>
+  `;
+
+  // Lista detallada
+  const todosClientes = [
+    ...gold.map(n => ({ nombre: n, tipo: 'gold', label: 'Gold' })),
+    ...frecuente.map(n => ({ nombre: n, tipo: 'frecuente', label: 'Frecuente' })),
+    ...normal.slice(0, 10).map(n => ({ nombre: n, tipo: 'normal', label: 'Normal' }))
+  ];
+
+  const listaHTML = todosClientes.length > 0 ? `
+    <div class="clasificacion-list">
+      ${todosClientes.map(cliente => `
+        <div class="clasificacion-item">
+          <span class="clasificacion-nombre">${cliente.nombre}</span>
+          <span class="clasificacion-badge badge-${cliente.tipo}">${cliente.label}</span>
+        </div>
+      `).join('')}
+    </div>
+  ` : '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay clientes</p></div>';
+
+  container.innerHTML = resumenHTML + listaHTML;
 }
 
 function mostrarUltimasTransacciones(ventas) {

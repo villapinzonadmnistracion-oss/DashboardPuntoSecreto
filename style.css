@@ -359,3 +359,89 @@ body {
   color: white;
   border-color: #667eea;
 }
+
+/* Clasificación de Clientes */
+.clasificacion-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.clasificacion-card {
+  background: #f8f9ff;
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+  border: 2px solid #e0e7ff;
+  transition: transform 0.2s;
+}
+
+.clasificacion-card:active {
+  transform: scale(0.98);
+}
+
+.clasificacion-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.clasificacion-count {
+  font-size: 24px;
+  font-weight: bold;
+  color: #667eea;
+  margin-bottom: 5px;
+}
+
+.clasificacion-label {
+  font-size: 11px;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.clasificacion-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.clasificacion-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: #f8f9ff;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.clasificacion-nombre {
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+}
+
+.clasificacion-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge-gold {
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  color: #856404;
+}
+
+.badge-frecuente {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.badge-normal {
+  background: #e0e7ff;
+  color: #667eea;
+}
