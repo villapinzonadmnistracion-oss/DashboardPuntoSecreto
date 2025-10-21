@@ -1,5 +1,3 @@
-// VERSIÓN DE DIAGNÓSTICO - Ver errores detallados
-
 // Variables globales
 let ventasData = [];
 let clientesData = [];
@@ -7,22 +5,7 @@ let anfitrionesData = [];
 let clientesMap = {};
 let anfitrionesMap = {};
 
-function log(emoji, mensaje, data) {
-  console.log(`${emoji} ${mensaje}`, data || '');
-  // Mostrar en pantalla también
-  const debugDiv = document.getElementById('debugOutput') || createDebugDiv();
-  debugDiv.innerHTML += `<div>${emoji} ${mensaje} ${data ? JSON.stringify(data).substring(0, 100) : ''}</div>`;
-}
-
-function createDebugDiv() {
-  const div = document.createElement('div');
-  div.id = 'debugOutput';
-  div.style.cssText = 'position: fixed; bottom: 0; left: 0; right: 0; background: #000; color: #0f0; padding: 10px; max-height: 200px; overflow-y: auto; font-size: 11px; font-family: monospace; z-index: 9999;';
-  document.body.appendChild(div);
-  return div;
-}
-
-// Inicializar fechas
+// Inicializar fechas (últimos 30 días por defecto)
 function inicializarFechas() {
   const hoy = new Date();
   const hace30dias = new Date();
@@ -30,7 +13,6 @@ function inicializarFechas() {
   
   document.getElementById('fechaHasta').valueAsDate = hoy;
   document.getElementById('fechaDesde').valueAsDate = hace30dias;
-  log('📅', 'Fechas inicializadas');
 }
 
 function cambiarPeriodoRapido() {
@@ -79,39 +61,20 @@ async function cargarDatos() {
     document.getElementById('loading').style.display = 'block';
     document.getElementById('content').style.display = 'none';
 
-    log('🔄', 'Iniciando carga de datos...');
-    log('🌐', 'URL actual:', window.location.href);
+    console.log('🔄 Cargando datos desde Airtable...');
 
-    // Probar si el endpoint existe
-    log('🔍', 'Probando endpoint /api/airtable...');
-    
-    const testResponse = await fetch('/api/airtable?action=test').catch(err => {
-      log('❌', 'Error al conectar con /api/airtable:', err.message);
-      throw new Error('No se puede conectar con el API. ¿Está desplegado en Vercel?');
-    });
-
-    log('✅', 'Endpoint responde, status:', testResponse.status);
-
-    // Cargar ventas
-    log('📊', 'Cargando tabla de ventas...');
-    const ventas = await fetchFromProxy('tblC7aADITb6A6iYP');
-    log('✅', 'Ventas cargadas:', ventas.length);
-
-    // Cargar clientes
-    log('👥', 'Cargando tabla de clientes...');
-    const clientes = await fetchFromProxy('tbl1fRI4vdXspaNNlD');
-    log('✅', 'Clientes cargados:', clientes.length);
-
-    // Cargar anfitriones
-    log('🎭', 'Cargando tabla de anfitriones...');
-    const anfitriones = await fetchFromProxy('tbirtLcB3dUASCfnL');
-    log('✅', 'Anfitriones cargados:', anfitriones.length);
+    // Cargar todas las tablas en paralelo - IDs CORRECTAS
+    const [ventas, clientes, anfitriones] = await Promise.all([
+      fetchFromProxy('tblC7aADITb6A6iYP'),  // VENTAS ✅
+      fetchFromProxy('tblfRI4vdXspaNNlD'),  // CLIENTES ✅
+      fetchFromProxy('tblrtLcB3dUASCfnL')   // ANFITRIONES ✅
+    ]);
 
     ventasData = ventas;
     clientesData = clientes;
     anfitrionesData = anfitriones;
 
-    // Crear mapas
+    // Crear mapas para búsqueda rápida
     clientesMap = {};
     clientesData.forEach(c => {
       clientesMap[c.id] = c.fields;
@@ -122,11 +85,14 @@ async function cargarDatos() {
       anfitrionesMap[a.id] = a.fields;
     });
 
-    log('🗺️', 'Mapas creados');
+    console.log('✅ Ventas cargadas:', ventasData.length);
+    console.log('✅ Clientes cargados:', clientesData.length);
+    console.log('✅ Anfitriones cargados:', anfitrionesData.length);
 
-    // Ver estructura
+    // Debug: Ver estructura de primera venta
     if (ventasData.length > 0) {
-      log('📋', 'Campos de venta:', Object.keys(ventasData[0].fields));
+      console.log('📋 Ejemplo de venta:', ventasData[0].fields);
+      console.log('📋 Campos disponibles:', Object.keys(ventasData[0].fields));
     }
 
     cargarAnfitrionesEnFiltro();
@@ -139,22 +105,13 @@ async function cargarDatos() {
     document.getElementById('lastUpdate').textContent = `Última actualización: ${now.toLocaleTimeString('es-CL')}`;
     document.getElementById('refreshTime').textContent = `Actualizado: ${now.toLocaleString('es-CL')}`;
 
-    log('✅', 'Dashboard cargado exitosamente!');
-
   } catch (error) {
-    log('❌', 'ERROR CRÍTICO:', error.message);
-    console.error('Stack trace:', error);
-    
+    console.error('❌ Error al cargar datos:', error);
     document.getElementById('loading').innerHTML = `
       <div class="empty-state">
         <div class="empty-state-icon">❌</div>
-        <h3>Error al cargar datos</h3>
-        <p style="color: white; margin: 10px 0;">${error.message}</p>
+        <p>Error al cargar datos: ${error.message}</p>
         <button onclick="cargarDatos()" style="margin-top: 20px; padding: 10px 20px; background: white; border: none; border-radius: 10px; cursor: pointer;">Reintentar</button>
-        <details style="margin-top: 20px; text-align: left; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px;">
-          <summary style="cursor: pointer; color: white;">Ver detalles técnicos</summary>
-          <pre style="color: white; font-size: 10px; overflow-x: auto;">${error.stack}</pre>
-        </details>
       </div>
     `;
   }
@@ -162,24 +119,16 @@ async function cargarDatos() {
 
 async function fetchFromProxy(tableId) {
   try {
-    const url = `/api/airtable?action=getRecords&tableId=${tableId}`;
-    log('🌐', `Fetching: ${url}`);
-    
-    const response = await fetch(url);
-    
-    log('📡', `Response status: ${response.status} ${response.statusText}`);
+    const response = await fetch(`/api/airtable?action=getRecords&tableId=${tableId}`);
     
     if (!response.ok) {
-      const errorText = await response.text();
-      log('❌', 'Error response:', errorText);
-      throw new Error(`Error ${response.status}: ${errorText}`);
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
     }
     
     const data = await response.json();
-    log('✅', `Tabla ${tableId}: ${data.records?.length || 0} registros`);
     return data.records || [];
   } catch (error) {
-    log('❌', `Error en fetchFromProxy(${tableId}):`, error.message);
+    console.error(`❌ Error fetching ${tableId}:`, error);
     throw error;
   }
 }
@@ -194,7 +143,6 @@ function cargarAnfitrionesEnFiltro() {
     option.textContent = anfitrion.fields.Nombre || 'Sin nombre';
     select.appendChild(option);
   });
-  log('📝', `${anfitrionesData.length} anfitriones en filtro`);
 }
 
 function aplicarFiltros() {
@@ -204,6 +152,7 @@ function aplicarFiltros() {
 
   let ventasFiltradas = [...ventasData];
 
+  // Filtrar por rango de fechas
   if (fechaDesde || fechaHasta) {
     ventasFiltradas = ventasFiltradas.filter(venta => {
       const fechaVenta = venta.fields['Fecha de compra'];
@@ -222,6 +171,7 @@ function aplicarFiltros() {
     });
   }
 
+  // Filtrar por anfitrión
   if (anfitrionId) {
     ventasFiltradas = ventasFiltradas.filter(venta => {
       const anfitriones = venta.fields['Anfitrión'] || [];
@@ -229,14 +179,18 @@ function aplicarFiltros() {
     });
   }
 
-  log('🔍', `Filtros aplicados: ${ventasFiltradas.length}/${ventasData.length} ventas`);
+  console.log(`🔍 Ventas filtradas: ${ventasFiltradas.length} de ${ventasData.length}`);
   calcularEstadisticas(ventasFiltradas);
 }
 
 function calcularEstadisticas(ventas) {
+  // Separar ventas y devoluciones
   const ventasReales = ventas.filter(v => !v.fields['Devolución'] || v.fields['Devolución'].length === 0);
   const devoluciones = ventas.filter(v => v.fields['Devolución'] && v.fields['Devolución'].length > 0);
 
+  console.log(`📊 Ventas reales: ${ventasReales.length}, Devoluciones: ${devoluciones.length}`);
+
+  // KPIs
   const totalVentas = ventasReales.reduce((sum, v) => {
     const total = v.fields['Total Neto Numerico'] || v.fields['Total de venta'] || 0;
     return sum + total;
@@ -246,17 +200,18 @@ function calcularEstadisticas(ventas) {
   const promedioVenta = numVentas > 0 ? totalVentas / numVentas : 0;
   const tasaDevolucion = ventas.length > 0 ? (devoluciones.length / ventas.length * 100) : 0;
 
+  console.log(`💰 Total ventas calculado: $${totalVentas}`);
+
   document.getElementById('kpiTotalVentas').textContent = `$${Math.round(totalVentas).toLocaleString('es-CL')}`;
   document.getElementById('kpiPromedioVenta').textContent = `$${Math.round(promedioVenta).toLocaleString('es-CL')}`;
   document.getElementById('kpiNumVentas').textContent = ventas.length;
   document.getElementById('kpiTasaDevolucion').textContent = `${tasaDevolucion.toFixed(1)}%`;
 
+  // Rankings
   mostrarTopAnfitriones(ventasReales);
   mostrarTopProductos(ventasReales);
   mostrarTopClientes(ventasReales);
   mostrarUltimasTransacciones(ventas.slice(0, 10));
-  
-  log('📊', 'Estadísticas calculadas');
 }
 
 function mostrarTopAnfitriones(ventas) {
@@ -306,6 +261,7 @@ function mostrarTopProductos(ventas) {
   ventas.forEach(venta => {
     const items = venta.fields['Items'] || '';
     
+    // Método 1: Extraer del formato "Parka (x3), Chaqueta (x2)"
     const regex1 = /(\w+)\s*\(x(\d+)\)/gi;
     let match;
     while ((match = regex1.exec(items)) !== null) {
@@ -314,6 +270,7 @@ function mostrarTopProductos(ventas) {
       productosCount[producto] = (productosCount[producto] || 0) + cantidad;
     }
     
+    // Método 2: Extraer nombres individuales separados por coma (backup)
     if (Object.keys(productosCount).length === 0 && items) {
       const partes = items.split(',');
       partes.forEach(parte => {
@@ -430,7 +387,6 @@ function mostrarUltimasTransacciones(ventas) {
 }
 
 // Inicializar
-log('🚀', 'Iniciando aplicación...');
 inicializarFechas();
 cargarDatos();
 
