@@ -762,6 +762,273 @@
       background: #10b981;
       border-radius: 10px;
     }
+
+    /* Análisis de Tendencias */
+    .tendencias-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .tendencia-card {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      border: 2px solid #10b981;
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .tendencia-card:active {
+      transform: scale(0.98);
+    }
+
+    .tendencia-card.proyeccion {
+      background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+      border-color: #8b5cf6;
+    }
+
+    .tendencia-card-icon {
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+
+    .tendencia-card-valor {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      line-height: 1;
+    }
+
+    .tendencia-card-label {
+      font-size: 11px;
+      color: #059669;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .tendencia-card.proyeccion .tendencia-card-label {
+      color: #7c3aed;
+    }
+
+    .tendencia-card-detalle {
+      font-size: 10px;
+      color: #6b7280;
+      line-height: 1.3;
+    }
+
+    .tendencia-insight {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border: 2px solid #fbbf24;
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+      align-items: flex-start;
+    }
+
+    .tendencia-insight-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .tendencia-insight-text {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #78350f;
+    }
+
+    .tendencia-periodos {
+      background: #f9fafb;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 11px;
+    }
+
+    .periodo-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .periodo-info:last-child {
+      margin-bottom: 0;
+    }
+
+    .periodo-label {
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .periodo-valor {
+      color: #1f2937;
+      font-weight: 600;
+    }
+
+    .tendencia-info {
+      background: #eff6ff;
+      border: 2px solid #3b82f6;
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .tendencia-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .tendencia-text {
+      font-size: 12px;
+      color: #1e40af;
+      line-height: 1.4;
+    }
+
+    /* Análisis Predictivo */
+    .prediccion-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .prediccion-card {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border: 2px solid #fbbf24;
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .prediccion-card.trimestral {
+      background: linear-gradient(135deg, #ddd6fe, #c4b5fd);
+      border-color: #8b5cf6;
+    }
+
+    .prediccion-icon {
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+
+    .prediccion-label {
+      font-size: 11px;
+      color: #92400e;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .prediccion-card.trimestral .prediccion-label {
+      color: #5b21b6;
+    }
+
+    .prediccion-valor {
+      font-size: 20px;
+      font-weight: 700;
+      color: #b45309;
+      margin-bottom: 4px;
+      line-height: 1;
+    }
+
+    .prediccion-card.trimestral .prediccion-valor {
+      color: #6d28d9;
+    }
+
+    .prediccion-detalle {
+      font-size: 10px;
+      color: #78350f;
+    }
+
+    .prediccion-card.trimestral .prediccion-detalle {
+      color: #5b21b6;
+    }
+
+    .prediccion-insight {
+      background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+      border: 2px solid #6366f1;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .prediccion-insight-text {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #312e81;
+    }
+
+    .stock-alertas {
+      background: #fef2f2;
+      border: 2px solid #ef4444;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .stock-titulo {
+      font-size: 13px;
+      font-weight: 700;
+      color: #991b1b;
+      margin-bottom: 10px;
+    }
+
+    .stock-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+
+    .stock-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .stock-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .stock-nombre {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 2px;
+    }
+
+    .stock-detalle {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .stock-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+
+    .prediccion-nota {
+      background: #f9fafb;
+      border-left: 3px solid #10b981;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      color: #4b5563;
+      line-height: 1.4;
+    }
+
+    .prediccion-nota strong {
+      color: #1f2937;
+    }
   </style>
 </head>
 <body>
@@ -823,17 +1090,16 @@
 
     <div class="filters">
       <label>📅 Rango de Fechas</label>
-<div class="date-range" style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; width: 100%; max-width: 100%;">
-  <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-    <input type="date" id="fechaDesde" onchange="aplicarFiltros()" style="width: 100%; max-width: 180px;">
-    <small style="color: #666; font-size: 11px;">Desde</small>
-  </div>
-  <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-    <input type="date" id="fechaHasta" onchange="aplicarFiltros()" style="width: 100%; max-width: 180px;">
-    <small style="color: #666; font-size: 11px;">Hasta</small>
-  </div>
-</div>
-
+      <div class="date-range">
+        <div>
+          <input type="date" id="fechaDesde" onchange="aplicarFiltros()">
+          <small style="color: #666; font-size: 10px;">Desde</small>
+        </div>
+        <div>
+          <input type="date" id="fechaHasta" onchange="aplicarFiltros()">
+          <small style="color: #666; font-size: 10px;">Hasta</small>
+        </div>
+      </div>
 
       <label>⚡ Accesos Rápidos</label>
       <select id="filterPeriodo" onchange="cambiarPeriodoRapido()">
@@ -870,7 +1136,7 @@
         <div class="kpi-card">
           <div class="kpi-icon">📈</div>
           <div class="kpi-value" id="kpiPromedioVenta">$0</div>
-          <div class="kpi-label">Ticket Promedio</div>
+          <div class="kpi-label">Promedio</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-icon">🛍️</div>
@@ -882,6 +1148,18 @@
           <div class="kpi-value" id="kpiTasaDevolucion">0%</div>
           <div class="kpi-label">Devoluciones</div>
         </div>
+      </div>
+
+      <!-- NUEVO: Análisis de Tendencias -->
+      <div class="section">
+        <div class="section-title">📊 Análisis de Tendencias</div>
+        <div id="analisisTendencias"></div>
+      </div>
+
+      <!-- NUEVO: Análisis Predictivo -->
+      <div class="section">
+        <div class="section-title">🔮 Análisis Predictivo</div>
+        <div id="analisisPredictivo"></div>
       </div>
 
       <!-- Top Anfitriones -->
