@@ -201,6 +201,9 @@ function calcularEstadisticas(ventas) {
   
   // NUEVO: Análisis predictivo
   analisisPredictivo(ventasReales);
+  
+  // NUEVO: Recomendaciones inteligentes
+  recomendacionesInteligentes(ventasReales);
 
   mostrarTopAnfitriones(ventasReales);
   mostrarTopProductos(ventasReales);
@@ -595,6 +598,252 @@ function analisisPredictivo(ventasActuales) {
   `;
 
   document.getElementById('analisisPredictivo').innerHTML = html;
+}
+
+function recomendacionesInteligentes(ventasActuales) {
+  if (ventasActuales.length === 0) {
+    document.getElementById('recomendacionesInteligentes').innerHTML = `
+      <div class="tendencia-info">
+        <div class="tendencia-icon">ℹ️</div>
+        <div class="tendencia-text">No hay suficientes datos para generar recomendaciones</div>
+      </div>
+    `;
+    return;
+  }
+
+  const recomendaciones = [];
+
+  // ANÁLISIS 1: Productos con baja rotación
+  const productosCount = {};
+  const productosIngresos = {};
+  
+  ventasActuales.forEach(venta => {
+    Object.keys(venta.fields).forEach(campo => {
+      if (campo.startsWith('Cantidad real de ventas')) {
+        const cantidad = parseInt(venta.fields[campo]) || 0;
+        if (cantidad > 0) {
+          const producto = campo.replace('Cantidad real de ventas ', '').trim();
+          productosCount[producto] = (productosCount[producto] || 0) + cantidad;
+          
+          // Estimar ingresos por producto (usamos promedio general)
+          const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
+          productosIngresos[producto] = (productosIngresos[producto] || 0) + total;
+        }
+      }
+    });
+  });
+
+  const productosArray = Object.entries(productosCount).sort((a, b) => b[1] - a[1]);
+  
+  if (productosArray.length >= 2) {
+    const totalUnidades = Object.values(productosCount).reduce((a, b) => a + b, 0);
+    const productoMenosVendido = productosArray[productosArray.length - 1];
+    const porcentajeParticipacion = (productoMenosVendido[1] / totalUnidades * 100).toFixed(1);
+    
+    if (porcentajeParticipacion < 10) {
+      recomendaciones.push({
+        tipo: 'warning',
+        icono: '📦',
+        titulo: 'Producto de Baja Rotación',
+        mensaje: `<strong>${productoMenosVendido[0]}</strong> solo representa el ${porcentajeParticipacion}% de las ventas con ${productoMenosVendido[1]} unidades vendidas.`,
+        accion: 'Considera: Promoción 2x1, descuento especial, o combo con productos populares.'
+      });
+    }
+  }
+
+  // ANÁLISIS 2: Mejores días de la semana
+  const ventasPorDia = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+  const transaccionesPorDia = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+  const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  
+  ventasActuales.forEach(venta => {
+    const fecha = new Date(venta.fields['Fecha de compra']);
+    const dia = fecha.getDay();
+    const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
+    
+    ventasPorDia[dia] += total;
+    transaccionesPorDia[dia] += 1;
+  });
+
+  const mejorDia = Object.entries(ventasPorDia).sort((a, b) => b[1] - a[1])[0];
+  const peorDia = Object.entries(ventasPorDia).sort((a, b) => a[1] - b[1])[0];
+  
+  if (mejorDia[1] > 0) {
+    const nombreMejorDia = diasSemana[mejorDia[0]];
+    const nombrePeorDia = diasSemana[peorDia[0]];
+    const porcentajeMejor = (mejorDia[1] / Object.values(ventasPorDia).reduce((a,b) => a+b, 0) * 100).toFixed(1);
+    
+    recomendaciones.push({
+      tipo: 'success',
+      icono: '📅',
+      titulo: 'Mejor Día para Vender',
+      mensaje: `<strong>${nombreMejorDia}</strong> es tu día estrella con ${Math.round(mejorDia[1]).toLocaleString('es-CL')} (${porcentajeMejor}% del total).`,
+      accion: `Programa más anfitriones los ${nombreMejorDia}s. Evita eventos importantes los ${nombrePeorDia}s.`
+    });
+  }
+
+  // ANÁLISIS 3: Mejores horarios
+  const ventasPorHora = {};
+  
+  ventasActuales.forEach(venta => {
+    const fecha = new Date(venta.fields['Fecha de compra']);
+    const hora = fecha.getHours();
+    const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
+    
+    if (!ventasPorHora[hora]) {
+      ventasPorHora[hora] = { total: 0, cantidad: 0 };
+    }
+    ventasPorHora[hora].total += total;
+    ventasPorHora[hora].cantidad += 1;
+  });
+
+  if (Object.keys(ventasPorHora).length > 0) {
+    const mejorHora = Object.entries(ventasPorHora).sort((a, b) => b[1].total - a[1].total)[0];
+    const horaInicio = parseInt(mejorHora[0]);
+    const horaFin = horaInicio + 1;
+    
+    recomendaciones.push({
+      tipo: 'info',
+      icono: '⏰',
+      titulo: 'Horario Pico de Ventas',
+      mensaje: `La franja de <strong>${horaInicio}:00 - ${horaFin}:00</strong> genera ${Math.round(mejorHora[1].total).toLocaleString('es-CL')} con ${mejorHora[1].cantidad} ventas.`,
+      accion: 'Concentra tus esfuerzos comerciales en este horario. Agenda reuniones con anfitriones en estas horas.'
+    });
+  }
+
+  // ANÁLISIS 4: Ticket promedio vs potencial
+  const ticketPromedio = ventasActuales.reduce((sum, v) => {
+    return sum + (v.fields['Total Neto Numerico'] || v.fields['Total de venta'] || 0);
+  }, 0) / ventasActuales.length;
+
+  const ventasOrdenadas = ventasActuales
+    .map(v => v.fields['Total Neto Numerico'] || v.fields['Total de venta'] || 0)
+    .sort((a, b) => b - a);
+  
+  const top20Pct = ventasOrdenadas.slice(0, Math.ceil(ventasOrdenadas.length * 0.2));
+  const ticketTop20 = top20Pct.reduce((a, b) => a + b, 0) / top20Pct.length;
+  
+  const potencialCrecimiento = ((ticketTop20 - ticketPromedio) / ticketPromedio * 100).toFixed(1);
+  
+  if (potencialCrecimiento > 20) {
+    recomendaciones.push({
+      tipo: 'success',
+      icono: '💰',
+      titulo: 'Oportunidad de Crecimiento',
+      mensaje: `Tu ticket promedio es ${Math.round(ticketPromedio).toLocaleString('es-CL')}, pero el top 20% alcanza ${Math.round(ticketTop20).toLocaleString('es-CL')}.`,
+      accion: `Potencial de crecimiento del ${potencialCrecimiento}%. Implementa estrategias de up-selling y cross-selling.`
+    });
+  }
+
+  // ANÁLISIS 5: Clientes inactivos (Gold/Premium sin compras recientes)
+  const clientesEnVentas = new Set();
+  ventasActuales.forEach(venta => {
+    const clienteIds = venta.fields['Cliente'] || [];
+    clienteIds.forEach(id => clientesEnVentas.add(id));
+  });
+
+  let clientesGoldPremium = 0;
+  let clientesGoldPremiumActivos = 0;
+
+  clientesData.forEach(cliente => {
+    const cantidad = cliente.fields['Cantidad de unidades General x Cliente'] || 0;
+    if (cantidad > 3) { // Gold o Premium
+      clientesGoldPremium++;
+      if (clientesEnVentas.has(cliente.id)) {
+        clientesGoldPremiumActivos++;
+      }
+    }
+  });
+
+  const clientesInactivos = clientesGoldPremium - clientesGoldPremiumActivos;
+  
+  if (clientesInactivos > 0) {
+    recomendaciones.push({
+      tipo: 'warning',
+      icono: '👑',
+      titulo: 'Clientes Premium Inactivos',
+      mensaje: `Tienes <strong>${clientesInactivos} clientes Gold/Premium</strong> sin compras en el período seleccionado.`,
+      accion: 'Lanza una campaña de reactivación exclusiva: descuentos VIP, acceso anticipado a nuevos productos.'
+    });
+  }
+
+  // ANÁLISIS 6: Anfitriones con bajo rendimiento
+  const anfitrionesStats = {};
+  
+  ventasActuales.forEach(venta => {
+    const anfitrionesIds = venta.fields['Anfitrión'] || [];
+    const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
+    
+    anfitrionesIds.forEach(id => {
+      if (!anfitrionesStats[id]) {
+        anfitrionesStats[id] = { total: 0, cantidad: 0 };
+      }
+      anfitrionesStats[id].total += total;
+      anfitrionesStats[id].cantidad += 1;
+    });
+  });
+
+  if (Object.keys(anfitrionesStats).length >= 3) {
+    const anfitrionesArray = Object.entries(anfitrionesStats).sort((a, b) => b[1].total - a[1].total);
+    const promedioVentasAnfitrion = anfitrionesArray.reduce((sum, [_, stats]) => sum + stats.total, 0) / anfitrionesArray.length;
+    
+    const anfitrionesDebajo = anfitrionesArray.filter(([_, stats]) => stats.total < promedioVentasAnfitrion * 0.5);
+    
+    if (anfitrionesDebajo.length > 0) {
+      recomendaciones.push({
+        tipo: 'info',
+        icono: '📊',
+        titulo: 'Anfitriones por Debajo del Promedio',
+        mensaje: `${anfitrionesDebajo.length} anfitrion${anfitrionesDebajo.length > 1 ? 'es están' : ' está'} generando menos del 50% del promedio.`,
+        accion: 'Ofrece capacitación, tips de ventas, o incentivos para mejorar su rendimiento.'
+      });
+    }
+  }
+
+  // ANÁLISIS 7: Tasa de devolución alta
+  const totalVentas = ventasData.filter(v => !v.fields['Devolución'] || v.fields['Devolución'].length === 0).length;
+  const totalDevoluciones = ventasData.filter(v => v.fields['Devolución'] && v.fields['Devolución'].length > 0).length;
+  const tasaDevolucion = totalVentas > 0 ? (totalDevoluciones / (totalVentas + totalDevoluciones) * 100) : 0;
+  
+  if (tasaDevolucion > 10) {
+    recomendaciones.push({
+      tipo: 'warning',
+      icono: '↩️',
+      titulo: 'Tasa de Devolución Elevada',
+      mensaje: `La tasa de devolución es del <strong>${tasaDevolucion.toFixed(1)}%</strong>, superior al óptimo (5-8%).`,
+      accion: 'Revisa calidad de productos, expectativas del cliente, y proceso de venta. Mejora descripciones y fotos.'
+    });
+  }
+
+  // Renderizar recomendaciones
+  if (recomendaciones.length === 0) {
+    document.getElementById('recomendacionesInteligentes').innerHTML = `
+      <div class="recomendacion-card excelente">
+        <div class="recomendacion-icono">🎉</div>
+        <div class="recomendacion-content">
+          <div class="recomendacion-titulo">¡Todo va excelente!</div>
+          <div class="recomendacion-mensaje">No hay recomendaciones urgentes. Tu operación está optimizada.</div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const html = recomendaciones.map(rec => {
+    const colorClase = rec.tipo === 'success' ? 'success' : rec.tipo === 'warning' ? 'warning' : 'info';
+    return `
+      <div class="recomendacion-card ${colorClase}">
+        <div class="recomendacion-icono">${rec.icono}</div>
+        <div class="recomendacion-content">
+          <div class="recomendacion-titulo">${rec.titulo}</div>
+          <div class="recomendacion-mensaje">${rec.mensaje}</div>
+          <div class="recomendacion-accion">💡 <strong>Recomendación:</strong> ${rec.accion}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('recomendacionesInteligentes').innerHTML = html;
 }
 
 function mostrarTopAnfitriones(ventas) {

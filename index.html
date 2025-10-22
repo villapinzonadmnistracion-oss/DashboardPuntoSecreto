@@ -1029,6 +1029,123 @@
     .prediccion-nota strong {
       color: #1f2937;
     }
+
+    /* Recomendaciones Inteligentes */
+    .recomendacion-card {
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 12px;
+      border: 2px solid;
+      animation: slideIn 0.4s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .recomendacion-card.success {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      border-color: #10b981;
+    }
+
+    .recomendacion-card.warning {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border-color: #f59e0b;
+    }
+
+    .recomendacion-card.info {
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      border-color: #3b82f6;
+    }
+
+    .recomendacion-card.excelente {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      border-color: #10b981;
+    }
+
+    .recomendacion-icono {
+      font-size: 32px;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .recomendacion-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .recomendacion-titulo {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .recomendacion-card.success .recomendacion-titulo {
+      color: #065f46;
+    }
+
+    .recomendacion-card.warning .recomendacion-titulo {
+      color: #92400e;
+    }
+
+    .recomendacion-card.info .recomendacion-titulo {
+      color: #1e40af;
+    }
+
+    .recomendacion-card.excelente .recomendacion-titulo {
+      color: #065f46;
+    }
+
+    .recomendacion-mensaje {
+      font-size: 12px;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .recomendacion-card.success .recomendacion-mensaje {
+      color: #047857;
+    }
+
+    .recomendacion-card.warning .recomendacion-mensaje {
+      color: #78350f;
+    }
+
+    .recomendacion-card.info .recomendacion-mensaje {
+      color: #1e40af;
+    }
+
+    .recomendacion-card.excelente .recomendacion-mensaje {
+      color: #047857;
+    }
+
+    .recomendacion-accion {
+      font-size: 11px;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 6px;
+      line-height: 1.4;
+    }
+
+    .recomendacion-card.success .recomendacion-accion {
+      color: #065f46;
+    }
+
+    .recomendacion-card.warning .recomendacion-accion {
+      color: #92400e;
+    }
+
+    .recomendacion-card.info .recomendacion-accion {
+      color: #1e3a8a;
+    }
   </style>
 </head>
 <body>
@@ -1160,6 +1277,12 @@
       <div class="section">
         <div class="section-title">🔮 Análisis Predictivo</div>
         <div id="analisisPredictivo"></div>
+      </div>
+
+      <!-- NUEVO: Recomendaciones Inteligentes -->
+      <div class="section">
+        <div class="section-title">💡 Recomendaciones Inteligentes</div>
+        <div id="recomendacionesInteligentes"></div>
       </div>
 
       <!-- Top Anfitriones -->
