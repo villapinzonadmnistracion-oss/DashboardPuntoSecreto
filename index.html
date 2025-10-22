@@ -1146,6 +1146,537 @@
     .recomendacion-card.info .recomendacion-accion {
       color: #1e3a8a;
     }
+
+    /* Análisis de Horarios Pico */
+    .horarios-resumen {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .horario-card {
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      border: 2px solid #3b82f6;
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .horario-card.best {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      border-color: #10b981;
+    }
+
+    .horario-card-icon {
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+
+    .horario-card-label {
+      font-size: 11px;
+      color: #1e40af;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .horario-card.best .horario-card-label {
+      color: #065f46;
+    }
+
+    .horario-card-valor {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1e40af;
+      margin-bottom: 4px;
+    }
+
+    .horario-card.best .horario-card-valor {
+      color: #047857;
+    }
+
+    .horario-card-detalle {
+      font-size: 10px;
+      color: #1e40af;
+      line-height: 1.3;
+    }
+
+    .horario-card.best .horario-card-detalle {
+      color: #059669;
+    }
+
+    .top-horarios {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    .top-horarios-titulo {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 10px;
+    }
+
+    .top-horario-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .top-horario-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .horario-medalla {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .horario-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .horario-nombre {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 2px;
+    }
+
+    .horario-stats {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .heatmap-container {
+      margin-bottom: 16px;
+    }
+
+    .heatmap-titulo {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 10px;
+    }
+
+    .heatmap-dias {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .dia-bar {
+      display: grid;
+      grid-template-columns: 35px 1fr 45px;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .dia-bar:last-child {
+      margin-bottom: 0;
+    }
+
+    .dia-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #4b5563;
+    }
+
+    .dia-bar-container {
+      height: 24px;
+      background: #e5e7eb;
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .dia-bar-fill {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: width 0.5s ease;
+      position: relative;
+    }
+
+    .dia-bar-text {
+      font-size: 10px;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .dia-monto {
+      font-size: 11px;
+      font-weight: 600;
+      color: #10b981;
+      text-align: right;
+    }
+
+    .franjas-container {
+      margin-bottom: 16px;
+    }
+
+    .franjas-titulo {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 10px;
+    }
+
+    .franjas-bars {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .franja-item {
+      margin-bottom: 12px;
+    }
+
+    .franja-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .franja-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 6px;
+    }
+
+    .franja-bar-container {
+      height: 20px;
+      background: #e5e7eb;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+
+    .franja-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #059669);
+      border-radius: 6px;
+      transition: width 0.5s ease;
+    }
+
+    .franja-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .franja-monto {
+      font-weight: 600;
+      color: #10b981;
+    }
+
+    .horarios-insight {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border: 2px solid #fbbf24;
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .horarios-insight-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .horarios-insight-text {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #78350f;
+    }
+
+    /* Análisis de Comportamiento de Clientes */
+    .clientes-kpis {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .cliente-kpi {
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      border: 2px solid #3b82f6;
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .cliente-kpi.success {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      border-color: #10b981;
+    }
+
+    .cliente-kpi-icon {
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+
+    .cliente-kpi-valor {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e40af;
+      margin-bottom: 4px;
+      line-height: 1;
+    }
+
+    .cliente-kpi.success .cliente-kpi-valor {
+      color: #047857;
+    }
+
+    .cliente-kpi-label {
+      font-size: 11px;
+      color: #1e40af;
+      font-weight: 600;
+    }
+
+    .cliente-kpi.success .cliente-kpi-label {
+      color: #065f46;
+    }
+
+    .valor-clasificacion {
+      margin-bottom: 16px;
+    }
+
+    .valor-titulo {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 10px;
+    }
+
+    .valor-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .valor-card {
+      background: white;
+      border: 2px solid;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .valor-card-icon {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    .valor-card-tipo {
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .valor-card-valor {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 2px;
+    }
+
+    .valor-card-cantidad {
+      font-size: 10px;
+      color: #6b7280;
+    }
+
+    .top-clientes-vip {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border: 2px solid #fbbf24;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    .vip-titulo {
+      font-size: 13px;
+      font-weight: 700;
+      color: #92400e;
+      margin-bottom: 10px;
+    }
+
+    .vip-cliente {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .vip-cliente:last-child {
+      margin-bottom: 0;
+    }
+
+    .vip-ranking {
+      font-size: 18px;
+      font-weight: 700;
+      color: #b45309;
+      flex-shrink: 0;
+      width: 32px;
+      text-align: center;
+    }
+
+    .vip-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .vip-nombre {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .vip-stats {
+      font-size: 10px;
+      color: #6b7280;
+    }
+
+    .vip-valor {
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .vip-total {
+      font-size: 14px;
+      font-weight: 700;
+      color: #10b981;
+      margin-bottom: 2px;
+    }
+
+    .vip-promedio {
+      font-size: 10px;
+      color: #6b7280;
+    }
+
+    .patrones-compra {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    .patrones-titulo {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 10px;
+    }
+
+    .patron-item {
+      margin-bottom: 12px;
+    }
+
+    .patron-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .patron-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 6px;
+    }
+
+    .patron-icon {
+      font-size: 16px;
+    }
+
+    .patron-bar-container {
+      height: 20px;
+      background: #e5e7eb;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+
+    .patron-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.5s ease;
+    }
+
+    .patron-bar-fill.unico {
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+    }
+
+    .patron-bar-fill.recurrente {
+      background: linear-gradient(90deg, #10b981, #059669);
+    }
+
+    .patron-bar-fill.bajo {
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+    }
+
+    .patron-bar-fill.alto {
+      background: linear-gradient(90deg, #8b5cf6, #7c3aed);
+    }
+
+    .patron-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .patron-porcentaje {
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .clientes-insight {
+      background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+      border: 2px solid #6366f1;
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .clientes-insight-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .clientes-insight-text {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #312e81;
+    }
   </style>
 </head>
 <body>
@@ -1283,6 +1814,18 @@
       <div class="section">
         <div class="section-title">💡 Recomendaciones Inteligentes</div>
         <div id="recomendacionesInteligentes"></div>
+      </div>
+
+      <!-- NUEVO: Análisis de Horarios Pico -->
+      <div class="section">
+        <div class="section-title">⏰ Análisis de Horarios Pico</div>
+        <div id="analisisHorarios"></div>
+      </div>
+
+      <!-- NUEVO: Análisis de Comportamiento de Clientes -->
+      <div class="section">
+        <div class="section-title">🎯 Comportamiento de Clientes</div>
+        <div id="comportamientoClientes"></div>
       </div>
 
       <!-- Top Anfitriones -->
