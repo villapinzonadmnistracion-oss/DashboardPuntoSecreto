@@ -101,6 +101,11 @@ async function cargarDatos() {
     document.getElementById('lastUpdate').textContent = `Última actualización: ${now.toLocaleTimeString('es-CL')}`;
     document.getElementById('refreshTime').textContent = `Actualizado: ${now.toLocaleString('es-CL')}`;
 
+    // NUEVO: Inicializar asistente virtual después de cargar datos
+    if (typeof inicializarAsistenteVirtual === 'function') {
+      inicializarAsistenteVirtual();
+    }
+
   } catch (error) {
     console.error('❌ Error al cargar datos:', error);
     document.getElementById('loading').innerHTML = `
@@ -111,8 +116,24 @@ async function cargarDatos() {
       </div>
     `;
   }
-}
+} // ← ESTA LLAVE FALTABA
 
+async function fetchFromProxy(tableId) {
+  try {
+    // Las credenciales deben estar en variables de entorno del servidor
+    const response = await fetch(`/api/airtable?action=getRecords&tableId=${tableId}`);
+    
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data.records || [];
+  } catch (error) {
+    console.error(`❌ Error fetching ${tableId}:`, error);
+    throw error;
+  }
+}
 async function fetchFromProxy(tableId) {
   try {
     // Las credenciales deben estar en variables de entorno del servidor
