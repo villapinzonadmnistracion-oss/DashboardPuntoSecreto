@@ -210,6 +210,9 @@ function calcularEstadisticas(ventas) {
   
   // NUEVO: Análisis de comportamiento de clientes
   analisisComportamientoClientes(ventasReales);
+  
+  // NUEVO: Inicializar asistente virtual
+  inicializarAsistenteVirtual(ventasReales);
 
   mostrarTopAnfitriones(ventasReales);
   mostrarTopProductos(ventasReales);
