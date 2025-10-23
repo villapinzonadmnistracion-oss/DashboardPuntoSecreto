@@ -1677,6 +1677,170 @@
       line-height: 1.5;
       color: #312e81;
     }
+
+    /* Asistente Virtual */
+    .chat-messages {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 12px;
+      min-height: 250px;
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+    }
+
+    .chat-message {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      animation: messageSlide 0.3s ease-out;
+    }
+
+    @keyframes messageSlide {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .chat-message.usuario {
+      flex-direction: row-reverse;
+    }
+
+    .chat-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      background: white;
+      border: 2px solid #e5e7eb;
+    }
+
+    .chat-message.usuario .chat-avatar {
+      background: #10b981;
+      border-color: #059669;
+    }
+
+    .chat-bubble {
+      max-width: 75%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      word-wrap: break-word;
+    }
+
+    .chat-message.asistente .chat-bubble {
+      background: white;
+      border: 2px solid #10b981;
+      color: #1f2937;
+      border-radius: 12px 12px 12px 4px;
+    }
+
+    .chat-message.usuario .chat-bubble {
+      background: #10b981;
+      color: white;
+      border-radius: 12px 12px 4px 12px;
+    }
+
+    .chat-bubble strong {
+      font-weight: 700;
+    }
+
+    .chat-input-container {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #10b981;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .chat-input:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+
+    .chat-send-btn {
+      width: 48px;
+      height: 48px;
+      background: #10b981;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    .chat-send-btn:active {
+      background: #059669;
+      transform: scale(0.95);
+    }
+
+    .chat-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .suggestion-btn {
+      padding: 8px 12px;
+      background: white;
+      border: 2px solid #10b981;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #10b981;
+      cursor: pointer;
+      transition: all 0.3s;
+      flex: 1;
+      min-width: 0;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .suggestion-btn:active {
+      background: #10b981;
+      color: white;
+      transform: scale(0.98);
+    }
+
+    .chat-messages::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .chat-messages::-webkit-scrollbar-track {
+      background: #e5e7eb;
+      border-radius: 10px;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: #10b981;
+      border-radius: 10px;
+    }
   </style>
 </head>
 <body>
@@ -1826,6 +1990,34 @@
       <div class="section">
         <div class="section-title">🎯 Comportamiento de Clientes</div>
         <div id="comportamientoClientes"></div>
+      </div>
+
+      <!-- NUEVO: Asistente Virtual -->
+      <div class="section">
+        <div class="section-title">🤖 Asistente Virtual</div>
+        <div id="asistenteVirtual">
+          <div id="chatMessages" class="chat-messages"></div>
+          <div class="chat-input-container">
+            <input 
+              type="text" 
+              id="chatInput" 
+              class="chat-input" 
+              placeholder="Pregúntame sobre ventas, productos, anfitriones..."
+            >
+            <button id="sendBtn" class="chat-send-btn">📤</button>
+          </div>
+          <div class="chat-suggestions">
+            <button class="suggestion-btn" onclick="document.getElementById('chatInput').value='¿Cuánto vendimos?'; enviarMensajeAsistente();">
+              💰 ¿Cuánto vendimos?
+            </button>
+            <button class="suggestion-btn" onclick="document.getElementById('chatInput').value='¿Cuál es el producto más vendido?'; enviarMensajeAsistente();">
+              📦 Producto más vendido
+            </button>
+            <button class="suggestion-btn" onclick="document.getElementById('chatInput').value='¿Quién es el mejor anfitrión?'; enviarMensajeAsistente();">
+              🏆 Mejor anfitrión
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Top Anfitriones -->
