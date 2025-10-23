@@ -1521,11 +1521,94 @@ function enviarMensajeAsistente() {
   agregarMensajeAsistente(pregunta, 'usuario');
   input.value = '';
   
-  // Procesar pregunta
-  setTimeout(() => {
-    const respuesta = procesarPregunta(pregunta);
+  // Procesar según modo
+  if (modoActual === 'chatgpt') {
+    // Mostrar indicador de escritura
+    const typingId = agregarMensajeAsistente('✨ Pensando...', 'asistente');
+    
+    // Llamar a ChatGPT
+    consultarChatGPT(pregunta, typingId);
+  } else {
+    // Modo local
+    setTimeout(() => {
+      const respuesta = procesarPregunta(pregunta);
+      agregarMensajeAsistente(respuesta, 'asistente');
+    }, 500);
+  }
+}
+
+async function consultarChatGPT(pregunta, typingId) {
+  try {
+    // Preparar contexto con datos actuales
+    const contextoResumen = `
+Eres un asistente de análisis de ventas para Punto Secreto. Responde de forma concisa y profesional en español.
+
+DATOS ACTUALES:
+- Período: ${contextoDatos.stats.fechaDesde || 'inicio'} al ${contextoDatos.stats.fechaHasta || 'hoy'}
+- Total ventas: ${Math.round(contextoDatos.stats.totalVentas).toLocaleString('es-CL')}
+- Transacciones: ${contextoDatos.stats.numTransacciones}
+- Ticket promedio: ${Math.round(contextoDatos.stats.ticketPromedio).toLocaleString('es-CL')}
+
+PRODUCTOS MÁS VENDIDOS:
+${Object.entries(contextoDatos.productos).sort((a,b) => b[1] - a[1]).slice(0, 5).map(([p, c]) => `- ${p}: ${c} unidades`).join('\n')}
+
+TOP ANFITRIONES:
+${Object.values(contextoDatos.anfitriones).sort((a,b) => b.total - a.total).slice(0, 3).map((a, i) => `${i+1}. ${a.nombre}: ${Math.round(a.total).toLocaleString('es-CL')}`).join('\n')}
+
+TOP CLIENTES:
+${Object.entries(contextoDatos.clientes).sort((a,b) => b[1].total - a[1].total).slice(0, 3).map(([n, d], i) => `${i+1}. ${n}: ${Math.round(d.total).toLocaleString('es-CL')}`).join('\n')}
+
+Pregunta del usuario: ${pregunta}
+
+Responde de forma breve (máximo 150 palabras), usando formato markdown con **negritas** para destacar números importantes. Usa emojis relevantes.`;
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          {
+            role: 'system',
+            content: 'Eres un asistente experto en análisis de ventas. Respondes de forma concisa, profesional y útil en español de Chile.'
+          },
+          {
+            role: 'user',
+            content: contextoResumen
+          }
+        ],
+        max_tokens: 300,
+        temperature: 0.7
+      })
+    });
+
+    const data = await response.json();
+    
+    // Eliminar mensaje de "pensando"
+    document.getElementById(typingId).remove();
+    
+    if (data.error) {
+      agregarMensajeAsistente(
+        '❌ Error al conectar con ChatGPT. Intenta con el modo Local o verifica la conexión.',
+        'asistente'
+      );
+      return;
+    }
+    
+    const respuesta = data.choices[0].message.content;
     agregarMensajeAsistente(respuesta, 'asistente');
-  }, 500);
+    
+  } catch (error) {
+    console.error('Error ChatGPT:', error);
+    document.getElementById(typingId).remove();
+    agregarMensajeAsistente(
+      '❌ No se pudo conectar con ChatGPT. Por favor intenta con el modo Local.',
+      'asistente'
+    );
+  }
 }
 
 function procesarPregunta(pregunta) {
@@ -1648,6 +1731,12 @@ function agregarMensajeAsistente(mensaje, tipo) {
   const messageDiv = document.createElement('div');
   messageDiv.className = `chat-message ${tipo}`;
   
+  // ID único para mensajes del asistente (para poder eliminarlos)
+  if (tipo === 'asistente') {
+    const id = 'msg-' + Date.now();
+    messageDiv.id = id;
+  }
+  
   const avatar = document.createElement('div');
   avatar.className = 'chat-avatar';
   avatar.textContent = tipo === 'usuario' ? '👤' : '🤖';
@@ -1668,6 +1757,11 @@ function agregarMensajeAsistente(mensaje, tipo) {
   
   // Scroll al final
   chatMessages.scrollTop = chatMessages.scrollHeight;
+  
+  // Retornar ID si es del asistente
+  if (tipo === 'asistente') {
+    return messageDiv.id;
+  }
 }
 
 function formatearFecha(fecha) {
