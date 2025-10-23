@@ -1085,6 +1085,334 @@ function analisisHorariosPico(ventasActuales) {
   document.getElementById('analisisHorarios').innerHTML = html;
 }
 
+function analisisComportamientoClientes(ventasActuales) {
+  if (ventasActuales.length === 0) {
+    document.getElementById('comportamientoClientes').innerHTML = `
+      <div class="tendencia-info">
+        <div class="tendencia-icon">ℹ️</div>
+        <div class="tendencia-text">No hay datos suficientes para analizar comportamiento</div>
+      </div>
+    `;
+    return;
+  }
+
+  // Análisis por cliente
+  const clientesData = {};
+  
+  ventasActuales.forEach(venta => {
+    const clienteIds = venta.fields['Cliente'] || [];
+    const nombreCliente = venta.fields['Nombre'] || 'Sin nombre';
+    const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
+    const fecha = new Date(venta.fields['Fecha de compra']);
+    
+    clienteIds.forEach(clienteId => {
+      if (!clientesData[clienteId]) {
+        clientesData[clienteId] = {
+          nombre: nombreCliente,
+          totalGastado: 0,
+          compras: [],
+          fechas: []
+        };
+      }
+      
+      clientesData[clienteId].totalGastado += total;
+      clientesData[clienteId].compras.push(total);
+      clientesData[clienteId].fechas.push(fecha);
+    });
+  });
+
+  // Calcular métricas por cliente
+  const clientesArray = Object.entries(clientesData).map(([id, data]) => {
+    const compras = data.compras;
+    const fechas = data.fechas.sort((a, b) => a - b);
+    
+    // Ticket promedio
+    const ticketPromedio = data.totalGastado / compras.length;
+    
+    // Frecuencia (días entre compras)
+    let frecuenciaPromedio = 0;
+    if (fechas.length > 1) {
+      let sumaIntervalos = 0;
+      for (let i = 1; i < fechas.length; i++) {
+        const dias = (fechas[i] - fechas[i-1]) / (1000 * 60 * 60 * 24);
+        sumaIntervalos += dias;
+      }
+      frecuenciaPromedio = sumaIntervalos / (fechas.length - 1);
+    }
+    
+    // Obtener clasificación
+    const clienteInfo = clientesMap[id];
+    const cantidadUnidades = clienteInfo?.['Cantidad de unidades General x Cliente'] || 0;
+    let clasificacion = 'Normal';
+    if (cantidadUnidades === 0) clasificacion = 'Normal';
+    else if (cantidadUnidades <= 3) clasificacion = 'Frecuente';
+    else if (cantidadUnidades <= 6) clasificacion = 'Gold';
+    else clasificacion = 'Premium';
+    
+    return {
+      id,
+      nombre: data.nombre,
+      totalGastado: data.totalGastado,
+      numCompras: compras.length,
+      ticketPromedio,
+      frecuenciaPromedio,
+      clasificacion,
+      ultimaCompra: fechas[fechas.length - 1]
+    };
+  });
+
+  // Estadísticas generales
+  const totalClientes = clientesArray.length;
+  const clientesRecurrentes = clientesArray.filter(c => c.numCompras > 1).length;
+  const tasaRecurrencia = (clientesRecurrentes / totalClientes * 100).toFixed(1);
+  
+  const ticketPromedioGlobal = clientesArray.reduce((sum, c) => sum + c.ticketPromedio, 0) / totalClientes;
+  
+  // Clientes por clasificación
+  const porClasificacion = {
+    Premium: clientesArray.filter(c => c.clasificacion === 'Premium'),
+    Gold: clientesArray.filter(c => c.clasificacion === 'Gold'),
+    Frecuente: clientesArray.filter(c => c.clasificacion === 'Frecuente'),
+    Normal: clientesArray.filter(c => c.clasificacion === 'Normal')
+  };
+
+  // Valor promedio por clasificación
+  const valorPorClasificacion = {};
+  Object.entries(porClasificacion).forEach(([tipo, clientes]) => {
+    if (clientes.length > 0) {
+      valorPorClasificacion[tipo] = clientes.reduce((sum, c) => sum + c.totalGastado, 0) / clientes.length;
+    } else {
+      valorPorClasificacion[tipo] = 0;
+    }
+  });
+
+  // Top 5 clientes más valiosos
+  const topClientes = clientesArray.sort((a, b) => b.totalGastado - a.totalGastado).slice(0, 5);
+
+  // Análisis de frecuencia
+  const clientesConFrecuencia = clientesArray.filter(c => c.frecuenciaPromedio > 0);
+  const frecuenciaPromedio = clientesConFrecuencia.length > 0 
+    ? clientesConFrecuencia.reduce((sum, c) => sum + c.frecuenciaPromedio, 0) / clientesConFrecuencia.length 
+    : 0;
+
+  // Generar HTML
+  let html = '';
+
+  // KPIs de clientes
+  html += '<div class="clientes-kpis">';
+  
+  html += `
+    <div class="cliente-kpi">
+      <div class="cliente-kpi-icon">👥</div>
+      <div class="cliente-kpi-valor">${totalClientes}</div>
+      <div class="cliente-kpi-label">Clientes Activos</div>
+    </div>
+  `;
+
+  html += `
+    <div class="cliente-kpi success">
+      <div class="cliente-kpi-icon">🔄</div>
+      <div class="cliente-kpi-valor">${tasaRecurrencia}%</div>
+      <div class="cliente-kpi-label">Tasa Recurrencia</div>
+    </div>
+  `;
+
+  html += `
+    <div class="cliente-kpi">
+      <div class="cliente-kpi-icon">💰</div>
+      <div class="cliente-kpi-valor">${Math.round(ticketPromedioGlobal).toLocaleString('es-CL')}</div>
+      <div class="cliente-kpi-label">Ticket Promedio</div>
+    </div>
+  `;
+
+  html += `
+    <div class="cliente-kpi">
+      <div class="cliente-kpi-icon">📅</div>
+      <div class="cliente-kpi-valor">${Math.round(frecuenciaPromedio)}</div>
+      <div class="cliente-kpi-label">Días entre compras</div>
+    </div>
+  `;
+
+  html += '</div>';
+
+  // Valor por clasificación
+  html += '<div class="valor-clasificacion">';
+  html += '<div class="valor-titulo">💎 Valor Promedio por Tipo de Cliente</div>';
+  html += '<div class="valor-grid">';
+
+  const clasificacionConfig = {
+    Premium: { color: '#a855f7', icon: '💎' },
+    Gold: { color: '#fbbf24', icon: '👑' },
+    Frecuente: { color: '#10b981', icon: '⭐' },
+    Normal: { color: '#6b7280', icon: '👤' }
+  };
+
+  Object.entries(valorPorClasificacion).forEach(([tipo, valor]) => {
+    const config = clasificacionConfig[tipo];
+    const cantidad = porClasificacion[tipo].length;
+    
+    html += `
+      <div class="valor-card" style="border-color: ${config.color}">
+        <div class="valor-card-icon">${config.icon}</div>
+        <div class="valor-card-tipo" style="color: ${config.color}">${tipo}</div>
+        <div class="valor-card-valor">${Math.round(valor).toLocaleString('es-CL')}</div>
+        <div class="valor-card-cantidad">${cantidad} cliente${cantidad !== 1 ? 's' : ''}</div>
+      </div>
+    `;
+  });
+
+  html += '</div>';
+  html += '</div>';
+
+  // Top 5 clientes VIP
+  html += '<div class="top-clientes-vip">';
+  html += '<div class="vip-titulo">👑 Top 5 Clientes VIP</div>';
+
+  topClientes.forEach((cliente, index) => {
+    const iconosClasificacion = {
+      Premium: '💎',
+      Gold: '👑',
+      Frecuente: '⭐',
+      Normal: '👤'
+    };
+    
+    const ultimaCompra = cliente.ultimaCompra.toLocaleDateString('es-CL', { day: 'numeric', month: 'short' });
+    
+    html += `
+      <div class="vip-cliente">
+        <div class="vip-ranking">#${index + 1}</div>
+        <div class="vip-info">
+          <div class="vip-nombre">
+            ${iconosClasificacion[cliente.clasificacion]} ${cliente.nombre}
+          </div>
+          <div class="vip-stats">
+            ${cliente.numCompras} compras • Última: ${ultimaCompra}
+          </div>
+        </div>
+        <div class="vip-valor">
+          <div class="vip-total">${Math.round(cliente.totalGastado).toLocaleString('es-CL')}</div>
+          <div class="vip-promedio">${Math.round(cliente.ticketPromedio).toLocaleString('es-CL')}/compra</div>
+        </div>
+      </div>
+    `;
+  });
+
+  html += '</div>';
+
+  // Patrones de compra
+  html += '<div class="patrones-compra">';
+  html += '<div class="patrones-titulo">📊 Patrones de Compra</div>';
+
+  // Análisis de compras múltiples vs únicas
+  const comprasUnicas = clientesArray.filter(c => c.numCompras === 1).length;
+  const comprasMultiples = clientesArray.filter(c => c.numCompras > 1).length;
+  
+  html += `
+    <div class="patron-item">
+      <div class="patron-label">
+        <span class="patron-icon">🛍️</span>
+        <span>Clientes de Compra Única</span>
+      </div>
+      <div class="patron-bar-container">
+        <div class="patron-bar-fill unico" style="width: ${(comprasUnicas / totalClientes * 100)}%"></div>
+      </div>
+      <div class="patron-stats">
+        <span>${comprasUnicas} clientes</span>
+        <span class="patron-porcentaje">${(comprasUnicas / totalClientes * 100).toFixed(1)}%</span>
+      </div>
+    </div>
+  `;
+
+  html += `
+    <div class="patron-item">
+      <div class="patron-label">
+        <span class="patron-icon">🔄</span>
+        <span>Clientes Recurrentes</span>
+      </div>
+      <div class="patron-bar-container">
+        <div class="patron-bar-fill recurrente" style="width: ${(comprasMultiples / totalClientes * 100)}%"></div>
+      </div>
+      <div class="patron-stats">
+        <span>${comprasMultiples} clientes</span>
+        <span class="patron-porcentaje">${(comprasMultiples / totalClientes * 100).toFixed(1)}%</span>
+      </div>
+    </div>
+  `;
+
+  // Distribución de ticket promedio
+  const ticketBajo = clientesArray.filter(c => c.ticketPromedio < ticketPromedioGlobal * 0.7).length;
+  const ticketMedio = clientesArray.filter(c => c.ticketPromedio >= ticketPromedioGlobal * 0.7 && c.ticketPromedio <= ticketPromedioGlobal * 1.3).length;
+  const ticketAlto = clientesArray.filter(c => c.ticketPromedio > ticketPromedioGlobal * 1.3).length;
+
+  html += `
+    <div class="patron-item">
+      <div class="patron-label">
+        <span class="patron-icon">💸</span>
+        <span>Ticket Bajo (< ${Math.round(ticketPromedioGlobal * 0.7).toLocaleString('es-CL')})</span>
+      </div>
+      <div class="patron-bar-container">
+        <div class="patron-bar-fill bajo" style="width: ${(ticketBajo / totalClientes * 100)}%"></div>
+      </div>
+      <div class="patron-stats">
+        <span>${ticketBajo} clientes</span>
+        <span class="patron-porcentaje">${(ticketBajo / totalClientes * 100).toFixed(1)}%</span>
+      </div>
+    </div>
+  `;
+
+  html += `
+    <div class="patron-item">
+      <div class="patron-label">
+        <span class="patron-icon">💰</span>
+        <span>Ticket Alto (> ${Math.round(ticketPromedioGlobal * 1.3).toLocaleString('es-CL')})</span>
+      </div>
+      <div class="patron-bar-container">
+        <div class="patron-bar-fill alto" style="width: ${(ticketAlto / totalClientes * 100)}%"></div>
+      </div>
+      <div class="patron-stats">
+        <span>${ticketAlto} clientes</span>
+        <span class="patron-porcentaje">${(ticketAlto / totalClientes * 100).toFixed(1)}%</span>
+      </div>
+    </div>
+  `;
+
+  html += '</div>';
+
+  // Insight inteligente
+  const clientePremiumMasValioso = porClasificacion.Premium.length > 0 
+    ? Math.max(...porClasificacion.Premium.map(c => valorPorClasificacion.Premium))
+    : 0;
+  const clienteNormalMasValioso = porClasificacion.Normal.length > 0
+    ? valorPorClasificacion.Normal
+    : 0;
+  
+  const multiplicador = clienteNormalMasValioso > 0 
+    ? (valorPorClasificacion.Premium / clienteNormalMasValioso).toFixed(1)
+    : 0;
+
+  let insightTexto = '';
+  if (tasaRecurrencia > 40) {
+    insightTexto = `🎉 <strong>Excelente fidelización.</strong> El ${tasaRecurrencia}% de tus clientes son recurrentes. `;
+  } else if (tasaRecurrencia > 25) {
+    insightTexto = `✅ <strong>Buena retención.</strong> El ${tasaRecurrencia}% de clientes repiten compras. `;
+  } else {
+    insightTexto = `⚠️ <strong>Oportunidad de mejora.</strong> Solo el ${tasaRecurrencia}% son recurrentes. `;
+  }
+
+  if (multiplicador > 1) {
+    insightTexto += `Los clientes <strong>Premium generan ${multiplicador}x más valor</strong> que clientes normales. Enfoca esfuerzos en cultivar más clientes Premium.`;
+  }
+
+  html += `
+    <div class="clientes-insight">
+      <div class="clientes-insight-icon">💡</div>
+      <div class="clientes-insight-text">${insightTexto}</div>
+    </div>
+  `;
+
+  document.getElementById('comportamientoClientes').innerHTML = html;
+}
+
 function mostrarTopAnfitriones(ventas) {
   const anfitrionesStats = {};
 
