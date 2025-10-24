@@ -1486,6 +1486,7 @@
                 id="searchInput" 
                 placeholder="Buscar clientes, productos o anfitriones..." 
                 oninput="buscarGlobal()"
+                onkeypress="if(event.key === 'Enter') buscarGlobal()"
               >
               <button id="clearSearch" onclick="limpiarBusqueda()">✕</button>
             </div>
