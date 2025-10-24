@@ -297,7 +297,7 @@ function mostrarTopProductos(ventas) {
 
 function mostrarGraficoProductos(ventas) {
   const productosCount = {};
-  const productosPorFecha = {}; // Para calcular frecuencia
+  const productosPorFecha = {};
 
   ventas.forEach(venta => {
     const fechaVenta = venta.fields['Fecha de compra'];
@@ -310,7 +310,6 @@ function mostrarGraficoProductos(ventas) {
           const nombreProducto = campo.replace('Cantidad real de ventas ', '').trim();
           productosCount[nombreProducto] = (productosCount[nombreProducto] || 0) + cantidad;
           
-          // Registrar venta por fecha para calcular frecuencia
           if (fechaVenta) {
             if (!productosPorFecha[nombreProducto]) {
               productosPorFecha[nombreProducto] = [];
@@ -331,11 +330,9 @@ function mostrarGraficoProductos(ventas) {
     return;
   }
 
-  // Calcular análisis inteligente
   const productoMasVendido = productosArray[0];
   const productoMenosVendido = productosArray[productosArray.length - 1];
   
-  // Calcular frecuencia (días entre ventas promedio)
   let frecuenciaTexto = '';
   if (productosPorFecha[productoMasVendido[0]] && productosPorFecha[productoMasVendido[0]].length > 1) {
     const fechas = productosPorFecha[productoMasVendido[0]].sort((a, b) => a - b);
@@ -363,7 +360,6 @@ function mostrarGraficoProductos(ventas) {
     frecuenciaTexto = 'ocasionalmente';
   }
 
-  // Obtener rango de fechas actual
   const fechaDesde = document.getElementById('fechaDesde').value;
   const fechaHasta = document.getElementById('fechaHasta').value;
   let periodoTexto = '';
@@ -382,7 +378,6 @@ function mostrarGraficoProductos(ventas) {
     periodoTexto = 'en el período seleccionado';
   }
 
-  // Generar nota inteligente
   const notaHTML = `
     <div class="nota-inteligente">
       <div class="nota-icon">💡</div>
@@ -401,11 +396,9 @@ function mostrarGraficoProductos(ventas) {
   
   document.getElementById('notaInteligente').innerHTML = notaHTML;
 
-  // Generar gráfico circular (pie chart) con Canvas
   const canvas = document.getElementById('chartCanvas');
   const ctx = canvas.getContext('2d');
   
-  // Ajustar para alta resolución
   const dpr = window.devicePixelRatio || 1;
   const size = 280;
   canvas.width = size * dpr;
@@ -418,7 +411,6 @@ function mostrarGraficoProductos(ventas) {
   const centerY = size / 2;
   const radius = 90;
 
-  // Paleta de colores vibrante y variada (30 colores)
   const colores = [
     '#10b981', '#06b6d4', '#8b5cf6', '#ec4899', '#f59e0b',
     '#059669', '#0891b2', '#7c3aed', '#db2777', '#d97706',
@@ -433,7 +425,6 @@ function mostrarGraficoProductos(ventas) {
   const total = productosArray.reduce((sum, [_, count]) => sum + count, 0);
   let currentAngle = -Math.PI / 2;
 
-  // Dibujar segmentos
   productosArray.forEach(([nombre, cantidad], index) => {
     const sliceAngle = (cantidad / total) * 2 * Math.PI;
     
@@ -450,13 +441,11 @@ function mostrarGraficoProductos(ventas) {
     currentAngle += sliceAngle;
   });
 
-  // Círculo blanco central
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius * 0.5, 0, 2 * Math.PI);
   ctx.fillStyle = 'white';
   ctx.fill();
 
-  // Texto central
   ctx.fillStyle = '#10b981';
   ctx.font = 'bold 20px -apple-system, sans-serif';
   ctx.textAlign = 'center';
@@ -466,7 +455,6 @@ function mostrarGraficoProductos(ventas) {
   ctx.fillStyle = '#6b7280';
   ctx.fillText('unidades', centerX, centerY + 10);
 
-  // Leyenda
   const leyendaHTML = productosArray.slice(0, 8).map(([nombre, cantidad], index) => {
     const porcentaje = ((cantidad / total) * 100).toFixed(1);
     return `
@@ -522,14 +510,12 @@ function mostrarTopClientes(ventas) {
 }
 
 function mostrarClasificacionClientes(ventas) {
-  // Obtener IDs únicos de clientes de las ventas
   const clientesEnVentas = new Set();
   ventas.forEach(venta => {
     const clienteIds = venta.fields['Cliente'] || [];
     clienteIds.forEach(id => clientesEnVentas.add(id));
   });
 
-  // Clasificar clientes según la fórmula de Airtable
   const clasificaciones = {
     premium: [],
     gold: [],
@@ -543,12 +529,6 @@ function mostrarClasificacionClientes(ventas) {
 
     const nombre = clienteData.Nombre || clienteData.Name || 'Sin nombre';
     const cantidadUnidades = clienteData['Cantidad de unidades General x Cliente'] || 0;
-
-    // Aplicar lógica de clasificación según Airtable:
-    // 0 unidades = Cliente Normal
-    // <= 3 unidades = Cliente Frecuente
-    // <= 6 unidades = Cliente Gold
-    // > 6 unidades = Cliente Premium
     
     if (cantidadUnidades === 0) {
       clasificaciones.normal.push(nombre);
@@ -563,7 +543,6 @@ function mostrarClasificacionClientes(ventas) {
 
   const container = document.getElementById('clasificacionClientes');
   
-  // Tarjetas de resumen
   const resumenHTML = `
     <div class="clasificacion-grid">
       <div class="clasificacion-card">
@@ -589,7 +568,6 @@ function mostrarClasificacionClientes(ventas) {
     </div>
   `;
 
-  // Lista detallada
   const todosClientes = [
     ...clasificaciones.premium.map(n => ({ nombre: n, tipo: 'premium', label: 'Premium', icon: '💎' })),
     ...clasificaciones.gold.map(n => ({ nombre: n, tipo: 'gold', label: 'Gold', icon: '👑' })),
@@ -697,18 +675,28 @@ function filtrarTransacciones(tipo) {
   mostrarUltimasTransacciones(transaccionesFiltradas.slice(0, 10));
 }
 
-// Inicializar
-inicializarFechas();
-cargarDatos();
-// Función para cambiar entre secciones del menú
+// ==========================================
+// FUNCIONES DEL MENÚ HAMBURGUESA
+// ==========================================
+
+function toggleMenu() {
+  const menuPanel = document.querySelector('.menu-panel');
+  const menuOverlay = document.querySelector('.menu-overlay');
+  const menuHamburger = document.querySelector('.menu-hamburger');
+  
+  menuPanel.classList.toggle('active');
+  menuOverlay.classList.toggle('active');
+  menuHamburger.classList.toggle('active');
+}
+
 function cambiarSeccion(seccion) {
   // Desactivar todos los botones del menú
-  document.querySelectorAll('.menu-item').forEach(btn => {
+  document.querySelectorAll('.menu-option').forEach(btn => {
     btn.classList.remove('active');
   });
   
   // Activar el botón seleccionado
-  const botonActivo = document.querySelector(`.menu-item[data-section="${seccion}"]`);
+  const botonActivo = document.querySelector(`.menu-option[data-section="${seccion}"]`);
   if (botonActivo) {
     botonActivo.classList.add('active');
   }
@@ -723,7 +711,20 @@ function cambiarSeccion(seccion) {
   if (seccionActiva) {
     seccionActiva.classList.add('active');
   }
+  
+  // Cerrar el menú después de seleccionar
+  toggleMenu();
+  
+  // Scroll suave hacia arriba
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// ==========================================
+// INICIALIZACIÓN
+// ==========================================
+
+inicializarFechas();
+cargarDatos();
 
 // Auto-refresh cada 5 minutos
 setInterval(cargarDatos, 300000);

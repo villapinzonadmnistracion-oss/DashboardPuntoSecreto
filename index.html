@@ -19,185 +19,6 @@
       min-height: 100vh;
     }
 
-    /* Pantalla de Login */
-    #loginScreen {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      z-index: 9999;
-      padding: 20px;
-    }
-
-    .login-container {
-      background: white;
-      padding: 30px 24px;
-      border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-      max-width: 380px;
-      width: 100%;
-      text-align: center;
-    }
-
-    .login-icon {
-      font-size: 60px;
-      margin-bottom: 16px;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    .login-title {
-      font-size: 24px;
-      font-weight: 700;
-      color: #10b981;
-      margin-bottom: 8px;
-    }
-
-    .login-subtitle {
-      font-size: 13px;
-      color: #6b7280;
-      margin-bottom: 24px;
-    }
-
-    .password-input-group {
-      position: relative;
-      margin-bottom: 16px;
-    }
-
-    #passwordInput {
-      width: 100%;
-      padding: 14px 45px 14px 14px;
-      border: 2px solid #e5e7eb;
-      border-radius: 12px;
-      font-size: 16px;
-      transition: all 0.3s;
-      font-family: monospace;
-      letter-spacing: 2px;
-    }
-
-    #passwordInput:focus {
-      outline: none;
-      border-color: #10b981;
-      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
-    }
-
-    #passwordInput.error {
-      border-color: #ef4444;
-      animation: shake 0.5s;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-10px); }
-      75% { transform: translateX(10px); }
-    }
-
-    .toggle-password {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      padding: 4px;
-      opacity: 0.6;
-      transition: opacity 0.3s;
-    }
-
-    .toggle-password:active {
-      opacity: 1;
-    }
-
-    .password-requirements {
-      text-align: left;
-      font-size: 11px;
-      color: #6b7280;
-      margin-bottom: 20px;
-      padding: 12px;
-      background: #f9fafb;
-      border-radius: 8px;
-    }
-
-    .password-requirements div {
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .requirement-icon {
-      font-size: 12px;
-    }
-
-    .requirement-met {
-      color: #10b981;
-    }
-
-    .requirement-unmet {
-      color: #ef4444;
-    }
-
-    #loginButton {
-      width: 100%;
-      padding: 14px;
-      background: #10b981;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      margin-top: 0;
-    }
-
-    #loginButton:active {
-      background: #059669;
-      transform: scale(0.98);
-    }
-
-    #loginButton:disabled {
-      background: #d1d5db;
-      cursor: not-allowed;
-    }
-
-    .error-message {
-      color: #ef4444;
-      font-size: 12px;
-      margin-top: 12px;
-      font-weight: 500;
-      display: none;
-      animation: fadeIn 0.3s;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-5px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .login-footer {
-      margin-top: 20px;
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    /* Dashboard (oculto inicialmente) */
-    #dashboardApp {
-      display: none;
-    }
-
     .container {
       max-width: 480px;
       margin: 0 auto;
@@ -213,27 +34,6 @@
       position: relative;
     }
 
-    .logout-btn {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: #ef4444;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .logout-btn:active {
-      background: #dc2626;
-      transform: translateY(-50%) scale(0.95);
-    }
-
     .header h1 {
       color: #10b981;
       font-size: 20px;
@@ -244,6 +44,162 @@
     #lastUpdate {
       color: #6b7280;
       font-size: 11px;
+    }
+
+    /* Botón de Menú Hamburguesa - Fijo */
+    .menu-hamburger {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background: white;
+      border: none;
+      border-radius: 50%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      cursor: pointer;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+
+    .menu-hamburger:active {
+      transform: scale(0.95);
+    }
+
+    .menu-hamburger-icon {
+      font-size: 24px;
+      transition: transform 0.3s;
+    }
+
+    .menu-hamburger.active .menu-hamburger-icon {
+      transform: rotate(90deg);
+    }
+
+    /* Panel del Menú Lateral */
+    .menu-panel {
+      position: fixed;
+      top: 0;
+      right: -280px;
+      width: 280px;
+      height: 100vh;
+      background: white;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.2);
+      z-index: 999;
+      transition: right 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .menu-panel.active {
+      right: 0;
+    }
+
+    .menu-header {
+      padding: 20px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+
+    .menu-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .menu-subtitle {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .menu-items {
+      padding: 12px 0;
+    }
+
+    .menu-section-title {
+      padding: 12px 20px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .menu-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      background: white;
+      border: none;
+      width: 100%;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
+
+    .menu-option:active {
+      background: #f9fafb;
+    }
+
+    .menu-option.active {
+      background: #f0fdf4;
+      border-left-color: #10b981;
+    }
+
+    .menu-option-icon {
+      font-size: 22px;
+      width: 30px;
+      text-align: center;
+    }
+
+    .menu-option-text {
+      flex: 1;
+      text-align: left;
+    }
+
+    .menu-option-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f2937;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .menu-option.active .menu-option-label {
+      color: #10b981;
+    }
+
+    .menu-option-desc {
+      font-size: 11px;
+      color: #6b7280;
+      display: block;
+    }
+
+    .menu-divider {
+      height: 1px;
+      background: #e5e7eb;
+      margin: 8px 20px;
+    }
+
+    /* Overlay oscuro */
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: rgba(0,0,0,0.5);
+      z-index: 998;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+
+    .menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
     }
 
     .filters {
@@ -335,6 +291,27 @@
 
     @keyframes spin {
       to { transform: rotate(360deg); }
+    }
+
+    /* Secciones del contenido */
+    .content-section {
+      display: none;
+    }
+
+    .content-section.active {
+      display: block;
+      animation: fadeInSection 0.4s ease-in;
+    }
+
+    @keyframes fadeInSection {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .kpi-grid {
@@ -642,7 +619,6 @@
       padding-bottom: 8px;
     }
 
-    /* Nota Inteligente */
     .nota-inteligente {
       background: linear-gradient(135deg, #fef3c7, #fde68a);
       border: 2px solid #fbbf24;
@@ -681,7 +657,6 @@
       color: #78350f;
     }
 
-    /* Gráfico Circular */
     #chartCanvas {
       max-width: 100%;
       height: auto;
@@ -689,7 +664,6 @@
       display: block;
     }
 
-    /* Leyenda */
     .leyenda-container {
       display: grid;
       grid-template-columns: 1fr;
@@ -740,7 +714,6 @@
       color: #6b7280;
     }
 
-    /* Scrollbar personalizado */
     .clasificacion-list::-webkit-scrollbar,
     .leyenda-container::-webkit-scrollbar {
       width: 4px;
@@ -760,27 +733,72 @@
   </style>
 </head>
 <body>
+  <!-- Botón Hamburguesa Fijo -->
+  <button class="menu-hamburger" onclick="toggleMenu()">
+    <span class="menu-hamburger-icon">⋮</span>
+  </button>
+
+  <!-- Overlay Oscuro -->
+  <div class="menu-overlay" onclick="toggleMenu()"></div>
+
+  <!-- Panel del Menú Lateral -->
+  <div class="menu-panel">
+    <div class="menu-header">
+      <div class="menu-title">📊 Dashboard</div>
+      <div class="menu-subtitle">Punto Secreto</div>
+    </div>
+
+    <div class="menu-items">
+      <div class="menu-section-title">📌 Navegación</div>
+      
+      <button class="menu-option active" data-section="inicio" onclick="cambiarSeccion('inicio')">
+        <span class="menu-option-icon">🏠</span>
+        <div class="menu-option-text">
+          <span class="menu-option-label">Inicio</span>
+          <span class="menu-option-desc">Vista general y KPIs</span>
+        </div>
+      </button>
+
+      <button class="menu-option" data-section="productos" onclick="cambiarSeccion('productos')">
+        <span class="menu-option-icon">📦</span>
+        <div class="menu-option-text">
+          <span class="menu-option-label">Productos</span>
+          <span class="menu-option-desc">Top ventas y análisis</span>
+        </div>
+      </button>
+
+      <button class="menu-option" data-section="clientes" onclick="cambiarSeccion('clientes')">
+        <span class="menu-option-icon">👥</span>
+        <div class="menu-option-text">
+          <span class="menu-option-label">Clientes</span>
+          <span class="menu-option-desc">Rankings y clasificación</span>
+        </div>
+      </button>
+
+      <button class="menu-option" data-section="transacciones" onclick="cambiarSeccion('transacciones')">
+        <span class="menu-option-icon">💳</span>
+        <div class="menu-option-text">
+          <span class="menu-option-label">Transacciones</span>
+          <span class="menu-option-desc">Ventas y devoluciones</span>
+        </div>
+      </button>
+
+      <div class="menu-divider"></div>
+
+      <div class="menu-section-title">⚙️ Acciones</div>
+
+      <button class="menu-option" onclick="cargarDatos(); toggleMenu();">
+        <span class="menu-option-icon">🔄</span>
+        <div class="menu-option-text">
+          <span class="menu-option-label">Actualizar Datos</span>
+          <span class="menu-option-desc">Sincronizar con Airtable</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
   <div class="container">
     <div class="header">
-      <!-- AGREGAR ESTE CÓDIGO DESPUÉS DEL HEADER -->
-<div class="menu-nav">
-  <button class="menu-item active" data-section="inicio" onclick="cambiarSeccion('inicio')">
-    <span class="menu-icon">🏠</span>
-    <span class="menu-label">Inicio</span>
-  </button>
-  <button class="menu-item" data-section="productos" onclick="cambiarSeccion('productos')">
-    <span class="menu-icon">📦</span>
-    <span class="menu-label">Productos</span>
-  </button>
-  <button class="menu-item" data-section="clientes" onclick="cambiarSeccion('clientes')">
-    <span class="menu-icon">👥</span>
-    <span class="menu-label">Clientes</span>
-  </button>
-  <button class="menu-item" data-section="transacciones" onclick="cambiarSeccion('transacciones')">
-    <span class="menu-icon">💳</span>
-    <span class="menu-label">Ventas</span>
-  </button>
-</div>
       <h1>📊 Dashboard Punto Secreto</h1>
       <p id="lastUpdate">Cargando datos...</p>
     </div>
@@ -813,8 +831,6 @@
       <select id="filterAnfitrion" onchange="aplicarFiltros()">
         <option value="">Todos los anfitriones</option>
       </select>
-
-      <button onclick="cargarDatos()">🔄 Actualizar Datos</button>
     </div>
 
     <div id="loading" class="loading">
@@ -823,95 +839,88 @@
     </div>
 
     <div id="content" style="display: none;">
-  <!-- Sección INICIO -->
-  <div class="content-section active" id="section-inicio">
-    <!-- KPIs Principales -->
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-icon">💰</div>
-        <div class="kpi-value" id="kpiTotalVentas">$0</div>
-        <div class="kpi-label">Total Ventas</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon">📈</div>
-        <div class="kpi-value" id="kpiPromedioVenta">$0</div>
-        <div class="kpi-label">Promedio</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon">🛍️</div>
-        <div class="kpi-value" id="kpiNumVentas">0</div>
-        <div class="kpi-label">Transacciones</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon">↩️</div>
-        <div class="kpi-value" id="kpiTasaDevolucion">0%</div>
-        <div class="kpi-label">Devoluciones</div>
-      </div>
-    </div>
+      <!-- Sección INICIO -->
+      <div class="content-section active" id="section-inicio">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon">💰</div>
+            <div class="kpi-value" id="kpiTotalVentas">$0</div>
+            <div class="kpi-label">Total Ventas</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">📈</div>
+            <div class="kpi-value" id="kpiPromedioVenta">$0</div>
+            <div class="kpi-label">Promedio</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">🛍️</div>
+            <div class="kpi-value" id="kpiNumVentas">0</div>
+            <div class="kpi-label">Transacciones</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">↩️</div>
+            <div class="kpi-value" id="kpiTasaDevolucion">0%</div>
+            <div class="kpi-label">Devoluciones</div>
+          </div>
+        </div>
 
-    <!-- Top Anfitriones -->
-    <div class="section">
-      <div class="section-title">🏆 Top Anfitriones</div>
-      <div id="rankingAnfitriones"></div>
-    </div>
-  </div>
-
-  <!-- Sección PRODUCTOS -->
-  <div class="content-section" id="section-productos">
-    <!-- Top Productos -->
-    <div class="section">
-      <div class="section-title">📦 Productos Más Vendidos</div>
-      <div id="topProductos"></div>
-    </div>
-
-    <!-- Gráfico Circular de Productos -->
-    <div class="section">
-      <div class="section-title">🎯 Distribución de Ventas por Producto</div>
-      <div id="notaInteligente"></div>
-      <div id="graficoProductos" style="text-align: center; margin: 20px 0;">
-        <canvas id="chartCanvas"></canvas>
+        <div class="section">
+          <div class="section-title">🏆 Top Anfitriones</div>
+          <div id="rankingAnfitriones"></div>
+        </div>
       </div>
-      <div id="leyendaProductos" class="leyenda-container"></div>
-    </div>
-  </div>
 
-  <!-- Sección CLIENTES -->
-  <div class="content-section" id="section-clientes">
-    <!-- Top Clientes -->
-    <div class="section">
-      <div class="section-title">👥 Top Clientes</div>
-      <div id="topClientes"></div>
-    </div>
+      <!-- Sección PRODUCTOS -->
+      <div class="content-section" id="section-productos">
+        <div class="section">
+          <div class="section-title">📦 Productos Más Vendidos</div>
+          <div id="topProductos"></div>
+        </div>
 
-    <!-- Clasificación de Clientes -->
-    <div class="section">
-      <div class="section-title">⭐ Clasificación de Clientes</div>
-      <div id="clasificacionClientes"></div>
-    </div>
-  </div>
-
-  <!-- Sección TRANSACCIONES -->
-  <div class="content-section" id="section-transacciones">
-    <!-- Últimas Transacciones -->
-    <div class="section">
-      <div class="section-title">🕐 Últimas Transacciones</div>
-      
-      <div class="transaction-filter">
-        <button class="filter-btn active" data-filter="todas" onclick="filtrarTransacciones('todas')">
-          Todas
-        </button>
-        <button class="filter-btn" data-filter="ventas" onclick="filtrarTransacciones('ventas')">
-          🛍️ Ventas
-        </button>
-        <button class="filter-btn" data-filter="devoluciones" onclick="filtrarTransacciones('devoluciones')">
-          ↩️ Devol.
-        </button>
+        <div class="section">
+          <div class="section-title">🎯 Distribución de Ventas por Producto</div>
+          <div id="notaInteligente"></div>
+          <div id="graficoProductos" style="text-align: center; margin: 20px 0;">
+            <canvas id="chartCanvas"></canvas>
+          </div>
+          <div id="leyendaProductos" class="leyenda-container"></div>
+        </div>
       </div>
-      
-      <div id="ultimasTransacciones"></div>
+
+      <!-- Sección CLIENTES -->
+      <div class="content-section" id="section-clientes">
+        <div class="section">
+          <div class="section-title">👥 Top Clientes</div>
+          <div id="topClientes"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">⭐ Clasificación de Clientes</div>
+          <div id="clasificacionClientes"></div>
+        </div>
+      </div>
+
+      <!-- Sección TRANSACCIONES -->
+      <div class="content-section" id="section-transacciones">
+        <div class="section">
+          <div class="section-title">🕐 Últimas Transacciones</div>
+          
+          <div class="transaction-filter">
+            <button class="filter-btn active" data-filter="todas" onclick="filtrarTransacciones('todas')">
+              Todas
+            </button>
+            <button class="filter-btn" data-filter="ventas" onclick="filtrarTransacciones('ventas')">
+              🛍️ Ventas
+            </button>
+            <button class="filter-btn" data-filter="devoluciones" onclick="filtrarTransacciones('devoluciones')">
+              ↩️ Devol.
+            </button>
+          </div>
+          
+          <div id="ultimasTransacciones"></div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
     <div class="refresh-time" id="refreshTime"></div>
   </div>
