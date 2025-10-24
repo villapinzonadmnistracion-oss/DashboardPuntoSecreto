@@ -169,9 +169,9 @@ async function cargarDatos() {
     console.log('🔄 Cargando datos desde Airtable...');
 
     const [ventas, clientes, anfitriones] = await Promise.all([
-      fetchFromProxy('tblC7aADITb6A6iYP'),
-      fetchFromProxy('tblfRI4vdXspaNNlD'),
-      fetchFromProxy('tblrtLcB3dUASCfnL')
+      fetchFromProxy('tblC7aADITb6A6iYP'),  // Ventas
+      fetchFromProxy('tblfRI4vdXspaNNlD'),  // Clientes
+      fetchFromProxy('tblxyk6vtahtFlLVo')   // Anfitriones (corregido)
     ]);
 
     ventasData = ventas;
@@ -191,6 +191,9 @@ async function cargarDatos() {
     console.log('✅ Ventas cargadas:', ventasData.length);
     console.log('✅ Clientes cargados:', clientesData.length);
     console.log('✅ Anfitriones cargados:', anfitrionesData.length);
+    
+    // Debug: Ver algunos clientes
+    console.log('📋 Primeros clientes:', clientesData.slice(0, 3).map(c => c.fields.Nombre || c.fields.Name));
 
     cargarAnfitrionesEnFiltro();
     aplicarFiltros();
@@ -821,6 +824,9 @@ function buscarGlobal() {
   const clearBtn = document.getElementById('clearSearch');
   const resultsContainer = document.getElementById('searchResults');
 
+  console.log('🔍 Buscando:', query);
+  console.log('📊 Datos disponibles - Ventas:', ventasData.length, 'Clientes:', clientesData.length);
+
   // Mostrar/ocultar botón de limpiar
   if (query.length > 0) {
     clearBtn.classList.add('show');
@@ -837,35 +843,40 @@ function buscarGlobal() {
     anfitriones: buscarAnfitriones(query)
   };
 
+  console.log('📋 Resultados encontrados:', resultados);
+
   mostrarResultadosBusqueda(resultados, query);
 }
 
 function buscarClientes(query) {
   const resultados = [];
+  const clientesVistos = new Set();
+  
+  console.log('🔍 Buscando en ventas...');
   
   ventasData.forEach(venta => {
     const nombreCliente = (venta.fields['Nombre'] || '').toLowerCase();
-    if (nombreCliente.includes(query)) {
-      const clienteId = venta.fields['Cliente'] ? venta.fields['Cliente'][0] : null;
-      const yaAgregado = resultados.find(r => r.nombre === venta.fields['Nombre']);
+    
+    if (nombreCliente.includes(query) && !clientesVistos.has(nombreCliente)) {
+      clientesVistos.add(nombreCliente);
       
-      if (!yaAgregado && venta.fields['Nombre']) {
-        const clienteData = clienteId ? clientesMap[clienteId] : null;
-        const totalCompras = calcularTotalCliente(venta.fields['Nombre']);
-        const numCompras = contarComprasCliente(venta.fields['Nombre']);
-        
-        resultados.push({
-          nombre: venta.fields['Nombre'],
-          id: clienteId,
-          tipo: 'cliente',
-          totalCompras: totalCompras,
-          numCompras: numCompras,
-          data: clienteData
-        });
-      }
+      const clienteId = venta.fields['Cliente'] ? venta.fields['Cliente'][0] : null;
+      const clienteData = clienteId ? clientesMap[clienteId] : null;
+      const totalCompras = calcularTotalCliente(venta.fields['Nombre']);
+      const numCompras = contarComprasCliente(venta.fields['Nombre']);
+      
+      resultados.push({
+        nombre: venta.fields['Nombre'],
+        id: clienteId,
+        tipo: 'cliente',
+        totalCompras: totalCompras,
+        numCompras: numCompras,
+        data: clienteData
+      });
     }
   });
   
+  console.log('✅ Clientes encontrados:', resultados.length);
   return resultados.slice(0, 5);
 }
 
