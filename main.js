@@ -855,18 +855,31 @@ function buscarClientes(query) {
   console.log('🔍 Buscando en ventas...');
   
   ventasData.forEach(venta => {
-    const nombreCliente = (venta.fields['Nombre'] || '').toLowerCase();
+    // El campo Nombre puede ser un array o un string
+    let nombreCliente = venta.fields['Nombre'];
     
-    if (nombreCliente.includes(query) && !clientesVistos.has(nombreCliente)) {
+    // Si es array, tomar el primer elemento
+    if (Array.isArray(nombreCliente)) {
+      nombreCliente = nombreCliente[0] || '';
+    }
+    
+    // Asegurar que sea string
+    nombreCliente = String(nombreCliente || '').toLowerCase();
+    
+    if (nombreCliente.includes(query) && nombreCliente && !clientesVistos.has(nombreCliente)) {
       clientesVistos.add(nombreCliente);
+      
+      const nombreOriginal = Array.isArray(venta.fields['Nombre']) 
+        ? venta.fields['Nombre'][0] 
+        : venta.fields['Nombre'];
       
       const clienteId = venta.fields['Cliente'] ? venta.fields['Cliente'][0] : null;
       const clienteData = clienteId ? clientesMap[clienteId] : null;
-      const totalCompras = calcularTotalCliente(venta.fields['Nombre']);
-      const numCompras = contarComprasCliente(venta.fields['Nombre']);
+      const totalCompras = calcularTotalCliente(nombreOriginal);
+      const numCompras = contarComprasCliente(nombreOriginal);
       
       resultados.push({
-        nombre: venta.fields['Nombre'],
+        nombre: nombreOriginal,
         id: clienteId,
         tipo: 'cliente',
         totalCompras: totalCompras,
@@ -910,11 +923,19 @@ function buscarAnfitriones(query) {
   const resultados = [];
   
   anfitrionesData.forEach(anfitrion => {
-    const nombre = (anfitrion.fields.Nombre || '').toLowerCase();
-    if (nombre.includes(query)) {
+    let nombre = anfitrion.fields.Nombre || anfitrion.fields.Name || '';
+    
+    // Si es array, tomar el primer elemento
+    if (Array.isArray(nombre)) {
+      nombre = nombre[0] || '';
+    }
+    
+    nombre = String(nombre);
+    
+    if (nombre.toLowerCase().includes(query)) {
       const stats = calcularStatsAnfitrion(anfitrion.id);
       resultados.push({
-        nombre: anfitrion.fields.Nombre,
+        nombre: nombre,
         id: anfitrion.id,
         tipo: 'anfitrion',
         totalVentas: stats.total,
@@ -928,12 +949,20 @@ function buscarAnfitriones(query) {
 
 function calcularTotalCliente(nombreCliente) {
   return ventasData
-    .filter(v => v.fields['Nombre'] === nombreCliente)
+    .filter(v => {
+      let nombre = v.fields['Nombre'];
+      if (Array.isArray(nombre)) nombre = nombre[0];
+      return nombre === nombreCliente;
+    })
     .reduce((sum, v) => sum + (v.fields['Total Neto Numerico'] || v.fields['Total de venta'] || 0), 0);
 }
 
 function contarComprasCliente(nombreCliente) {
-  return ventasData.filter(v => v.fields['Nombre'] === nombreCliente).length;
+  return ventasData.filter(v => {
+    let nombre = v.fields['Nombre'];
+    if (Array.isArray(nombre)) nombre = nombre[0];
+    return nombre === nombreCliente;
+  }).length;
 }
 
 function calcularTotalProducto(nombreProducto) {
