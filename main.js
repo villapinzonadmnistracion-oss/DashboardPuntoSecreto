@@ -700,6 +700,30 @@ function filtrarTransacciones(tipo) {
 // Inicializar
 inicializarFechas();
 cargarDatos();
+// Función para cambiar entre secciones del menú
+function cambiarSeccion(seccion) {
+  // Desactivar todos los botones del menú
+  document.querySelectorAll('.menu-item').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  // Activar el botón seleccionado
+  const botonActivo = document.querySelector(`.menu-item[data-section="${seccion}"]`);
+  if (botonActivo) {
+    botonActivo.classList.add('active');
+  }
+  
+  // Ocultar todas las secciones
+  document.querySelectorAll('.content-section').forEach(section => {
+    section.classList.remove('active');
+  });
+  
+  // Mostrar la sección seleccionada
+  const seccionActiva = document.getElementById(`section-${seccion}`);
+  if (seccionActiva) {
+    seccionActiva.classList.add('active');
+  }
+}
 
 // Auto-refresh cada 5 minutos
 setInterval(cargarDatos, 300000);

@@ -762,6 +762,25 @@
 <body>
   <div class="container">
     <div class="header">
+      <!-- AGREGAR ESTE CÓDIGO DESPUÉS DEL HEADER -->
+<div class="menu-nav">
+  <button class="menu-item active" data-section="inicio" onclick="cambiarSeccion('inicio')">
+    <span class="menu-icon">🏠</span>
+    <span class="menu-label">Inicio</span>
+  </button>
+  <button class="menu-item" data-section="productos" onclick="cambiarSeccion('productos')">
+    <span class="menu-icon">📦</span>
+    <span class="menu-label">Productos</span>
+  </button>
+  <button class="menu-item" data-section="clientes" onclick="cambiarSeccion('clientes')">
+    <span class="menu-icon">👥</span>
+    <span class="menu-label">Clientes</span>
+  </button>
+  <button class="menu-item" data-section="transacciones" onclick="cambiarSeccion('transacciones')">
+    <span class="menu-icon">💳</span>
+    <span class="menu-label">Ventas</span>
+  </button>
+</div>
       <h1>📊 Dashboard Punto Secreto</h1>
       <p id="lastUpdate">Cargando datos...</p>
     </div>
@@ -804,89 +823,95 @@
     </div>
 
     <div id="content" style="display: none;">
-      <!-- KPIs Principales -->
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-icon">💰</div>
-          <div class="kpi-value" id="kpiTotalVentas">$0</div>
-          <div class="kpi-label">Total Ventas</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon">📈</div>
-          <div class="kpi-value" id="kpiPromedioVenta">$0</div>
-          <div class="kpi-label">Promedio</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon">🛍️</div>
-          <div class="kpi-value" id="kpiNumVentas">0</div>
-          <div class="kpi-label">Transacciones</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon">↩️</div>
-          <div class="kpi-value" id="kpiTasaDevolucion">0%</div>
-          <div class="kpi-label">Devoluciones</div>
-        </div>
+  <!-- Sección INICIO -->
+  <div class="content-section active" id="section-inicio">
+    <!-- KPIs Principales -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-value" id="kpiTotalVentas">$0</div>
+        <div class="kpi-label">Total Ventas</div>
       </div>
-
-      <!-- Top Anfitriones -->
-      <div class="section">
-        <div class="section-title">🏆 Top Anfitriones</div>
-        <div id="rankingAnfitriones"></div>
+      <div class="kpi-card">
+        <div class="kpi-icon">📈</div>
+        <div class="kpi-value" id="kpiPromedioVenta">$0</div>
+        <div class="kpi-label">Promedio</div>
       </div>
-
-      <!-- Top Productos -->
-      <div class="section">
-        <div class="section-title">📦 Productos Más Vendidos</div>
-        <div id="topProductos"></div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🛍️</div>
+        <div class="kpi-value" id="kpiNumVentas">0</div>
+        <div class="kpi-label">Transacciones</div>
       </div>
-
-      <!-- NUEVO: Gráfico Circular de Productos -->
-      <div class="section">
-        <div class="section-title">🎯 Distribución de Ventas por Producto</div>
-        
-        <!-- Nota Inteligente -->
-        <div id="notaInteligente"></div>
-        
-        <!-- Gráfico -->
-        <div id="graficoProductos" style="text-align: center; margin: 20px 0;">
-          <canvas id="chartCanvas"></canvas>
-        </div>
-        
-        <!-- Leyenda -->
-        <div id="leyendaProductos" class="leyenda-container"></div>
-      </div>
-
-      <!-- Top Clientes -->
-      <div class="section">
-        <div class="section-title">👥 Top Clientes</div>
-        <div id="topClientes"></div>
-      </div>
-
-      <!-- Clasificación de Clientes -->
-      <div class="section">
-        <div class="section-title">⭐ Clasificación de Clientes</div>
-        <div id="clasificacionClientes"></div>
-      </div>
-
-      <!-- Últimas Transacciones -->
-      <div class="section">
-        <div class="section-title">🕐 Últimas Transacciones</div>
-        
-        <div class="transaction-filter">
-          <button class="filter-btn active" data-filter="todas" onclick="filtrarTransacciones('todas')">
-            Todas
-          </button>
-          <button class="filter-btn" data-filter="ventas" onclick="filtrarTransacciones('ventas')">
-            🛍️ Ventas
-          </button>
-          <button class="filter-btn" data-filter="devoluciones" onclick="filtrarTransacciones('devoluciones')">
-            ↩️ Devol.
-          </button>
-        </div>
-        
-        <div id="ultimasTransacciones"></div>
+      <div class="kpi-card">
+        <div class="kpi-icon">↩️</div>
+        <div class="kpi-value" id="kpiTasaDevolucion">0%</div>
+        <div class="kpi-label">Devoluciones</div>
       </div>
     </div>
+
+    <!-- Top Anfitriones -->
+    <div class="section">
+      <div class="section-title">🏆 Top Anfitriones</div>
+      <div id="rankingAnfitriones"></div>
+    </div>
+  </div>
+
+  <!-- Sección PRODUCTOS -->
+  <div class="content-section" id="section-productos">
+    <!-- Top Productos -->
+    <div class="section">
+      <div class="section-title">📦 Productos Más Vendidos</div>
+      <div id="topProductos"></div>
+    </div>
+
+    <!-- Gráfico Circular de Productos -->
+    <div class="section">
+      <div class="section-title">🎯 Distribución de Ventas por Producto</div>
+      <div id="notaInteligente"></div>
+      <div id="graficoProductos" style="text-align: center; margin: 20px 0;">
+        <canvas id="chartCanvas"></canvas>
+      </div>
+      <div id="leyendaProductos" class="leyenda-container"></div>
+    </div>
+  </div>
+
+  <!-- Sección CLIENTES -->
+  <div class="content-section" id="section-clientes">
+    <!-- Top Clientes -->
+    <div class="section">
+      <div class="section-title">👥 Top Clientes</div>
+      <div id="topClientes"></div>
+    </div>
+
+    <!-- Clasificación de Clientes -->
+    <div class="section">
+      <div class="section-title">⭐ Clasificación de Clientes</div>
+      <div id="clasificacionClientes"></div>
+    </div>
+  </div>
+
+  <!-- Sección TRANSACCIONES -->
+  <div class="content-section" id="section-transacciones">
+    <!-- Últimas Transacciones -->
+    <div class="section">
+      <div class="section-title">🕐 Últimas Transacciones</div>
+      
+      <div class="transaction-filter">
+        <button class="filter-btn active" data-filter="todas" onclick="filtrarTransacciones('todas')">
+          Todas
+        </button>
+        <button class="filter-btn" data-filter="ventas" onclick="filtrarTransacciones('ventas')">
+          🛍️ Ventas
+        </button>
+        <button class="filter-btn" data-filter="devoluciones" onclick="filtrarTransacciones('devoluciones')">
+          ↩️ Devol.
+        </button>
+      </div>
+      
+      <div id="ultimasTransacciones"></div>
+    </div>
+  </div>
+</div>
 
     <div class="refresh-time" id="refreshTime"></div>
   </div>
