@@ -198,9 +198,6 @@ function calcularEstadisticas(ventas) {
 
   // NUEVO: Análisis de tendencias
   analizarTendencias(ventasReales);
-  
-  // NUEVO: Análisis predictivo
-  analisisPredictivo(ventasReales);
 
   mostrarTopAnfitriones(ventasReales);
   mostrarTopProductos(ventasReales);
