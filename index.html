@@ -474,6 +474,8 @@
     function mostrarDashboard() {
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('dashboardApp').style.display = 'block';
+      // Cargar datos DESPUÉS de mostrar el dashboard
+      cargarDatos();
     }
 
     function cerrarSesion() {
