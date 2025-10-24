@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>📊 Dashboard Punto Secreto</title>
-  <link rel="stylesheet" href="style.css">
   <style>
     * {
       margin: 0;
@@ -16,7 +15,7 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      padding: 0;
+      padding: 12px;
       min-height: 100vh;
     }
 
@@ -114,6 +113,11 @@
       cursor: pointer;
       padding: 4px;
       opacity: 0.6;
+      transition: opacity 0.3s;
+    }
+
+    .toggle-password:active {
+      opacity: 1;
     }
 
     .password-requirements {
@@ -131,6 +135,10 @@
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+
+    .requirement-icon {
+      font-size: 12px;
     }
 
     .requirement-met {
@@ -151,6 +159,18 @@
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 0;
+    }
+
+    #loginButton:active {
+      background: #059669;
+      transform: scale(0.98);
+    }
+
+    #loginButton:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
     }
 
     .error-message {
@@ -159,6 +179,12 @@
       margin-top: 12px;
       font-weight: 500;
       display: none;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .login-footer {
@@ -167,112 +193,181 @@
       color: #9ca3af;
     }
 
-    /* Dashboard */
+    /* Dashboard (oculto inicialmente) */
     #dashboardApp {
       display: none;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      min-height: 100vh;
-      padding-bottom: 80px;
     }
 
-    .dashboard-header {
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .header {
       background: white;
       padding: 16px;
+      border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       margin-bottom: 12px;
+      text-align: center;
+      position: relative;
     }
 
-    .header-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #10b981;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .header-btn {
-      background: white;
-      border: 2px solid #10b981;
-      color: #10b981;
+    .logout-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #ef4444;
+      color: white;
+      border: none;
       padding: 6px 12px;
       border-radius: 8px;
       font-size: 11px;
       font-weight: 600;
       cursor: pointer;
+      transition: all 0.3s;
     }
 
-    .header-btn.danger {
-      border-color: #ef4444;
-      color: #ef4444;
+    .logout-btn:active {
+      background: #dc2626;
+      transform: translateY(-50%) scale(0.95);
+    }
+
+    .header h1 {
+      color: #10b981;
+      font-size: 20px;
+      margin-bottom: 6px;
+      font-weight: 700;
     }
 
     #lastUpdate {
-      font-size: 11px;
       color: #6b7280;
+      font-size: 11px;
+    }
+
+    .filters {
+      background: white;
+      padding: 14px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 12px;
+    }
+
+    .filters label {
+      display: block;
+      color: #10b981;
+      font-weight: 600;
+      margin-bottom: 6px;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    .filters label:first-child {
+      margin-top: 0;
+    }
+
+    .date-range {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    input[type="date"],
+    select {
+      width: 100%;
+      padding: 10px 8px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 13px;
+      transition: all 0.3s;
+    }
+
+    input[type="date"]:focus,
+    select:focus {
+      outline: none;
+      border-color: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    button {
+      width: 100%;
+      padding: 11px;
+      background: #10b981;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+
+    button:active {
+      background: #059669;
+      transform: scale(0.98);
+    }
+
+    .loading {
+      background: white;
+      padding: 40px 20px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #e5e7eb;
+      border-top-color: #10b981;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    .loading p {
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .kpi-card {
+      background: white;
+      padding: 16px 12px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       text-align: center;
     }
 
-    .nav-tabs {
-      display: flex;
-      overflow-x: auto;
-      gap: 8px;
-      padding: 12px 16px;
-      background: white;
-      border-bottom: 2px solid #e5e7eb;
-      -webkit-overflow-scrolling: touch;
+    .kpi-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
     }
 
-    .nav-tabs::-webkit-scrollbar {
-      display: none;
+    .kpi-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #10b981;
+      margin-bottom: 4px;
+      line-height: 1.2;
     }
 
-    .nav-tab {
-      flex-shrink: 0;
-      padding: 8px 16px;
-      background: #f9fafb;
-      border: 2px solid #e5e7eb;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
+    .kpi-label {
       color: #6b7280;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .nav-tab.active {
-      background: #10b981;
-      border-color: #059669;
-      color: white;
-    }
-
-    .dashboard-content {
-      padding: 12px;
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-      animation: fadeIn 0.3s;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      font-size: 11px;
     }
 
     .section {
@@ -292,95 +387,415 @@
       border-bottom: 2px solid #10b981;
     }
 
-    .loading {
-      background: white;
-      padding: 40px 20px;
-      border-radius: 12px;
+    .ranking-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 8px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .ranking-item:last-child {
+      border-bottom: none;
+    }
+
+    .ranking-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .ranking-medal {
+      font-size: 20px;
+    }
+
+    .ranking-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    .product-bar {
+      margin-bottom: 14px;
+    }
+
+    .product-name {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .bar-container {
+      width: 100%;
+      height: 10px;
+      background: #f3f4f6;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #059669);
+      border-radius: 8px;
+      transition: width 0.5s ease;
+    }
+
+    .clasificacion-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .clasificacion-card {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      padding: 12px;
+      border-radius: 10px;
       text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin: 20px;
+      border: 2px solid #10b981;
     }
 
-    .loading-spinner {
-      width: 50px;
-      height: 50px;
-      border: 4px solid #e5e7eb;
-      border-top-color: #10b981;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 15px;
+    .clasificacion-icon {
+      font-size: 28px;
+      margin-bottom: 6px;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .clasificacion-count {
+      font-size: 24px;
+      font-weight: 700;
+      color: #10b981;
+      margin-bottom: 3px;
+    }
+
+    .clasificacion-label {
+      color: #059669;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .clasificacion-list {
+      max-height: 320px;
+      overflow-y: auto;
+    }
+
+    .clasificacion-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 8px;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 13px;
+    }
+
+    .clasificacion-nombre {
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .clasificacion-nombre span:first-child {
+      margin-right: 6px;
+      flex-shrink: 0;
+    }
+
+    .clasificacion-nombre span:last-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .clasificacion-badge {
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+
+    .badge-premium {
+      background: linear-gradient(135deg, #a855f7, #7c3aed);
+      color: white;
+    }
+
+    .badge-gold {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: white;
+    }
+
+    .badge-frecuente {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+
+    .badge-normal {
+      background: #e5e7eb;
+      color: #6b7280;
+    }
+
+    .transaction-filter {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .filter-btn {
+      padding: 8px 6px;
+      background: #f3f4f6;
+      color: #6b7280;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 0;
+    }
+
+    .filter-btn:active {
+      transform: scale(0.95);
+    }
+
+    .filter-btn.active {
+      background: #10b981;
+      color: white;
+      border-color: #059669;
+    }
+
+    .transaction-item {
+      background: #f9fafb;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border-left: 3px solid #10b981;
+    }
+
+    .transaction-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .transaction-header span:first-child {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-right: 8px;
+    }
+
+    .transaction-details {
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    .badge {
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .badge-venta {
+      background: #10b981;
+      color: white;
+    }
+
+    .badge-devolucion {
+      background: #ef4444;
+      color: white;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px 15px;
+      color: #9ca3af;
+    }
+
+    .empty-state-icon {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    .empty-state p {
+      font-size: 13px;
+    }
+
+    .refresh-time {
+      text-align: center;
+      color: white;
+      font-size: 11px;
+      margin-top: 12px;
+      opacity: 0.9;
+      padding-bottom: 8px;
+    }
+
+    /* Nota Inteligente */
+    .nota-inteligente {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border: 2px solid #fbbf24;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 10px;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .nota-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .nota-content {
+      flex: 1;
+    }
+
+    .nota-title {
+      font-weight: 700;
+      color: #92400e;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .nota-text {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #78350f;
+    }
+
+    /* Gráfico Circular */
+    #chartCanvas {
+      max-width: 100%;
+      height: auto;
+      margin: 0 auto;
+      display: block;
+    }
+
+    /* Leyenda */
+    .leyenda-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .leyenda-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      background: #f9fafb;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .leyenda-item:active {
+      background: #f0fdf4;
+    }
+
+    .leyenda-color {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .leyenda-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .leyenda-nombre {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .leyenda-valor {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    /* Scrollbar personalizado */
+    .clasificacion-list::-webkit-scrollbar,
+    .leyenda-container::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .clasificacion-list::-webkit-scrollbar-track,
+    .leyenda-container::-webkit-scrollbar-track {
+      background: #f3f4f6;
+      border-radius: 10px;
+    }
+
+    .clasificacion-list::-webkit-scrollbar-thumb,
+    .leyenda-container::-webkit-scrollbar-thumb {
+      background: #10b981;
+      border-radius: 10px;
     }
   </style>
 </head>
 <body>
-  <!-- Pantalla de Login -->
-  <div id="loginScreen">
-    <div class="login-container">
-      <div class="login-icon">🔐</div>
-      <div class="login-title">Acceso Restringido</div>
-      <div class="login-subtitle">Dashboard Punto Secreto - Solo Jefes</div>
-      
-      <div class="password-input-group">
-        <input 
-          type="password" 
-          id="passwordInput" 
-          placeholder="Ingresa la contraseña"
-          autocomplete="off"
-          maxlength="20"
-        >
-        <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">👁️</button>
-      </div>
-
-      <div class="password-requirements">
-        <div id="req-length">
-          <span class="requirement-icon">⭕</span>
-          <span>Mínimo 14 caracteres</span>
-        </div>
-        <div id="req-uppercase">
-          <span class="requirement-icon">⭕</span>
-          <span>2 letras mayúsculas</span>
-        </div>
-        <div id="req-numbers">
-          <span class="requirement-icon">⭕</span>
-          <span>2 números</span>
-        </div>
-      </div>
-
-      <button id="loginButton" onclick="verificarPassword()">🔓 Ingresar al Dashboard</button>
-      
-      <div class="error-message" id="errorMessage">
-        ❌ Contraseña incorrecta. Intenta nuevamente.
-      </div>
-
-      <div class="login-footer">
-        🔒 Acceso protegido - Información confidencial
-      </div>
-    </div>
-  </div>
-
-  <!-- Dashboard -->
-  <div id="dashboardApp">
-    <div class="dashboard-header">
-      <div class="header-top">
-        <div class="header-title">📊 Punto Secreto</div>
-        <div class="header-actions">
-          <button class="header-btn" onclick="cargarDatos()">🔄</button>
-          <button class="header-btn danger" onclick="cerrarSesion()">🚪</button>
-        </div>
-      </div>
-      <div id="lastUpdate">Cargando datos...</div>
+  <div class="container">
+    <div class="header">
+      <h1>📊 Dashboard Punto Secreto</h1>
+      <p id="lastUpdate">Cargando datos...</p>
     </div>
 
-    <div class="nav-tabs">
-      <button class="nav-tab active" onclick="cambiarTab('resumen')">📊 Resumen</button>
-      <button class="nav-tab" onclick="cambiarTab('analisis')">📈 Análisis</button>
-      <button class="nav-tab" onclick="cambiarTab('clientes')">👥 Clientes</button>
-      <button class="nav-tab" onclick="cambiarTab('productos')">📦 Productos</button>
-      <button class="nav-tab" onclick="cambiarTab('anfitriones')">🏆 Anfitriones</button>
+    <div class="filters">
+      <label>📅 Rango de Fechas</label>
+      <div class="date-range">
+        <div>
+          <input type="date" id="fechaDesde" onchange="aplicarFiltros()">
+          <small style="color: #666; font-size: 10px;">Desde</small>
+        </div>
+        <div>
+          <input type="date" id="fechaHasta" onchange="aplicarFiltros()">
+          <small style="color: #666; font-size: 10px;">Hasta</small>
+        </div>
+      </div>
+
+      <label>⚡ Accesos Rápidos</label>
+      <select id="filterPeriodo" onchange="cambiarPeriodoRapido()">
+        <option value="">Selecciona período...</option>
+        <option value="hoy">Hoy</option>
+        <option value="7dias">Últimos 7 días</option>
+        <option value="30dias">Últimos 30 días</option>
+        <option value="mes">Este mes</option>
+        <option value="year">Este año</option>
+        <option value="all">Todo el tiempo</option>
+      </select>
+
+      <label>👤 Anfitrión</label>
+      <select id="filterAnfitrion" onchange="aplicarFiltros()">
+        <option value="">Todos los anfitriones</option>
+      </select>
+
+      <button onclick="cargarDatos()">🔄 Actualizar Datos</button>
     </div>
 
     <div id="loading" class="loading">
@@ -388,115 +803,94 @@
       <p>Cargando estadísticas...</p>
     </div>
 
-    <div id="content" class="dashboard-content" style="display: none;">
-      <div id="tab-resumen" class="tab-content active"></div>
-      <div id="tab-analisis" class="tab-content"></div>
-      <div id="tab-clientes" class="tab-content"></div>
-      <div id="tab-productos" class="tab-content"></div>
-      <div id="tab-anfitriones" class="tab-content"></div>
+    <div id="content" style="display: none;">
+      <!-- KPIs Principales -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-value" id="kpiTotalVentas">$0</div>
+          <div class="kpi-label">Total Ventas</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">📈</div>
+          <div class="kpi-value" id="kpiPromedioVenta">$0</div>
+          <div class="kpi-label">Promedio</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">🛍️</div>
+          <div class="kpi-value" id="kpiNumVentas">0</div>
+          <div class="kpi-label">Transacciones</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">↩️</div>
+          <div class="kpi-value" id="kpiTasaDevolucion">0%</div>
+          <div class="kpi-label">Devoluciones</div>
+        </div>
+      </div>
+
+      <!-- Top Anfitriones -->
+      <div class="section">
+        <div class="section-title">🏆 Top Anfitriones</div>
+        <div id="rankingAnfitriones"></div>
+      </div>
+
+      <!-- Top Productos -->
+      <div class="section">
+        <div class="section-title">📦 Productos Más Vendidos</div>
+        <div id="topProductos"></div>
+      </div>
+
+      <!-- NUEVO: Gráfico Circular de Productos -->
+      <div class="section">
+        <div class="section-title">🎯 Distribución de Ventas por Producto</div>
+        
+        <!-- Nota Inteligente -->
+        <div id="notaInteligente"></div>
+        
+        <!-- Gráfico -->
+        <div id="graficoProductos" style="text-align: center; margin: 20px 0;">
+          <canvas id="chartCanvas"></canvas>
+        </div>
+        
+        <!-- Leyenda -->
+        <div id="leyendaProductos" class="leyenda-container"></div>
+      </div>
+
+      <!-- Top Clientes -->
+      <div class="section">
+        <div class="section-title">👥 Top Clientes</div>
+        <div id="topClientes"></div>
+      </div>
+
+      <!-- Clasificación de Clientes -->
+      <div class="section">
+        <div class="section-title">⭐ Clasificación de Clientes</div>
+        <div id="clasificacionClientes"></div>
+      </div>
+
+      <!-- Últimas Transacciones -->
+      <div class="section">
+        <div class="section-title">🕐 Últimas Transacciones</div>
+        
+        <div class="transaction-filter">
+          <button class="filter-btn active" data-filter="todas" onclick="filtrarTransacciones('todas')">
+            Todas
+          </button>
+          <button class="filter-btn" data-filter="ventas" onclick="filtrarTransacciones('ventas')">
+            🛍️ Ventas
+          </button>
+          <button class="filter-btn" data-filter="devoluciones" onclick="filtrarTransacciones('devoluciones')">
+            ↩️ Devol.
+          </button>
+        </div>
+        
+        <div id="ultimasTransacciones"></div>
+      </div>
     </div>
+
+    <div class="refresh-time" id="refreshTime"></div>
   </div>
 
   <script src="main.js"></script>
-  
-  <script>
-    const CORRECT_PASSWORD = 'PuntoSecreto01';
-    let passwordVisible = false;
-
-    window.addEventListener('DOMContentLoaded', () => {
-      const isAuthenticated = sessionStorage.getItem('ps_authenticated');
-      if (isAuthenticated === 'true') {
-        mostrarDashboard();
-      }
-      
-      document.getElementById('passwordInput').addEventListener('input', verificarRequisitos);
-      document.getElementById('passwordInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') verificarPassword();
-      });
-    });
-
-    function verificarRequisitos() {
-      const password = document.getElementById('passwordInput').value;
-      
-      const hasLength = password.length >= 14;
-      actualizarRequisito('req-length', hasLength);
-      
-      const uppercaseCount = (password.match(/[A-Z]/g) || []).length;
-      actualizarRequisito('req-uppercase', uppercaseCount >= 2);
-      
-      const numberCount = (password.match(/[0-9]/g) || []).length;
-      actualizarRequisito('req-numbers', numberCount >= 2);
-      
-      return hasLength && uppercaseCount >= 2 && numberCount >= 2;
-    }
-
-    function actualizarRequisito(id, cumplido) {
-      const elemento = document.getElementById(id);
-      const icon = elemento.querySelector('.requirement-icon');
-      icon.textContent = cumplido ? '✅' : '⭕';
-      elemento.className = cumplido ? 'requirement-met' : 'requirement-unmet';
-    }
-
-    function togglePasswordVisibility() {
-      const input = document.getElementById('passwordInput');
-      const btn = document.querySelector('.toggle-password');
-      passwordVisible = !passwordVisible;
-      input.type = passwordVisible ? 'text' : 'password';
-      btn.textContent = passwordVisible ? '🙈' : '👁️';
-    }
-
-    function verificarPassword() {
-      const password = document.getElementById('passwordInput').value;
-      const errorMsg = document.getElementById('errorMessage');
-      const input = document.getElementById('passwordInput');
-      
-      if (!verificarRequisitos()) {
-        errorMsg.textContent = '❌ La contraseña no cumple los requisitos.';
-        errorMsg.style.display = 'block';
-        input.classList.add('error');
-        setTimeout(() => input.classList.remove('error'), 500);
-        return;
-      }
-      
-      if (password === CORRECT_PASSWORD) {
-        sessionStorage.setItem('ps_authenticated', 'true');
-        errorMsg.style.display = 'none';
-        mostrarDashboard();
-      } else {
-        errorMsg.textContent = '❌ Contraseña incorrecta. Intenta nuevamente.';
-        errorMsg.style.display = 'block';
-        input.classList.add('error');
-        input.value = '';
-        setTimeout(() => input.classList.remove('error'), 500);
-      }
-    }
-
-    function mostrarDashboard() {
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('dashboardApp').style.display = 'block';
-      // Cargar datos DESPUÉS de mostrar el dashboard
-      cargarDatos();
-    }
-
-    function cerrarSesion() {
-      if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
-        sessionStorage.removeItem('ps_authenticated');
-        document.getElementById('dashboardApp').style.display = 'none';
-        document.getElementById('loginScreen').style.display = 'flex';
-        document.getElementById('passwordInput').value = '';
-        document.getElementById('errorMessage').style.display = 'none';
-      }
-    }
-
-    function cambiarTab(tabName) {
-      document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-      
-      event.target.classList.add('active');
-      document.getElementById(`tab-${tabName}`).classList.add('active');
-      
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  </script>
 </body>
 </html>
