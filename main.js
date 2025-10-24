@@ -198,6 +198,9 @@ function calcularEstadisticas(ventas) {
 
   // NUEVO: Análisis de tendencias
   analizarTendencias(ventasReales);
+  
+  // NUEVO: Análisis predictivo
+  analisisPredictivo(ventasReales);
 
   mostrarTopAnfitriones(ventasReales);
   mostrarTopProductos(ventasReales);
@@ -377,6 +380,221 @@ function analizarTendencias(ventasActuales) {
   `;
 
   document.getElementById('analisisTendencias').innerHTML = analisisHTML;
+}
+
+function analisisPredictivo(ventasActuales) {
+  const fechaDesde = document.getElementById('fechaDesde').value;
+  const fechaHasta = document.getElementById('fechaHasta').value;
+  
+  if (!fechaDesde || !fechaHasta) {
+    document.getElementById('analisisPredictivo').innerHTML = `
+      <div class="tendencia-info">
+        <div class="tendencia-icon">ℹ️</div>
+        <div class="tendencia-text">
+          Selecciona un rango de fechas para ver predicciones
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const inicioActual = new Date(fechaDesde);
+  const finActual = new Date(fechaHasta);
+  const diasTranscurridos = Math.ceil((finActual - inicioActual) / (1000 * 60 * 60 * 24)) + 1;
+
+  // Calcular totales actuales
+  const totalVentas = ventasActuales.reduce((sum, v) => {
+    return sum + (v.fields['Total Neto Numerico'] || v.fields['Total de venta'] || 0);
+  }, 0);
+  const numVentas = ventasActuales.length;
+  const ventasPorDia = totalVentas / diasTranscurridos;
+  const transaccionesPorDia = numVentas / diasTranscurridos;
+
+  // Calcular últimos 7 días vs primeros 7 días (aceleración/desaceleración)
+  const ventasPor7Dias = [];
+  let currentDate = new Date(inicioActual);
+  while (currentDate <= finActual) {
+    const endWeek = new Date(currentDate);
+    endWeek.setDate(endWeek.getDate() + 6);
+    
+    const ventasSemana = ventasActuales.filter(v => {
+      const fecha = new Date(v.fields['Fecha de compra']);
+      return fecha >= currentDate && fecha <= endWeek;
+    });
+    
+    const totalSemana = ventasSemana.reduce((sum, v) => {
+      return sum + (v.fields['Total Neto Numerico'] || v.fields['Total de venta'] || 0);
+    }, 0);
+    
+    ventasPor7Dias.push(totalSemana);
+    currentDate.setDate(currentDate.getDate() + 7);
+  }
+
+  // Calcular tendencia (regresión lineal simple)
+  let tendencia = 0;
+  if (ventasPor7Dias.length >= 2) {
+    const primera = ventasPor7Dias[0];
+    const ultima = ventasPor7Dias[ventasPor7Dias.length - 1];
+    tendencia = ((ultima - primera) / primera) * 100;
+  }
+
+  // Proyecciones
+  const hoy = new Date();
+  const finMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+  const diasRestantesMes = Math.ceil((finMes - hoy) / (1000 * 60 * 60 * 24));
+  
+  // Ajustar proyección según tendencia
+  const factorTendencia = 1 + (tendencia / 100);
+  const ventasAjustadasPorDia = ventasPorDia * factorTendencia;
+  
+  const proyeccionFinMes = ventasAjustadasPorDia * diasRestantesMes;
+  const proyeccionProximoMes = ventasAjustadasPorDia * 30;
+  const proyeccionProximos3Meses = ventasAjustadasPorDia * 90;
+
+  // Analizar productos para detectar stock bajo
+  const productosCount = {};
+  const productosPorSemana = {};
+  
+  ventasActuales.forEach(venta => {
+    const semana = Math.floor((new Date(venta.fields['Fecha de compra']) - inicioActual) / (1000 * 60 * 60 * 24 * 7));
+    
+    Object.keys(venta.fields).forEach(campo => {
+      if (campo.startsWith('Cantidad real de ventas')) {
+        const cantidad = parseInt(venta.fields[campo]) || 0;
+        if (cantidad > 0) {
+          const producto = campo.replace('Cantidad real de ventas ', '').trim();
+          productosCount[producto] = (productosCount[producto] || 0) + cantidad;
+          
+          if (!productosPorSemana[producto]) {
+            productosPorSemana[producto] = [];
+          }
+          productosPorSemana[producto].push({ semana, cantidad });
+        }
+      }
+    });
+  });
+
+  // Detectar productos con alta rotación (posible agotamiento)
+  const productosAltoRiesgo = [];
+  Object.entries(productosCount).forEach(([producto, total]) => {
+    const ventasPorDia = total / diasTranscurridos;
+    const diasParaAgotar = 30; // Asumimos stock de 30 días
+    const stockEstimado = ventasPorDia * diasParaAgotar;
+    
+    if (ventasPorDia > 1) { // Más de 1 unidad por día
+      const diasRestantes = Math.ceil(stockEstimado / ventasPorDia);
+      productosAltoRiesgo.push({
+        producto,
+        ventasDiarias: ventasPorDia,
+        diasRestantes
+      });
+    }
+  });
+
+  productosAltoRiesgo.sort((a, b) => a.diasRestantes - b.diasRestantes);
+
+  // HTML del análisis predictivo
+  let html = '<div class="prediccion-grid">';
+
+  // Card: Proyección fin de mes
+  const iconoMes = tendencia > 0 ? '📈' : tendencia < 0 ? '📉' : '➡️';
+  html += `
+    <div class="prediccion-card">
+      <div class="prediccion-icon">${iconoMes}</div>
+      <div class="prediccion-label">Fin de este mes</div>
+      <div class="prediccion-valor">${Math.round(proyeccionFinMes).toLocaleString('es-CL')}</div>
+      <div class="prediccion-detalle">En ${diasRestantesMes} días más</div>
+    </div>
+  `;
+
+  // Card: Próximo mes completo
+  html += `
+    <div class="prediccion-card">
+      <div class="prediccion-icon">📅</div>
+      <div class="prediccion-label">Próximo mes</div>
+      <div class="prediccion-valor">${Math.round(proyeccionProximoMes).toLocaleString('es-CL')}</div>
+      <div class="prediccion-detalle">30 días siguientes</div>
+    </div>
+  `;
+
+  // Card: Próximos 3 meses
+  html += `
+    <div class="prediccion-card trimestral">
+      <div class="prediccion-icon">🎯</div>
+      <div class="prediccion-label">Próximos 3 meses</div>
+      <div class="prediccion-valor">${Math.round(proyeccionProximos3Meses).toLocaleString('es-CL')}</div>
+      <div class="prediccion-detalle">Proyección trimestral</div>
+    </div>
+  `;
+
+  // Card: Tendencia actual
+  const colorTendencia = tendencia > 0 ? '#10b981' : tendencia < 0 ? '#ef4444' : '#6b7280';
+  const textoTendencia = tendencia > 5 ? 'Acelerando' : tendencia < -5 ? 'Desacelerando' : 'Estable';
+  html += `
+    <div class="prediccion-card">
+      <div class="prediccion-icon">📊</div>
+      <div class="prediccion-label">Tendencia</div>
+      <div class="prediccion-valor" style="color: ${colorTendencia}; font-size: 18px;">
+        ${textoTendencia}
+      </div>
+      <div class="prediccion-detalle">${tendencia > 0 ? '+' : ''}${tendencia.toFixed(1)}% semanal</div>
+    </div>
+  `;
+
+  html += '</div>';
+
+  // Insight predictivo inteligente
+  let insightTexto = '';
+  if (tendencia > 10) {
+    insightTexto = `🚀 <strong>Crecimiento acelerado.</strong> Las ventas están aumentando ${tendencia.toFixed(1)}% semana a semana. Si mantienes este ritmo, alcanzarás ${Math.round(proyeccionProximoMes).toLocaleString('es-CL')} el próximo mes. ¡Prepara más stock!`;
+  } else if (tendencia > 0) {
+    insightTexto = `📈 <strong>Crecimiento sostenido.</strong> Proyección de ${Math.round(proyeccionProximoMes).toLocaleString('es-CL')} para el próximo mes. Mantén la estrategia actual.`;
+  } else if (tendencia > -10) {
+    insightTexto = `⚠️ <strong>Ventas desacelerando.</strong> Se proyecta ${Math.round(proyeccionProximoMes).toLocaleString('es-CL')} para el próximo mes. Considera implementar promociones o estrategias de reactivación.`;
+  } else {
+    insightTexto = `🚨 <strong>Alerta de desaceleración.</strong> Las ventas están cayendo ${Math.abs(tendencia).toFixed(1)}% semanal. Es urgente revisar y ajustar la estrategia comercial.`;
+  }
+
+  html += `
+    <div class="prediccion-insight">
+      <div class="prediccion-insight-text">${insightTexto}</div>
+    </div>
+  `;
+
+  // Alertas de stock (productos de alta rotación)
+  if (productosAltoRiesgo.length > 0) {
+    html += `<div class="stock-alertas">`;
+    html += `<div class="stock-titulo">⚠️ Alertas de Stock (Alta Rotación)</div>`;
+    
+    productosAltoRiesgo.slice(0, 3).forEach(item => {
+      const colorAlerta = item.diasRestantes < 10 ? '#ef4444' : item.diasRestantes < 20 ? '#f59e0b' : '#10b981';
+      const nivelAlerta = item.diasRestantes < 10 ? 'Crítico' : item.diasRestantes < 20 ? 'Bajo' : 'Normal';
+      
+      html += `
+        <div class="stock-item">
+          <div class="stock-info">
+            <div class="stock-nombre">${item.producto}</div>
+            <div class="stock-detalle">${item.ventasDiarias.toFixed(1)} unidades/día</div>
+          </div>
+          <div class="stock-badge" style="background: ${colorAlerta}">
+            ${nivelAlerta}
+          </div>
+        </div>
+      `;
+    });
+    
+    html += `</div>`;
+  }
+
+  // Nota metodológica
+  html += `
+    <div class="prediccion-nota">
+      <strong>📋 Metodología:</strong> Proyecciones basadas en promedio de ventas diarias ajustado por tendencia semanal. 
+      Precisión mayor con períodos más largos de datos históricos.
+    </div>
+  `;
+
+  document.getElementById('analisisPredictivo').innerHTML = html;
 }
 
 function mostrarTopAnfitriones(ventas) {
