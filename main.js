@@ -1,4 +1,104 @@
-// Variables globales
+// ==========================================
+// SISTEMA DE LOGIN Y SEGURIDAD
+// ==========================================
+
+const PASSWORD_CORRECTA = 'accionistas$';
+let isPasswordVisible = false;
+
+// Verificar si ya hay sesión activa al cargar la página
+window.addEventListener('DOMContentLoaded', function() {
+  const sesionActiva = sessionStorage.getItem('dashboardAutenticado');
+  if (sesionActiva === 'true') {
+    mostrarDashboard();
+  }
+  
+  // Permitir Enter para login
+  document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      verificarPassword();
+    }
+  });
+});
+
+function verificarPassword() {
+  const input = document.getElementById('passwordInput');
+  const errorMsg = document.getElementById('errorMessage');
+  const password = input.value;
+
+  if (password === PASSWORD_CORRECTA) {
+    // Login exitoso
+    sessionStorage.setItem('dashboardAutenticado', 'true');
+    errorMsg.classList.remove('show');
+    input.classList.remove('error');
+    
+    // Animación de éxito
+    input.style.borderColor = '#10b981';
+    setTimeout(() => {
+      mostrarDashboard();
+    }, 300);
+  } else {
+    // Login fallido
+    errorMsg.classList.add('show');
+    input.classList.add('error');
+    input.value = '';
+    input.focus();
+    
+    // Remover error después de 3 segundos
+    setTimeout(() => {
+      errorMsg.classList.remove('show');
+      input.classList.remove('error');
+    }, 3000);
+  }
+}
+
+function mostrarDashboard() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('dashboardApp').style.display = 'block';
+  
+  // Inicializar el dashboard
+  inicializarFechas();
+  cargarDatos();
+}
+
+function cerrarSesion() {
+  if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
+    sessionStorage.removeItem('dashboardAutenticado');
+    document.getElementById('dashboardApp').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('passwordInput').value = '';
+    
+    // Cerrar menú si está abierto
+    const menuPanel = document.querySelector('.menu-panel');
+    const menuOverlay = document.querySelector('.menu-overlay');
+    const menuHamburger = document.querySelector('.menu-hamburger');
+    menuPanel.classList.remove('active');
+    menuOverlay.classList.remove('active');
+    menuHamburger.classList.remove('active');
+  }
+}
+
+function togglePasswordVisibility() {
+  const input = document.getElementById('passwordInput');
+  const icon = document.getElementById('toggleIcon');
+  const text = document.getElementById('toggleText');
+  
+  isPasswordVisible = !isPasswordVisible;
+  
+  if (isPasswordVisible) {
+    input.type = 'text';
+    icon.textContent = '🙈';
+    text.textContent = 'Ocultar contraseña';
+  } else {
+    input.type = 'password';
+    icon.textContent = '👁️';
+    text.textContent = 'Mostrar contraseña';
+  }
+}
+
+// ==========================================
+// VARIABLES GLOBALES DEL DASHBOARD
+// ==========================================
+
 let ventasData = [];
 let clientesData = [];
 let anfitrionesData = [];
@@ -7,7 +107,10 @@ let anfitrionesMap = {};
 let todasLasTransacciones = [];
 let filtroTransaccionActual = 'todas';
 
-// Inicializar fechas (últimos 30 días por defecto)
+// ==========================================
+// FUNCIONES DEL DASHBOARD
+// ==========================================
+
 function inicializarFechas() {
   const hoy = new Date();
   const hace30dias = new Date();
@@ -65,18 +168,16 @@ async function cargarDatos() {
 
     console.log('🔄 Cargando datos desde Airtable...');
 
-    // Cargar todas las tablas en paralelo
     const [ventas, clientes, anfitriones] = await Promise.all([
-      fetchFromProxy('tblC7aADITb6A6iYP'),  // VENTAS
-      fetchFromProxy('tblfRI4vdXspaNNlD'),  // CLIENTES
-      fetchFromProxy('tblrtLcB3dUASCfnL')   // ANFITRIONES
+      fetchFromProxy('tblC7aADITb6A6iYP'),
+      fetchFromProxy('tblfRI4vdXspaNNlD'),
+      fetchFromProxy('tblrtLcB3dUASCfnL')
     ]);
 
     ventasData = ventas;
     clientesData = clientes;
     anfitrionesData = anfitriones;
 
-    // Crear mapas para búsqueda rápida
     clientesMap = {};
     clientesData.forEach(c => {
       clientesMap[c.id] = c.fields;
@@ -115,7 +216,6 @@ async function cargarDatos() {
 
 async function fetchFromProxy(tableId) {
   try {
-    // Las credenciales deben estar en variables de entorno del servidor
     const response = await fetch(`/api/airtable?action=getRecords&tableId=${tableId}`);
     
     if (!response.ok) {
@@ -503,7 +603,7 @@ function mostrarTopClientes(ventas) {
           <span class="ranking-medal">${medals[index]}</span>
           <span>${cli.nombre}</span>
         </div>
-        <div class="ranking-value">$${Math.round(cli.total).toLocaleString('es-CL')}</div>
+        <div class="ranking-value">${Math.round(cli.total).toLocaleString('es-CL')}</div>
       </div>
     `;
   }).join('');
@@ -641,7 +741,7 @@ function mostrarUltimasTransacciones(ventas) {
           <div style="margin-bottom: 3px;">📦 ${items}</div>
           <div style="display: flex; justify-content: space-between;">
             <span>📅 ${fechaHoraTexto}</span>
-            <span style="font-weight: 600; color: #10b981;">$${Math.round(total).toLocaleString('es-CL')}</span>
+            <span style="font-weight: 600; color: #10b981;">${Math.round(total).toLocaleString('es-CL')}</span>
           </div>
           ${autorizadoPor}
         </div>
@@ -690,41 +790,35 @@ function toggleMenu() {
 }
 
 function cambiarSeccion(seccion) {
-  // Desactivar todos los botones del menú
   document.querySelectorAll('.menu-option').forEach(btn => {
     btn.classList.remove('active');
   });
   
-  // Activar el botón seleccionado
   const botonActivo = document.querySelector(`.menu-option[data-section="${seccion}"]`);
   if (botonActivo) {
     botonActivo.classList.add('active');
   }
   
-  // Ocultar todas las secciones
   document.querySelectorAll('.content-section').forEach(section => {
     section.classList.remove('active');
   });
   
-  // Mostrar la sección seleccionada
   const seccionActiva = document.getElementById(`section-${seccion}`);
   if (seccionActiva) {
     seccionActiva.classList.add('active');
   }
   
-  // Cerrar el menú después de seleccionar
   toggleMenu();
-  
-  // Scroll suave hacia arriba
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ==========================================
-// INICIALIZACIÓN
+// AUTO-REFRESH
 // ==========================================
 
-inicializarFechas();
-cargarDatos();
-
-// Auto-refresh cada 5 minutos
-setInterval(cargarDatos, 300000);
+setInterval(() => {
+  const sesionActiva = sessionStorage.getItem('dashboardAutenticado');
+  if (sesionActiva === 'true') {
+    cargarDatos();
+  }
+}, 300000); // 5 minutos

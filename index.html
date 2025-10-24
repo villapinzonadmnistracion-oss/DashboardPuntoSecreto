@@ -19,6 +19,174 @@
       min-height: 100vh;
     }
 
+    /* ========================================= */
+    /* PANTALLA DE LOGIN */
+    /* ========================================= */
+    #loginScreen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    .login-container {
+      background: white;
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .login-icon {
+      font-size: 70px;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .login-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: #10b981;
+      margin-bottom: 10px;
+    }
+
+    .login-subtitle {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 30px;
+    }
+
+    .password-input-wrapper {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    #passwordInput {
+      width: 100%;
+      padding: 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      font-size: 16px;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+
+    #passwordInput:focus {
+      outline: none;
+      border-color: #10b981;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+
+    #passwordInput.error {
+      border-color: #ef4444;
+      animation: shake 0.5s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .toggle-password-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #f3f4f6;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+
+    .toggle-password-btn:hover {
+      background: #e5e7eb;
+    }
+
+    .toggle-password-btn:active {
+      transform: scale(0.95);
+    }
+
+    #loginButton {
+      width: 100%;
+      padding: 16px;
+      background: #10b981;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+
+    #loginButton:hover {
+      background: #059669;
+    }
+
+    #loginButton:active {
+      transform: scale(0.98);
+    }
+
+    #loginButton:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
+    }
+
+    .error-message {
+      color: #ef4444;
+      font-size: 13px;
+      margin-top: 12px;
+      font-weight: 500;
+      display: none;
+      animation: fadeIn 0.3s;
+      padding: 10px;
+      background: #fee2e2;
+      border-radius: 8px;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-footer {
+      margin-top: 30px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    /* ========================================= */
+    /* DASHBOARD (oculto inicialmente) */
+    /* ========================================= */
+    #dashboardApp {
+      display: none;
+    }
+
     .container {
       max-width: 480px;
       margin: 0 auto;
@@ -46,7 +214,6 @@
       font-size: 11px;
     }
 
-    /* Botón de Menú Hamburguesa - Fijo */
     .menu-hamburger {
       position: fixed;
       top: 20px;
@@ -78,7 +245,6 @@
       transform: rotate(90deg);
     }
 
-    /* Panel del Menú Lateral */
     .menu-panel {
       position: fixed;
       top: 0;
@@ -183,7 +349,6 @@
       margin: 8px 20px;
     }
 
-    /* Overlay oscuro */
     .menu-overlay {
       position: fixed;
       top: 0;
@@ -293,7 +458,6 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Secciones del contenido */
     .content-section {
       display: none;
     }
@@ -630,11 +794,6 @@
       animation: fadeIn 0.5s ease-in;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
     .nota-icon {
       font-size: 24px;
       flex-shrink: 0;
@@ -733,196 +892,244 @@
   </style>
 </head>
 <body>
-  <!-- Botón Hamburguesa Fijo -->
-  <button class="menu-hamburger" onclick="toggleMenu()">
-    <span class="menu-hamburger-icon">⋮</span>
-  </button>
-
-  <!-- Overlay Oscuro -->
-  <div class="menu-overlay" onclick="toggleMenu()"></div>
-
-  <!-- Panel del Menú Lateral -->
-  <div class="menu-panel">
-    <div class="menu-header">
-      <div class="menu-title">📊 Dashboard</div>
-      <div class="menu-subtitle">Punto Secreto</div>
-    </div>
-
-    <div class="menu-items">
-      <div class="menu-section-title">📌 Navegación</div>
+  <!-- ========================================= -->
+  <!-- PANTALLA DE LOGIN -->
+  <!-- ========================================= -->
+  <div id="loginScreen">
+    <div class="login-container">
+      <div class="login-icon">🔐</div>
+      <div class="login-title">Dashboard Punto Secreto</div>
+      <div class="login-subtitle">Ingresa tu contraseña para continuar</div>
       
-      <button class="menu-option active" data-section="inicio" onclick="cambiarSeccion('inicio')">
-        <span class="menu-option-icon">🏠</span>
-        <div class="menu-option-text">
-          <span class="menu-option-label">Inicio</span>
-          <span class="menu-option-desc">Vista general y KPIs</span>
+      <form onsubmit="return false;">
+        <div class="password-input-wrapper">
+          <input 
+            type="password" 
+            id="passwordInput" 
+            placeholder="Contraseña"
+            autocomplete="off"
+          >
+          <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility()">
+            <span id="toggleIcon">👁️</span>
+            <span id="toggleText">Mostrar contraseña</span>
+          </button>
         </div>
-      </button>
 
-      <button class="menu-option" data-section="productos" onclick="cambiarSeccion('productos')">
-        <span class="menu-option-icon">📦</span>
-        <div class="menu-option-text">
-          <span class="menu-option-label">Productos</span>
-          <span class="menu-option-desc">Top ventas y análisis</span>
-        </div>
-      </button>
+        <button type="submit" id="loginButton" onclick="verificarPassword()">
+          🔓 Ingresar al Dashboard
+        </button>
+      </form>
 
-      <button class="menu-option" data-section="clientes" onclick="cambiarSeccion('clientes')">
-        <span class="menu-option-icon">👥</span>
-        <div class="menu-option-text">
-          <span class="menu-option-label">Clientes</span>
-          <span class="menu-option-desc">Rankings y clasificación</span>
-        </div>
-      </button>
+      <div class="error-message" id="errorMessage">
+        ❌ Contraseña incorrecta. Intenta nuevamente.
+      </div>
 
-      <button class="menu-option" data-section="transacciones" onclick="cambiarSeccion('transacciones')">
-        <span class="menu-option-icon">💳</span>
-        <div class="menu-option-text">
-          <span class="menu-option-label">Transacciones</span>
-          <span class="menu-option-desc">Ventas y devoluciones</span>
-        </div>
-      </button>
-
-      <div class="menu-divider"></div>
-
-      <div class="menu-section-title">⚙️ Acciones</div>
-
-      <button class="menu-option" onclick="cargarDatos(); toggleMenu();">
-        <span class="menu-option-icon">🔄</span>
-        <div class="menu-option-text">
-          <span class="menu-option-label">Actualizar Datos</span>
-          <span class="menu-option-desc">Sincronizar con Airtable</span>
-        </div>
-      </button>
+      <div class="login-footer">
+        🔒 Acceso seguro y protegido
+      </div>
     </div>
   </div>
 
-  <div class="container">
-    <div class="header">
-      <h1>📊 Dashboard Punto Secreto</h1>
-      <p id="lastUpdate">Cargando datos...</p>
-    </div>
+  <!-- ========================================= -->
+  <!-- DASHBOARD (oculto hasta login exitoso) -->
+  <!-- ========================================= -->
+  <div id="dashboardApp">
+    <button class="menu-hamburger" onclick="toggleMenu()">
+      <span class="menu-hamburger-icon">⋮</span>
+    </button>
 
-    <div class="filters">
-      <label>📅 Rango de Fechas</label>
-      <div class="date-range">
-        <div>
-          <input type="date" id="fechaDesde" onchange="aplicarFiltros()">
-          <small style="color: #666; font-size: 10px;">Desde</small>
-        </div>
-        <div>
-          <input type="date" id="fechaHasta" onchange="aplicarFiltros()">
-          <small style="color: #666; font-size: 10px;">Hasta</small>
-        </div>
+    <div class="menu-overlay" onclick="toggleMenu()"></div>
+
+    <div class="menu-panel">
+      <div class="menu-header">
+        <div class="menu-title">📊 Dashboard</div>
+        <div class="menu-subtitle">Punto Secreto</div>
       </div>
 
-      <label>⚡ Accesos Rápidos</label>
-      <select id="filterPeriodo" onchange="cambiarPeriodoRapido()">
-        <option value="">Selecciona período...</option>
-        <option value="hoy">Hoy</option>
-        <option value="7dias">Últimos 7 días</option>
-        <option value="30dias">Últimos 30 días</option>
-        <option value="mes">Este mes</option>
-        <option value="year">Este año</option>
-        <option value="all">Todo el tiempo</option>
-      </select>
-
-      <label>👤 Anfitrión</label>
-      <select id="filterAnfitrion" onchange="aplicarFiltros()">
-        <option value="">Todos los anfitriones</option>
-      </select>
-    </div>
-
-    <div id="loading" class="loading">
-      <div class="loading-spinner"></div>
-      <p>Cargando estadísticas...</p>
-    </div>
-
-    <div id="content" style="display: none;">
-      <!-- Sección INICIO -->
-      <div class="content-section active" id="section-inicio">
-        <div class="kpi-grid">
-          <div class="kpi-card">
-            <div class="kpi-icon">💰</div>
-            <div class="kpi-value" id="kpiTotalVentas">$0</div>
-            <div class="kpi-label">Total Ventas</div>
+      <div class="menu-items">
+        <div class="menu-section-title">📌 Navegación</div>
+        
+        <button class="menu-option active" data-section="inicio" onclick="cambiarSeccion('inicio')">
+          <span class="menu-option-icon">🏠</span>
+          <div class="menu-option-text">
+            <span class="menu-option-label">Inicio</span>
+            <span class="menu-option-desc">Vista general y KPIs</span>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-icon">📈</div>
-            <div class="kpi-value" id="kpiPromedioVenta">$0</div>
-            <div class="kpi-label">Promedio</div>
+        </button>
+
+        <button class="menu-option" data-section="productos" onclick="cambiarSeccion('productos')">
+          <span class="menu-option-icon">📦</span>
+          <div class="menu-option-text">
+            <span class="menu-option-label">Productos</span>
+            <span class="menu-option-desc">Top ventas y análisis</span>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-icon">🛍️</div>
-            <div class="kpi-value" id="kpiNumVentas">0</div>
-            <div class="kpi-label">Transacciones</div>
+        </button>
+
+        <button class="menu-option" data-section="clientes" onclick="cambiarSeccion('clientes')">
+          <span class="menu-option-icon">👥</span>
+          <div class="menu-option-text">
+            <span class="menu-option-label">Clientes</span>
+            <span class="menu-option-desc">Rankings y clasificación</span>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-icon">↩️</div>
-            <div class="kpi-value" id="kpiTasaDevolucion">0%</div>
-            <div class="kpi-label">Devoluciones</div>
+        </button>
+
+        <button class="menu-option" data-section="transacciones" onclick="cambiarSeccion('transacciones')">
+          <span class="menu-option-icon">💳</span>
+          <div class="menu-option-text">
+            <span class="menu-option-label">Transacciones</span>
+            <span class="menu-option-desc">Ventas y devoluciones</span>
           </div>
-        </div>
+        </button>
 
-        <div class="section">
-          <div class="section-title">🏆 Top Anfitriones</div>
-          <div id="rankingAnfitriones"></div>
-        </div>
-      </div>
+        <div class="menu-divider"></div>
 
-      <!-- Sección PRODUCTOS -->
-      <div class="content-section" id="section-productos">
-        <div class="section">
-          <div class="section-title">📦 Productos Más Vendidos</div>
-          <div id="topProductos"></div>
-        </div>
+        <div class="menu-section-title">⚙️ Acciones</div>
 
-        <div class="section">
-          <div class="section-title">🎯 Distribución de Ventas por Producto</div>
-          <div id="notaInteligente"></div>
-          <div id="graficoProductos" style="text-align: center; margin: 20px 0;">
-            <canvas id="chartCanvas"></canvas>
+        <button class="menu-option" onclick="cargarDatos(); toggleMenu();">
+          <span class="menu-option-icon">🔄</span>
+          <div class="menu-option-text">
+            <span class="menu-option-label">Actualizar Datos</span>
+            <span class="menu-option-desc">Sincronizar con Airtable</span>
           </div>
-          <div id="leyendaProductos" class="leyenda-container"></div>
-        </div>
-      </div>
+        </button>
 
-      <!-- Sección CLIENTES -->
-      <div class="content-section" id="section-clientes">
-        <div class="section">
-          <div class="section-title">👥 Top Clientes</div>
-          <div id="topClientes"></div>
-        </div>
-
-        <div class="section">
-          <div class="section-title">⭐ Clasificación de Clientes</div>
-          <div id="clasificacionClientes"></div>
-        </div>
-      </div>
-
-      <!-- Sección TRANSACCIONES -->
-      <div class="content-section" id="section-transacciones">
-        <div class="section">
-          <div class="section-title">🕐 Últimas Transacciones</div>
-          
-          <div class="transaction-filter">
-            <button class="filter-btn active" data-filter="todas" onclick="filtrarTransacciones('todas')">
-              Todas
-            </button>
-            <button class="filter-btn" data-filter="ventas" onclick="filtrarTransacciones('ventas')">
-              🛍️ Ventas
-            </button>
-            <button class="filter-btn" data-filter="devoluciones" onclick="filtrarTransacciones('devoluciones')">
-              ↩️ Devol.
-            </button>
+        <button class="menu-option" onclick="cerrarSesion()">
+          <span class="menu-option-icon">🚪</span>
+          <div class="menu-option-text">
+            <span class="menu-option-label">Cerrar Sesión</span>
+            <span class="menu-option-desc">Salir del dashboard</span>
           </div>
-          
-          <div id="ultimasTransacciones"></div>
-        </div>
+        </button>
       </div>
     </div>
 
-    <div class="refresh-time" id="refreshTime"></div>
+    <div class="container">
+      <div class="header">
+        <h1>📊 Dashboard Punto Secreto</h1>
+        <p id="lastUpdate">Cargando datos...</p>
+      </div>
+
+      <div class="filters">
+        <label>📅 Rango de Fechas</label>
+        <div class="date-range">
+          <div>
+            <input type="date" id="fechaDesde" onchange="aplicarFiltros()">
+            <small style="color: #666; font-size: 10px;">Desde</small>
+          </div>
+          <div>
+            <input type="date" id="fechaHasta" onchange="aplicarFiltros()">
+            <small style="color: #666; font-size: 10px;">Hasta</small>
+          </div>
+        </div>
+
+        <label>⚡ Accesos Rápidos</label>
+        <select id="filterPeriodo" onchange="cambiarPeriodoRapido()">
+          <option value="">Selecciona período...</option>
+          <option value="hoy">Hoy</option>
+          <option value="7dias">Últimos 7 días</option>
+          <option value="30dias">Últimos 30 días</option>
+          <option value="mes">Este mes</option>
+          <option value="year">Este año</option>
+          <option value="all">Todo el tiempo</option>
+        </select>
+
+        <label>👤 Anfitrión</label>
+        <select id="filterAnfitrion" onchange="aplicarFiltros()">
+          <option value="">Todos los anfitriones</option>
+        </select>
+      </div>
+
+      <div id="loading" class="loading">
+        <div class="loading-spinner"></div>
+        <p>Cargando estadísticas...</p>
+      </div>
+
+      <div id="content" style="display: none;">
+        <!-- Sección INICIO -->
+        <div class="content-section active" id="section-inicio">
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-icon">💰</div>
+              <div class="kpi-value" id="kpiTotalVentas">$0</div>
+              <div class="kpi-label">Total Ventas</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon">📈</div>
+              <div class="kpi-value" id="kpiPromedioVenta">$0</div>
+              <div class="kpi-label">Promedio</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon">🛍️</div>
+              <div class="kpi-value" id="kpiNumVentas">0</div>
+              <div class="kpi-label">Transacciones</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon">↩️</div>
+              <div class="kpi-value" id="kpiTasaDevolucion">0%</div>
+              <div class="kpi-label">Devoluciones</div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">🏆 Top Anfitriones</div>
+            <div id="rankingAnfitriones"></div>
+          </div>
+        </div>
+
+        <!-- Sección PRODUCTOS -->
+        <div class="content-section" id="section-productos">
+          <div class="section">
+            <div class="section-title">📦 Productos Más Vendidos</div>
+            <div id="topProductos"></div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">🎯 Distribución de Ventas por Producto</div>
+            <div id="notaInteligente"></div>
+            <div id="graficoProductos" style="text-align: center; margin: 20px 0;">
+              <canvas id="chartCanvas"></canvas>
+            </div>
+            <div id="leyendaProductos" class="leyenda-container"></div>
+          </div>
+        </div>
+
+        <!-- Sección CLIENTES -->
+        <div class="content-section" id="section-clientes">
+          <div class="section">
+            <div class="section-title">👥 Top Clientes</div>
+            <div id="topClientes"></div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">⭐ Clasificación de Clientes</div>
+            <div id="clasificacionClientes"></div>
+          </div>
+        </div>
+
+        <!-- Sección TRANSACCIONES -->
+        <div class="content-section" id="section-transacciones">
+          <div class="section">
+            <div class="section-title">🕐 Últimas Transacciones</div>
+            
+            <div class="transaction-filter">
+              <button class="filter-btn active" data-filter="todas" onclick="filtrarTransacciones('todas')">
+                Todas
+              </button>
+              <button class="filter-btn" data-filter="ventas" onclick="filtrarTransacciones('ventas')">
+                🛍️ Ventas
+              </button>
+              <button class="filter-btn" data-filter="devoluciones" onclick="filtrarTransacciones('devoluciones')">
+                ↩️ Devol.
+              </button>
+            </div>
+            
+            <div id="ultimasTransacciones"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="refresh-time" id="refreshTime"></div>
+    </div>
   </div>
 
   <script src="main.js"></script>
