@@ -237,12 +237,47 @@ function cargarAnfitrionesEnFiltro() {
   const select = document.getElementById('filterAnfitrion');
   select.innerHTML = '<option value="">Todos los anfitriones</option>';
   
-  anfitrionesData.forEach(anfitrion => {
+  console.log('📋 Cargando anfitriones en filtro...');
+  console.log('Total anfitriones:', anfitrionesData.length);
+  
+  // Ver los primeros 3 anfitriones para debug
+  if (anfitrionesData.length > 0) {
+    console.log('Ejemplo de anfitrión:', anfitrionesData[0]);
+    console.log('Campos disponibles:', Object.keys(anfitrionesData[0].fields));
+  }
+  
+  anfitrionesData.forEach((anfitrion, index) => {
     const option = document.createElement('option');
     option.value = anfitrion.id;
-    option.textContent = anfitrion.fields.Nombre || 'Sin nombre';
+    
+    // Intentar diferentes campos posibles para el nombre
+    let nombre = anfitrion.fields.Nombre || 
+                 anfitrion.fields.Name || 
+                 anfitrion.fields['Nombre completo'] ||
+                 anfitrion.fields['Nombre del anfitrión'] ||
+                 anfitrion.fields.nombre ||
+                 anfitrion.fields['Full Name'];
+    
+    // Si es array, tomar el primer elemento
+    if (Array.isArray(nombre)) {
+      nombre = nombre[0];
+    }
+    
+    // Si aún no hay nombre, usar un identificador
+    if (!nombre || nombre === '') {
+      nombre = `Anfitrión ${index + 1}`;
+      console.warn(`⚠️ Anfitrión sin nombre en posición ${index}:`, anfitrion.fields);
+    }
+    
+    option.textContent = nombre;
     select.appendChild(option);
+    
+    if (index < 3) {
+      console.log(`Anfitrión ${index + 1}: ${nombre}`);
+    }
   });
+  
+  console.log('✅ Anfitriones cargados en filtro:', anfitrionesData.length);
 }
 
 function aplicarFiltros() {
@@ -338,10 +373,24 @@ function mostrarTopAnfitriones(ventas) {
   const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
   container.innerHTML = ranking.map((anf, index) => {
     const anfitrionData = anfitrionesMap[anf.id];
-    const nombre = anfitrionData?.Nombre || 
-                   anfitrionData?.Name || 
-                   anfitrionData?.['Nombre completo'] ||
-                   'Desconocido';
+    
+    // Intentar diferentes campos posibles para el nombre
+    let nombre = anfitrionData?.Nombre || 
+                 anfitrionData?.Name || 
+                 anfitrionData?.['Nombre completo'] ||
+                 anfitrionData?.['Nombre del anfitrión'] ||
+                 anfitrionData?.nombre ||
+                 anfitrionData?.['Full Name'];
+    
+    // Si es array, tomar el primer elemento
+    if (Array.isArray(nombre)) {
+      nombre = nombre[0];
+    }
+    
+    // Si no hay nombre, usar un valor por defecto
+    if (!nombre) {
+      nombre = 'Anfitrión desconocido';
+    }
     
     return `
       <div class="ranking-item">
@@ -349,7 +398,7 @@ function mostrarTopAnfitriones(ventas) {
           <span class="ranking-medal">${medals[index]}</span>
           <span>${nombre}</span>
         </div>
-        <div class="ranking-value">$${Math.round(anf.total).toLocaleString('es-CL')}</div>
+        <div class="ranking-value">${Math.round(anf.total).toLocaleString('es-CL')}</div>
       </div>
     `;
   }).join('');
