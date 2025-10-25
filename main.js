@@ -169,9 +169,9 @@ async function cargarDatos() {
     console.log('🔄 Cargando datos desde Airtable...');
 
     const [ventas, clientes, anfitriones] = await Promise.all([
-      fetchFromProxy('tblC7aADITb6A6iYP'),  // Ventas
+      fetchFromProxy('tblC7aADITb6A6iYP'),  // Ventas (Registro de Ventas)
       fetchFromProxy('tblfRI4vdXspaNNlD'),  // Clientes
-      fetchFromProxy('tblxyk6vtahtFlLVo')   // Anfitriones (corregido)
+      fetchFromProxy('tblrtLcB3dUASCfnL')   // Anfitriones (tabla correcta)
     ]);
 
     ventasData = ventas;
@@ -192,8 +192,11 @@ async function cargarDatos() {
     console.log('✅ Clientes cargados:', clientesData.length);
     console.log('✅ Anfitriones cargados:', anfitrionesData.length);
     
-    // Debug: Ver algunos clientes
-    console.log('📋 Primeros clientes:', clientesData.slice(0, 3).map(c => c.fields.Nombre || c.fields.Name));
+    // Debug: Ver algunos anfitriones
+    if (anfitrionesData.length > 0) {
+      console.log('📋 Ejemplo de anfitrión:', anfitrionesData[0]);
+      console.log('📋 Campos:', Object.keys(anfitrionesData[0].fields));
+    }
 
     cargarAnfitrionesEnFiltro();
     aplicarFiltros();
@@ -240,44 +243,38 @@ function cargarAnfitrionesEnFiltro() {
   console.log('📋 Cargando anfitriones en filtro...');
   console.log('Total anfitriones:', anfitrionesData.length);
   
-  // Ver los primeros 3 anfitriones para debug
-  if (anfitrionesData.length > 0) {
-    console.log('Ejemplo de anfitrión:', anfitrionesData[0]);
-    console.log('Campos disponibles:', Object.keys(anfitrionesData[0].fields));
-  }
-  
   anfitrionesData.forEach((anfitrion, index) => {
     const option = document.createElement('option');
     option.value = anfitrion.id;
     
-    // Intentar diferentes campos posibles para el nombre
-    let nombre = anfitrion.fields.Nombre || 
-                 anfitrion.fields.Name || 
-                 anfitrion.fields['Nombre completo'] ||
-                 anfitrion.fields['Nombre del anfitrión'] ||
-                 anfitrion.fields.nombre ||
-                 anfitrion.fields['Full Name'];
+    // El campo en Airtable se llama "Anfitrión" según la imagen
+    let nombre = anfitrion.fields['Anfitrión'] || 
+                 anfitrion.fields.Nombre || 
+                 anfitrion.fields.Name;
     
     // Si es array, tomar el primer elemento
     if (Array.isArray(nombre)) {
       nombre = nombre[0];
     }
     
-    // Si aún no hay nombre, usar un identificador
+    // Convertir a string y limpiar
+    nombre = String(nombre || '').trim();
+    
+    // Si no hay nombre, usar un identificador
     if (!nombre || nombre === '') {
       nombre = `Anfitrión ${index + 1}`;
-      console.warn(`⚠️ Anfitrión sin nombre en posición ${index}:`, anfitrion.fields);
+      console.warn(`⚠️ Anfitrión sin nombre:`, anfitrion.fields);
     }
     
     option.textContent = nombre;
     select.appendChild(option);
     
-    if (index < 3) {
-      console.log(`Anfitrión ${index + 1}: ${nombre}`);
+    if (index < 5) {
+      console.log(`✅ Anfitrión ${index + 1}: ${nombre} (ID: ${anfitrion.id})`);
     }
   });
   
-  console.log('✅ Anfitriones cargados en filtro:', anfitrionesData.length);
+  console.log('✅ Total anfitriones cargados:', anfitrionesData.length);
 }
 
 function aplicarFiltros() {
@@ -972,16 +969,19 @@ function buscarAnfitriones(query) {
   const resultados = [];
   
   anfitrionesData.forEach(anfitrion => {
-    let nombre = anfitrion.fields.Nombre || anfitrion.fields.Name || '';
+    // El campo se llama "Anfitrión" en la tabla
+    let nombre = anfitrion.fields['Anfitrión'] || 
+                 anfitrion.fields.Nombre || 
+                 anfitrion.fields.Name || '';
     
     // Si es array, tomar el primer elemento
     if (Array.isArray(nombre)) {
       nombre = nombre[0] || '';
     }
     
-    nombre = String(nombre);
+    nombre = String(nombre).trim();
     
-    if (nombre.toLowerCase().includes(query)) {
+    if (nombre && nombre.toLowerCase().includes(query)) {
       const stats = calcularStatsAnfitrion(anfitrion.id);
       resultados.push({
         nombre: nombre,
