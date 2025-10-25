@@ -72,24 +72,25 @@ body {
 }
 
 .date-range {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 5px;
-}
-
-.date-range input {
-  margin-bottom: 0;
-}
-
-.date-range > div {
   display: flex;
-  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  align-items: flex-start;
 }
 
-.date-range label {
-  font-size: 10px;
-  margin-bottom: 5px;
+.date-range input[type="date"] {
+  width: 100%;
+  padding: 10px 8px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+@media (max-width: 768px) {
+  .date-range input[type="date"] {
+    font-size: 16px; /* Evita zoom en iOS */
+    min-height: 44px;
+  }
 }
 
 .filters button {
