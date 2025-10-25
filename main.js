@@ -243,101 +243,38 @@ function cargarAnfitrionesEnFiltro() {
   console.log('📋 Cargando anfitriones en filtro...');
   console.log('Total anfitriones:', anfitrionesData.length);
   
-  if (anfitrionesData.length === 0) {
-    console.warn('⚠️ No hay datos de anfitriones');
-    return;
-  }
-  
-  // Ver estructura del primer anfitrión
-  if (anfitrionesData.length > 0) {
-    console.log('📋 Estructura del primer anfitrión:', anfitrionesData[0]);
-    console.log('📋 Campos disponibles:', Object.keys(anfitrionesData[0].fields || {}));
-  }
-  
-  // Crear un Set para anfitriones únicos desde las ventas
-  const anfitrionesEnVentas = new Map();
-  
-  ventasData.forEach(venta => {
-    const anfitrionesIds = venta.fields['Anfitrión'] || [];
-    anfitrionesIds.forEach(id => {
-      if (!anfitrionesEnVentas.has(id)) {
-        // Buscar el nombre del anfitrión
-        const anfitrionData = anfitrionesMap[id];
-        if (anfitrionData) {
-          // Intentar obtener el nombre de múltiples campos posibles
-          let nombre = anfitrionData['Anfitrión'] || 
-                       anfitrionData.Nombre || 
-                       anfitrionData.Name ||
-                       anfitrionData['Nombre completo'] ||
-                       anfitrionData.nombre;
-          
-          // Si es array, tomar el primer elemento
-          if (Array.isArray(nombre)) {
-            nombre = nombre[0];
-          }
-          
-          // Convertir a string
-          nombre = String(nombre || '').trim();
-          
-          if (nombre) {
-            anfitrionesEnVentas.set(id, nombre);
-          }
-        }
-      }
-    });
+  anfitrionesData.forEach((anfitrion, index) => {
+    const option = document.createElement('option');
+    option.value = anfitrion.id;
+    
+    // El campo en Airtable se llama "Anfitrión" según la imagen
+    let nombre = anfitrion.fields['Anfitrión'] || 
+                 anfitrion.fields.Nombre || 
+                 anfitrion.fields.Name;
+    
+    // Si es array, tomar el primer elemento
+    if (Array.isArray(nombre)) {
+      nombre = nombre[0];
+    }
+    
+    // Convertir a string y limpiar
+    nombre = String(nombre || '').trim();
+    
+    // Si no hay nombre, usar un identificador
+    if (!nombre || nombre === '') {
+      nombre = `Anfitrión ${index + 1}`;
+      console.warn(`⚠️ Anfitrión sin nombre:`, anfitrion.fields);
+    }
+    
+    option.textContent = nombre;
+    select.appendChild(option);
+    
+    if (index < 5) {
+      console.log(`✅ Anfitrión ${index + 1}: ${nombre} (ID: ${anfitrion.id})`);
+    }
   });
   
-  console.log('✅ Anfitriones únicos encontrados en ventas:', anfitrionesEnVentas.size);
-  
-  // Si encontramos anfitriones en las ventas, usarlos
-  if (anfitrionesEnVentas.size > 0) {
-    let index = 0;
-    anfitrionesEnVentas.forEach((nombre, id) => {
-      const option = document.createElement('option');
-      option.value = id;
-      option.textContent = nombre;
-      select.appendChild(option);
-      
-      if (index < 5) {
-        console.log(`✅ Anfitrión ${index + 1}: ${nombre} (ID: ${id})`);
-      }
-      index++;
-    });
-  } else {
-    // Si no hay anfitriones en ventas, intentar cargar todos de la tabla
-    console.log('⚠️ No se encontraron anfitriones en ventas, cargando desde tabla...');
-    
-    anfitrionesData.forEach((anfitrion, index) => {
-      const option = document.createElement('option');
-      option.value = anfitrion.id;
-      
-      // Probar TODOS los campos posibles
-      const fields = anfitrion.fields || {};
-      let nombre = fields['Anfitrión'] || 
-                   fields.Nombre || 
-                   fields.Name ||
-                   fields['Nombre completo'] ||
-                   fields.nombre ||
-                   fields['Full Name'] ||
-                   fields.name ||
-                   Object.values(fields).find(v => typeof v === 'string' && v.length > 0);
-      
-      if (Array.isArray(nombre)) {
-        nombre = nombre[0];
-      }
-      
-      nombre = String(nombre || `Anfitrión ${index + 1}`).trim();
-      
-      option.textContent = nombre;
-      select.appendChild(option);
-      
-      if (index < 5) {
-        console.log(`Anfitrión ${index + 1}: ${nombre}`);
-      }
-    });
-  }
-  
-  console.log('✅ Total opciones en select:', select.options.length - 1);
+  console.log('✅ Total anfitriones cargados:', anfitrionesData.length);
 }
 
 function aplicarFiltros() {
@@ -681,145 +618,6 @@ function mostrarGraficoProductos(ventas) {
   }).join('');
 
   document.getElementById('leyendaProductos').innerHTML = leyendaHTML;
-  
-  // Agregar análisis de horarios
-  mostrarAnalisisHorarios(ventas);
-}
-
-function mostrarAnalisisHorarios(ventas) {
-  // Definir franjas horarias (10:00 - 19:00)
-  const franjas = {
-    'Mañana temprano (10:00-12:00)': { inicio: 10, fin: 12, ventas: 0, total: 0 },
-    'Mediodía (12:00-14:00)': { inicio: 12, fin: 14, ventas: 0, total: 0 },
-    'Tarde temprana (14:00-16:00)': { inicio: 14, fin: 16, ventas: 0, total: 0 },
-    'Tarde (16:00-18:00)': { inicio: 16, fin: 18, ventas: 0, total: 0 },
-    'Cierre (18:00-19:00)': { inicio: 18, fin: 19, ventas: 0, total: 0 }
-  };
-
-  let totalVentasConHora = 0;
-
-  ventas.forEach(venta => {
-    const fechaCompra = venta.fields['Fecha de compra'];
-    if (!fechaCompra) return;
-
-    const fecha = new Date(fechaCompra);
-    const hora = fecha.getHours();
-    const minutos = fecha.getMinutes();
-    const horaDecimal = hora + (minutos / 60);
-
-    const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
-
-    // Clasificar en franjas
-    Object.keys(franjas).forEach(nombreFranja => {
-      const franja = franjas[nombreFranja];
-      if (horaDecimal >= franja.inicio && horaDecimal < franja.fin) {
-        franja.ventas += 1;
-        franja.total += total;
-        totalVentasConHora += 1;
-      }
-    });
-  });
-
-  if (totalVentasConHora === 0) {
-    document.getElementById('analisisHorarios').innerHTML = 
-      '<div class="empty-state"><div class="empty-state-icon">🕐</div><p>No hay datos de horarios</p></div>';
-    return;
-  }
-
-  // Encontrar la franja con más ventas
-  let mejorFranja = null;
-  let maxVentas = 0;
-  
-  Object.entries(franjas).forEach(([nombre, datos]) => {
-    if (datos.ventas > maxVentas) {
-      maxVentas = datos.ventas;
-      mejorFranja = { nombre, ...datos };
-    }
-  });
-
-  // Encontrar la franja con menos ventas (pero que tenga al menos 1 venta)
-  let peorFranja = null;
-  let minVentas = Infinity;
-  
-  Object.entries(franjas).forEach(([nombre, datos]) => {
-    if (datos.ventas > 0 && datos.ventas < minVentas) {
-      minVentas = datos.ventas;
-      peorFranja = { nombre, ...datos };
-    }
-  });
-
-  // Calcular promedio
-  const promedioVentasPorFranja = totalVentasConHora / Object.keys(franjas).length;
-
-  // HTML del análisis
-  const analisisHTML = `
-    <div class="horarios-analysis">
-      <div class="horarios-header">
-        <div class="horarios-icon">⏰</div>
-        <div class="horarios-title">Análisis de Horarios de Venta</div>
-      </div>
-
-      <div class="horarios-insight">
-        <div class="insight-icon">🔥</div>
-        <div class="insight-text">
-          <strong>${mejorFranja.nombre}</strong> es la franja horaria más exitosa con 
-          <strong style="color: #10b981;">${mejorFranja.ventas} ventas</strong> 
-          (${((mejorFranja.ventas / totalVentasConHora) * 100).toFixed(1)}% del total) 
-          generando <strong>${Math.round(mejorFranja.total).toLocaleString('es-CL')}</strong>.
-        </div>
-      </div>
-
-      ${peorFranja ? `
-      <div class="horarios-insight warning">
-        <div class="insight-icon">📉</div>
-        <div class="insight-text">
-          <strong>${peorFranja.nombre}</strong> tiene el menor flujo con solo 
-          <strong style="color: #ef4444;">${peorFranja.ventas} ventas</strong>. 
-          Considera estrategias de promoción en este horario.
-        </div>
-      </div>
-      ` : ''}
-
-      <div class="horarios-bars">
-        ${Object.entries(franjas).map(([nombre, datos]) => {
-          const porcentaje = totalVentasConHora > 0 ? (datos.ventas / totalVentasConHora) * 100 : 0;
-          const esMejor = datos.ventas === maxVentas && datos.ventas > 0;
-          const esPeor = datos.ventas === minVentas && datos.ventas > 0 && minVentas !== maxVentas;
-          
-          return `
-            <div class="horario-bar-item ${esMejor ? 'mejor' : ''} ${esPeor ? 'peor' : ''}">
-              <div class="horario-bar-header">
-                <span class="horario-label">${nombre}</span>
-                <span class="horario-stats">
-                  ${datos.ventas} venta${datos.ventas !== 1 ? 's' : ''} 
-                  ${datos.ventas > 0 ? `• ${Math.round(datos.total).toLocaleString('es-CL')}` : ''}
-                </span>
-              </div>
-              <div class="horario-bar-container">
-                <div class="horario-bar-fill ${esMejor ? 'mejor' : ''} ${esPeor ? 'peor' : ''}" 
-                     style="width: ${porcentaje}%">
-                  <span class="horario-percentage">${porcentaje.toFixed(1)}%</span>
-                </div>
-              </div>
-            </div>
-          `;
-        }).join('')}
-      </div>
-
-      <div class="horarios-footer">
-        <div class="horarios-stat">
-          <span class="stat-label">Total analizado:</span>
-          <span class="stat-value">${totalVentasConHora} ventas</span>
-        </div>
-        <div class="horarios-stat">
-          <span class="stat-label">Promedio por franja:</span>
-          <span class="stat-value">${promedioVentasPorFranja.toFixed(1)} ventas</span>
-        </div>
-      </div>
-    </div>
-  `;
-
-  document.getElementById('analisisHorarios').innerHTML = analisisHTML;
 }
 
 function mostrarTopClientes(ventas) {
@@ -1170,27 +968,13 @@ function buscarProductos(query) {
 function buscarAnfitriones(query) {
   const resultados = [];
   
-  // Primero buscar en el mapa de anfitriones desde ventas
-  const anfitrionesEnVentas = new Set();
-  ventasData.forEach(venta => {
-    const anfitrionesIds = venta.fields['Anfitrión'] || [];
-    anfitrionesIds.forEach(id => anfitrionesEnVentas.add(id));
-  });
-  
-  // Buscar en los anfitriones que están en ventas
-  anfitrionesEnVentas.forEach(id => {
-    const anfitrionData = anfitrionesMap[id];
-    if (!anfitrionData) return;
+  anfitrionesData.forEach(anfitrion => {
+    // El campo se llama "Anfitrión" en la tabla
+    let nombre = anfitrion.fields['Anfitrión'] || 
+                 anfitrion.fields.Nombre || 
+                 anfitrion.fields.Name || '';
     
-    // Probar todos los campos
-    let nombre = anfitrionData['Anfitrión'] || 
-                 anfitrionData.Nombre || 
-                 anfitrionData.Name ||
-                 anfitrionData['Nombre completo'] ||
-                 anfitrionData.nombre ||
-                 anfitrionData['Full Name'] ||
-                 anfitrionData.name;
-    
+    // Si es array, tomar el primer elemento
     if (Array.isArray(nombre)) {
       nombre = nombre[0] || '';
     }
@@ -1198,18 +982,16 @@ function buscarAnfitriones(query) {
     nombre = String(nombre).trim();
     
     if (nombre && nombre.toLowerCase().includes(query)) {
-      const stats = calcularStatsAnfitrion(id);
+      const stats = calcularStatsAnfitrion(anfitrion.id);
       resultados.push({
         nombre: nombre,
-        id: id,
+        id: anfitrion.id,
         tipo: 'anfitrion',
         totalVentas: stats.total,
         numVentas: stats.cantidad
       });
     }
   });
-  
-  console.log('🔍 Anfitriones encontrados en búsqueda:', resultados.length);
   
   return resultados.slice(0, 5);
 }
