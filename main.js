@@ -618,6 +618,145 @@ function mostrarGraficoProductos(ventas) {
   }).join('');
 
   document.getElementById('leyendaProductos').innerHTML = leyendaHTML;
+  
+  // Agregar análisis de horarios
+  mostrarAnalisisHorarios(ventas);
+}
+
+function mostrarAnalisisHorarios(ventas) {
+  // Definir franjas horarias (10:00 - 19:00)
+  const franjas = {
+    'Mañana temprano (10:00-12:00)': { inicio: 10, fin: 12, ventas: 0, total: 0 },
+    'Mediodía (12:00-14:00)': { inicio: 12, fin: 14, ventas: 0, total: 0 },
+    'Tarde temprana (14:00-16:00)': { inicio: 14, fin: 16, ventas: 0, total: 0 },
+    'Tarde (16:00-18:00)': { inicio: 16, fin: 18, ventas: 0, total: 0 },
+    'Cierre (18:00-19:00)': { inicio: 18, fin: 19, ventas: 0, total: 0 }
+  };
+
+  let totalVentasConHora = 0;
+
+  ventas.forEach(venta => {
+    const fechaCompra = venta.fields['Fecha de compra'];
+    if (!fechaCompra) return;
+
+    const fecha = new Date(fechaCompra);
+    const hora = fecha.getHours();
+    const minutos = fecha.getMinutes();
+    const horaDecimal = hora + (minutos / 60);
+
+    const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
+
+    // Clasificar en franjas
+    Object.keys(franjas).forEach(nombreFranja => {
+      const franja = franjas[nombreFranja];
+      if (horaDecimal >= franja.inicio && horaDecimal < franja.fin) {
+        franja.ventas += 1;
+        franja.total += total;
+        totalVentasConHora += 1;
+      }
+    });
+  });
+
+  if (totalVentasConHora === 0) {
+    document.getElementById('analisisHorarios').innerHTML = 
+      '<div class="empty-state"><div class="empty-state-icon">🕐</div><p>No hay datos de horarios</p></div>';
+    return;
+  }
+
+  // Encontrar la franja con más ventas
+  let mejorFranja = null;
+  let maxVentas = 0;
+  
+  Object.entries(franjas).forEach(([nombre, datos]) => {
+    if (datos.ventas > maxVentas) {
+      maxVentas = datos.ventas;
+      mejorFranja = { nombre, ...datos };
+    }
+  });
+
+  // Encontrar la franja con menos ventas (pero que tenga al menos 1 venta)
+  let peorFranja = null;
+  let minVentas = Infinity;
+  
+  Object.entries(franjas).forEach(([nombre, datos]) => {
+    if (datos.ventas > 0 && datos.ventas < minVentas) {
+      minVentas = datos.ventas;
+      peorFranja = { nombre, ...datos };
+    }
+  });
+
+  // Calcular promedio
+  const promedioVentasPorFranja = totalVentasConHora / Object.keys(franjas).length;
+
+  // HTML del análisis
+  const analisisHTML = `
+    <div class="horarios-analysis">
+      <div class="horarios-header">
+        <div class="horarios-icon">⏰</div>
+        <div class="horarios-title">Análisis de Horarios de Venta</div>
+      </div>
+
+      <div class="horarios-insight">
+        <div class="insight-icon">🔥</div>
+        <div class="insight-text">
+          <strong>${mejorFranja.nombre}</strong> es la franja horaria más exitosa con 
+          <strong style="color: #10b981;">${mejorFranja.ventas} ventas</strong> 
+          (${((mejorFranja.ventas / totalVentasConHora) * 100).toFixed(1)}% del total) 
+          generando <strong>${Math.round(mejorFranja.total).toLocaleString('es-CL')}</strong>.
+        </div>
+      </div>
+
+      ${peorFranja ? `
+      <div class="horarios-insight warning">
+        <div class="insight-icon">📉</div>
+        <div class="insight-text">
+          <strong>${peorFranja.nombre}</strong> tiene el menor flujo con solo 
+          <strong style="color: #ef4444;">${peorFranja.ventas} ventas</strong>. 
+          Considera estrategias de promoción en este horario.
+        </div>
+      </div>
+      ` : ''}
+
+      <div class="horarios-bars">
+        ${Object.entries(franjas).map(([nombre, datos]) => {
+          const porcentaje = totalVentasConHora > 0 ? (datos.ventas / totalVentasConHora) * 100 : 0;
+          const esMejor = datos.ventas === maxVentas && datos.ventas > 0;
+          const esPeor = datos.ventas === minVentas && datos.ventas > 0 && minVentas !== maxVentas;
+          
+          return `
+            <div class="horario-bar-item ${esMejor ? 'mejor' : ''} ${esPeor ? 'peor' : ''}">
+              <div class="horario-bar-header">
+                <span class="horario-label">${nombre}</span>
+                <span class="horario-stats">
+                  ${datos.ventas} venta${datos.ventas !== 1 ? 's' : ''} 
+                  ${datos.ventas > 0 ? `• ${Math.round(datos.total).toLocaleString('es-CL')}` : ''}
+                </span>
+              </div>
+              <div class="horario-bar-container">
+                <div class="horario-bar-fill ${esMejor ? 'mejor' : ''} ${esPeor ? 'peor' : ''}" 
+                     style="width: ${porcentaje}%">
+                  <span class="horario-percentage">${porcentaje.toFixed(1)}%</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div class="horarios-footer">
+        <div class="horarios-stat">
+          <span class="stat-label">Total analizado:</span>
+          <span class="stat-value">${totalVentasConHora} ventas</span>
+        </div>
+        <div class="horarios-stat">
+          <span class="stat-label">Promedio por franja:</span>
+          <span class="stat-value">${promedioVentasPorFranja.toFixed(1)} ventas</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('analisisHorarios').innerHTML = analisisHTML;
 }
 
 function mostrarTopClientes(ventas) {
