@@ -90,7 +90,7 @@ function togglePasswordVisibility() {
     text.textContent = 'Ocultar contraseña';
   } else {
     input.type = 'password';
-    icon.textContent = '👁️';
+    icon.textContent = '👀';
     text.textContent = 'Mostrar contraseña';
   }
 }
