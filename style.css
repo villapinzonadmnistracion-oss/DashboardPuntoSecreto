@@ -71,38 +71,25 @@ body {
   color: #333;
 }
 
-/* Estilos solo para móvil */
-@media (max-width: 768px) {
-  .date-range {
-    display: flex;
-    gap: 8px;
-    width: 100%;
-    max-width: 100%;
-    justify-content: space-between;
-  }
-  
-  .date-input-wrapper {
-    flex: 0 0 48%; /* Cada input ocupa 48% del ancho */
-    max-width: 48%;
-  }
-  
-  .date-input-wrapper input[type="date"] {
-    width: 100%;
-    max-width: 100%;
-    padding: 8px 4px;
-    font-size: 14px;
-    border-radius: 6px;
-    border: 1px solid #ca1a1a;
-    box-sizing: border-box;
-  }
-  
-  .date-input-wrapper small {
-    color: #666;
-    font-size: 11px;
-    display: block;
-    margin-top: 3px;
-    text-align: center;
-  }
+.date-range {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.date-range input {
+  margin-bottom: 0;
+}
+
+.date-range > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.date-range label {
+  font-size: 10px;
+  margin-bottom: 5px;
 }
 .filters button {
   width: 100%;
