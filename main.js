@@ -909,6 +909,10 @@ function mostrarClasificacionClientes(ventas) {
   });
 
   const container = document.getElementById('clasificacionClientes');
+  if (!container) {
+    console.warn('⚠️ Elemento clasificacionClientes no encontrado');
+    return;
+  }
   
   const resumenHTML = `
     <div class="clasificacion-grid">
@@ -958,6 +962,80 @@ function mostrarClasificacionClientes(ventas) {
 
   container.innerHTML = resumenHTML + listaHTML;
 }
+
+function mostrarUltimasTransacciones(ventas) {
+  const container = document.getElementById('ultimasTransacciones');
+  if (!container) {
+    console.warn('⚠️ Elemento ultimasTransacciones no encontrado');
+    return;
+  }
+
+  if (ventas.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay transacciones</p></div>';
+    return;
+  }
+
+  container.innerHTML = ventas.map(venta => {
+    let nombreCliente = venta.fields['Nombre'];
+    if (Array.isArray(nombreCliente)) {
+      nombreCliente = nombreCliente[0] || 'Sin cliente';
+    }
+    nombreCliente = nombreCliente || 'Sin cliente';
+
+    const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
+    const items = venta.fields['Items'] || 'Sin items';
+    
+    let fechaHoraTexto = 'Sin fecha';
+    if (venta.fields['Fecha de compra']) {
+      const fechaCompleta = new Date(venta.fields['Fecha de compra']);
+      const fecha = fechaCompleta.toLocaleDateString('es-CL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+      const hora = fechaCompleta.toLocaleTimeString('es-CL', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+      fechaHoraTexto = `${fecha} - ${hora}`;
+    }
+    
+    const esDevolucion = venta.fields['Devolución'] && venta.fields['Devolución'].length > 0;
+    
+    let autorizadoPor = '';
+    if (esDevolucion && venta.fields['Box Observaciones']) {
+      autorizadoPor = `<div style="margin-top: 8px; padding: 8px; background: #fff3cd; border-radius: 6px; font-size: 11px; color: #856404;">
+        <strong>✓ Autorizado por:</strong> ${venta.fields['Box Observaciones']}
+      </div>`;
+    }
+
+    return `
+      <div class="transaction-item">
+        <div class="transaction-header">
+          <span>${nombreCliente}</span>
+          <span class="badge ${esDevolucion ? 'badge-devolucion' : 'badge-venta'}">
+            ${esDevolucion ? 'Devolución' : 'Venta'}
+          </span>
+        </div>
+        <div class="transaction-details">
+          <div style="margin-bottom: 3px;">📦 ${items}</div>
+          <div style="display: flex; justify-content: space-between;">
+            <span>📅 ${fechaHoraTexto}</span>
+            <span style="font-weight: 600; color: #10b981;">${Math.round(total).toLocaleString('es-CL')}</span>
+          </div>
+          ${autorizadoPor}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+      `).join('')}
+    </div>
+  ` ; '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay clientes</p></div>';
+
+  container.innerHTML = resumenHTML + listaHTML;
+
 
 function mostrarUltimasTransacciones(ventas) {
   const container = document.getElementById('ultimasTransacciones');
@@ -1571,3 +1649,4 @@ setInterval(() => {
     cargarDatos();
   }
 }, 300000); // 5 minutos
+}
