@@ -389,10 +389,16 @@ function calcularEstadisticas(ventas) {
   const promedioVenta = numVentas > 0 ? totalVentas / numVentas : 0;
   const tasaDevolucion = ventas.length > 0 ? (devoluciones.length / ventas.length * 100) : 0;
 
-  document.getElementById('kpiTotalVentas').textContent = `$${Math.round(totalVentas).toLocaleString('es-CL')}`;
-  document.getElementById('kpiPromedioVenta').textContent = `$${Math.round(promedioVenta).toLocaleString('es-CL')}`;
-  document.getElementById('kpiNumVentas').textContent = ventas.length;
-  document.getElementById('kpiTasaDevolucion').textContent = `${tasaDevolucion.toFixed(1)}%`;
+  // Verificar que los elementos existan antes de actualizar
+  const kpiTotalVentas = document.getElementById('kpiTotalVentas');
+  const kpiPromedioVenta = document.getElementById('kpiPromedioVenta');
+  const kpiNumVentas = document.getElementById('kpiNumVentas');
+  const kpiTasaDevolucion = document.getElementById('kpiTasaDevolucion');
+
+  if (kpiTotalVentas) kpiTotalVentas.textContent = `${Math.round(totalVentas).toLocaleString('es-CL')}`;
+  if (kpiPromedioVenta) kpiPromedioVenta.textContent = `${Math.round(promedioVenta).toLocaleString('es-CL')}`;
+  if (kpiNumVentas) kpiNumVentas.textContent = ventas.length;
+  if (kpiTasaDevolucion) kpiTasaDevolucion.textContent = `${tasaDevolucion.toFixed(1)}%`;
 
   mostrarTopAnfitriones(ventasReales);
   mostrarTopProductos(ventasReales);
@@ -485,6 +491,11 @@ function mostrarTopProductos(ventas) {
     .slice(0, 5);
 
   const container = document.getElementById('topProductos');
+  if (!container) {
+    console.warn('⚠️ Elemento topProductos no encontrado');
+    return;
+  }
+
   if (ranking.length === 0) {
     container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay productos registrados</p></div>';
     return;
@@ -841,6 +852,11 @@ function mostrarTopClientes(ventas) {
     .slice(0, 5);
 
   const container = document.getElementById('topClientes');
+  if (!container) {
+    console.warn('⚠️ Elemento topClientes no encontrado');
+    return;
+  }
+
   if (ranking.length === 0) {
     container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay datos</p></div>';
     return;
