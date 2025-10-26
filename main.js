@@ -243,101 +243,38 @@ function cargarAnfitrionesEnFiltro() {
   console.log('📋 Cargando anfitriones en filtro...');
   console.log('Total anfitriones:', anfitrionesData.length);
   
-  if (anfitrionesData.length === 0) {
-    console.warn('⚠️ No hay datos de anfitriones');
-    return;
-  }
-  
-  // Ver estructura del primer anfitrión
-  if (anfitrionesData.length > 0) {
-    console.log('📋 Estructura del primer anfitrión:', anfitrionesData[0]);
-    console.log('📋 Campos disponibles:', Object.keys(anfitrionesData[0].fields || {}));
-  }
-  
-  // Crear un Set para anfitriones únicos desde las ventas
-  const anfitrionesEnVentas = new Map();
-  
-  ventasData.forEach(venta => {
-    const anfitrionesIds = venta.fields['Anfitrión'] || [];
-    anfitrionesIds.forEach(id => {
-      if (!anfitrionesEnVentas.has(id)) {
-        // Buscar el nombre del anfitrión
-        const anfitrionData = anfitrionesMap[id];
-        if (anfitrionData) {
-          // Intentar obtener el nombre de múltiples campos posibles
-          let nombre = anfitrionData['Anfitrión'] || 
-                       anfitrionData.Nombre || 
-                       anfitrionData.Name ||
-                       anfitrionData['Nombre completo'] ||
-                       anfitrionData.nombre;
-          
-          // Si es array, tomar el primer elemento
-          if (Array.isArray(nombre)) {
-            nombre = nombre[0];
-          }
-          
-          // Convertir a string
-          nombre = String(nombre || '').trim();
-          
-          if (nombre) {
-            anfitrionesEnVentas.set(id, nombre);
-          }
-        }
-      }
-    });
+  anfitrionesData.forEach((anfitrion, index) => {
+    const option = document.createElement('option');
+    option.value = anfitrion.id;
+    
+    // El campo en Airtable se llama "Anfitrión" según la imagen
+    let nombre = anfitrion.fields['Anfitrión'] || 
+                 anfitrion.fields.Nombre || 
+                 anfitrion.fields.Name;
+    
+    // Si es array, tomar el primer elemento
+    if (Array.isArray(nombre)) {
+      nombre = nombre[0];
+    }
+    
+    // Convertir a string y limpiar
+    nombre = String(nombre || '').trim();
+    
+    // Si no hay nombre, usar un identificador
+    if (!nombre || nombre === '') {
+      nombre = `Anfitrión ${index + 1}`;
+      console.warn(`⚠️ Anfitrión sin nombre:`, anfitrion.fields);
+    }
+    
+    option.textContent = nombre;
+    select.appendChild(option);
+    
+    if (index < 5) {
+      console.log(`✅ Anfitrión ${index + 1}: ${nombre} (ID: ${anfitrion.id})`);
+    }
   });
   
-  console.log('✅ Anfitriones únicos encontrados en ventas:', anfitrionesEnVentas.size);
-  
-  // Si encontramos anfitriones en las ventas, usarlos
-  if (anfitrionesEnVentas.size > 0) {
-    let index = 0;
-    anfitrionesEnVentas.forEach((nombre, id) => {
-      const option = document.createElement('option');
-      option.value = id;
-      option.textContent = nombre;
-      select.appendChild(option);
-      
-      if (index < 5) {
-        console.log(`✅ Anfitrión ${index + 1}: ${nombre} (ID: ${id})`);
-      }
-      index++;
-    });
-  } else {
-    // Si no hay anfitriones en ventas, intentar cargar todos de la tabla
-    console.log('⚠️ No se encontraron anfitriones en ventas, cargando desde tabla...');
-    
-    anfitrionesData.forEach((anfitrion, index) => {
-      const option = document.createElement('option');
-      option.value = anfitrion.id;
-      
-      // Probar TODOS los campos posibles
-      const fields = anfitrion.fields || {};
-      let nombre = fields['Anfitrión'] || 
-                   fields.Nombre || 
-                   fields.Name ||
-                   fields['Nombre completo'] ||
-                   fields.nombre ||
-                   fields['Full Name'] ||
-                   fields.name ||
-                   Object.values(fields).find(v => typeof v === 'string' && v.length > 0);
-      
-      if (Array.isArray(nombre)) {
-        nombre = nombre[0];
-      }
-      
-      nombre = String(nombre || `Anfitrión ${index + 1}`).trim();
-      
-      option.textContent = nombre;
-      select.appendChild(option);
-      
-      if (index < 5) {
-        console.log(`Anfitrión ${index + 1}: ${nombre}`);
-      }
-    });
-  }
-  
-  console.log('✅ Total opciones en select:', select.options.length - 1);
+  console.log('✅ Total anfitriones cargados:', anfitrionesData.length);
 }
 
 function aplicarFiltros() {
@@ -389,16 +326,10 @@ function calcularEstadisticas(ventas) {
   const promedioVenta = numVentas > 0 ? totalVentas / numVentas : 0;
   const tasaDevolucion = ventas.length > 0 ? (devoluciones.length / ventas.length * 100) : 0;
 
-  // Verificar que los elementos existan antes de actualizar
-  const kpiTotalVentas = document.getElementById('kpiTotalVentas');
-  const kpiPromedioVenta = document.getElementById('kpiPromedioVenta');
-  const kpiNumVentas = document.getElementById('kpiNumVentas');
-  const kpiTasaDevolucion = document.getElementById('kpiTasaDevolucion');
-
-  if (kpiTotalVentas) kpiTotalVentas.textContent = `${Math.round(totalVentas).toLocaleString('es-CL')}`;
-  if (kpiPromedioVenta) kpiPromedioVenta.textContent = `${Math.round(promedioVenta).toLocaleString('es-CL')}`;
-  if (kpiNumVentas) kpiNumVentas.textContent = ventas.length;
-  if (kpiTasaDevolucion) kpiTasaDevolucion.textContent = `${tasaDevolucion.toFixed(1)}%`;
+  document.getElementById('kpiTotalVentas').textContent = `$${Math.round(totalVentas).toLocaleString('es-CL')}`;
+  document.getElementById('kpiPromedioVenta').textContent = `$${Math.round(promedioVenta).toLocaleString('es-CL')}`;
+  document.getElementById('kpiNumVentas').textContent = ventas.length;
+  document.getElementById('kpiTasaDevolucion').textContent = `${tasaDevolucion.toFixed(1)}%`;
 
   mostrarTopAnfitriones(ventasReales);
   mostrarTopProductos(ventasReales);
@@ -491,11 +422,6 @@ function mostrarTopProductos(ventas) {
     .slice(0, 5);
 
   const container = document.getElementById('topProductos');
-  if (!container) {
-    console.warn('⚠️ Elemento topProductos no encontrado');
-    return;
-  }
-
   if (ranking.length === 0) {
     container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay productos registrados</p></div>';
     return;
@@ -692,145 +618,6 @@ function mostrarGraficoProductos(ventas) {
   }).join('');
 
   document.getElementById('leyendaProductos').innerHTML = leyendaHTML;
-  
-  // Agregar análisis de horarios
-  mostrarAnalisisHorarios(ventas);
-}
-
-function mostrarAnalisisHorarios(ventas) {
-  // Definir franjas horarias (10:00 - 19:00)
-  const franjas = {
-    'Mañana temprano (10:00-12:00)': { inicio: 10, fin: 12, ventas: 0, total: 0 },
-    'Mediodía (12:00-14:00)': { inicio: 12, fin: 14, ventas: 0, total: 0 },
-    'Tarde temprana (14:00-16:00)': { inicio: 14, fin: 16, ventas: 0, total: 0 },
-    'Tarde (16:00-18:00)': { inicio: 16, fin: 18, ventas: 0, total: 0 },
-    'Cierre (18:00-19:00)': { inicio: 18, fin: 19, ventas: 0, total: 0 }
-  };
-
-  let totalVentasConHora = 0;
-
-  ventas.forEach(venta => {
-    const fechaCompra = venta.fields['Fecha de compra'];
-    if (!fechaCompra) return;
-
-    const fecha = new Date(fechaCompra);
-    const hora = fecha.getHours();
-    const minutos = fecha.getMinutes();
-    const horaDecimal = hora + (minutos / 60);
-
-    const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
-
-    // Clasificar en franjas
-    Object.keys(franjas).forEach(nombreFranja => {
-      const franja = franjas[nombreFranja];
-      if (horaDecimal >= franja.inicio && horaDecimal < franja.fin) {
-        franja.ventas += 1;
-        franja.total += total;
-        totalVentasConHora += 1;
-      }
-    });
-  });
-
-  if (totalVentasConHora === 0) {
-    document.getElementById('analisisHorarios').innerHTML = 
-      '<div class="empty-state"><div class="empty-state-icon">🕐</div><p>No hay datos de horarios</p></div>';
-    return;
-  }
-
-  // Encontrar la franja con más ventas
-  let mejorFranja = null;
-  let maxVentas = 0;
-  
-  Object.entries(franjas).forEach(([nombre, datos]) => {
-    if (datos.ventas > maxVentas) {
-      maxVentas = datos.ventas;
-      mejorFranja = { nombre, ...datos };
-    }
-  });
-
-  // Encontrar la franja con menos ventas (pero que tenga al menos 1 venta)
-  let peorFranja = null;
-  let minVentas = Infinity;
-  
-  Object.entries(franjas).forEach(([nombre, datos]) => {
-    if (datos.ventas > 0 && datos.ventas < minVentas) {
-      minVentas = datos.ventas;
-      peorFranja = { nombre, ...datos };
-    }
-  });
-
-  // Calcular promedio
-  const promedioVentasPorFranja = totalVentasConHora / Object.keys(franjas).length;
-
-  // HTML del análisis
-  const analisisHTML = `
-    <div class="horarios-analysis">
-      <div class="horarios-header">
-        <div class="horarios-icon">⏰</div>
-        <div class="horarios-title">Análisis de Horarios de Venta</div>
-      </div>
-
-      <div class="horarios-insight">
-        <div class="insight-icon">🔥</div>
-        <div class="insight-text">
-          <strong>${mejorFranja.nombre}</strong> es la franja horaria más exitosa con 
-          <strong style="color: #10b981;">${mejorFranja.ventas} ventas</strong> 
-          (${((mejorFranja.ventas / totalVentasConHora) * 100).toFixed(1)}% del total) 
-          generando <strong>${Math.round(mejorFranja.total).toLocaleString('es-CL')}</strong>.
-        </div>
-      </div>
-
-      ${peorFranja ? `
-      <div class="horarios-insight warning">
-        <div class="insight-icon">📉</div>
-        <div class="insight-text">
-          <strong>${peorFranja.nombre}</strong> tiene el menor flujo con solo 
-          <strong style="color: #ef4444;">${peorFranja.ventas} ventas</strong>. 
-          Considera estrategias de promoción en este horario.
-        </div>
-      </div>
-      ` : ''}
-
-      <div class="horarios-bars">
-        ${Object.entries(franjas).map(([nombre, datos]) => {
-          const porcentaje = totalVentasConHora > 0 ? (datos.ventas / totalVentasConHora) * 100 : 0;
-          const esMejor = datos.ventas === maxVentas && datos.ventas > 0;
-          const esPeor = datos.ventas === minVentas && datos.ventas > 0 && minVentas !== maxVentas;
-          
-          return `
-            <div class="horario-bar-item ${esMejor ? 'mejor' : ''} ${esPeor ? 'peor' : ''}">
-              <div class="horario-bar-header">
-                <span class="horario-label">${nombre}</span>
-                <span class="horario-stats">
-                  ${datos.ventas} venta${datos.ventas !== 1 ? 's' : ''} 
-                  ${datos.ventas > 0 ? `• ${Math.round(datos.total).toLocaleString('es-CL')}` : ''}
-                </span>
-              </div>
-              <div class="horario-bar-container">
-                <div class="horario-bar-fill ${esMejor ? 'mejor' : ''} ${esPeor ? 'peor' : ''}" 
-                     style="width: ${porcentaje}%">
-                  <span class="horario-percentage">${porcentaje.toFixed(1)}%</span>
-                </div>
-              </div>
-            </div>
-          `;
-        }).join('')}
-      </div>
-
-      <div class="horarios-footer">
-        <div class="horarios-stat">
-          <span class="stat-label">Total analizado:</span>
-          <span class="stat-value">${totalVentasConHora} ventas</span>
-        </div>
-        <div class="horarios-stat">
-          <span class="stat-label">Promedio por franja:</span>
-          <span class="stat-value">${promedioVentasPorFranja.toFixed(1)} ventas</span>
-        </div>
-      </div>
-    </div>
-  `;
-
-  document.getElementById('analisisHorarios').innerHTML = analisisHTML;
 }
 
 function mostrarTopClientes(ventas) {
@@ -852,11 +639,6 @@ function mostrarTopClientes(ventas) {
     .slice(0, 5);
 
   const container = document.getElementById('topClientes');
-  if (!container) {
-    console.warn('⚠️ Elemento topClientes no encontrado');
-    return;
-  }
-
   if (ranking.length === 0) {
     container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay datos</p></div>';
     return;
@@ -909,10 +691,6 @@ function mostrarClasificacionClientes(ventas) {
   });
 
   const container = document.getElementById('clasificacionClientes');
-  if (!container) {
-    console.warn('⚠️ Elemento clasificacionClientes no encontrado');
-    return;
-  }
   
   const resumenHTML = `
     <div class="clasificacion-grid">
@@ -962,80 +740,6 @@ function mostrarClasificacionClientes(ventas) {
 
   container.innerHTML = resumenHTML + listaHTML;
 }
-
-function mostrarUltimasTransacciones(ventas) {
-  const container = document.getElementById('ultimasTransacciones');
-  if (!container) {
-    console.warn('⚠️ Elemento ultimasTransacciones no encontrado');
-    return;
-  }
-
-  if (ventas.length === 0) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay transacciones</p></div>';
-    return;
-  }
-
-  container.innerHTML = ventas.map(venta => {
-    let nombreCliente = venta.fields['Nombre'];
-    if (Array.isArray(nombreCliente)) {
-      nombreCliente = nombreCliente[0] || 'Sin cliente';
-    }
-    nombreCliente = nombreCliente || 'Sin cliente';
-
-    const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
-    const items = venta.fields['Items'] || 'Sin items';
-    
-    let fechaHoraTexto = 'Sin fecha';
-    if (venta.fields['Fecha de compra']) {
-      const fechaCompleta = new Date(venta.fields['Fecha de compra']);
-      const fecha = fechaCompleta.toLocaleDateString('es-CL', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      });
-      const hora = fechaCompleta.toLocaleTimeString('es-CL', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      });
-      fechaHoraTexto = `${fecha} - ${hora}`;
-    }
-    
-    const esDevolucion = venta.fields['Devolución'] && venta.fields['Devolución'].length > 0;
-    
-    let autorizadoPor = '';
-    if (esDevolucion && venta.fields['Box Observaciones']) {
-      autorizadoPor = `<div style="margin-top: 8px; padding: 8px; background: #fff3cd; border-radius: 6px; font-size: 11px; color: #856404;">
-        <strong>✓ Autorizado por:</strong> ${venta.fields['Box Observaciones']}
-      </div>`;
-    }
-
-    return `
-      <div class="transaction-item">
-        <div class="transaction-header">
-          <span>${nombreCliente}</span>
-          <span class="badge ${esDevolucion ? 'badge-devolucion' : 'badge-venta'}">
-            ${esDevolucion ? 'Devolución' : 'Venta'}
-          </span>
-        </div>
-        <div class="transaction-details">
-          <div style="margin-bottom: 3px;">📦 ${items}</div>
-          <div style="display: flex; justify-content: space-between;">
-            <span>📅 ${fechaHoraTexto}</span>
-            <span style="font-weight: 600; color: #10b981;">${Math.round(total).toLocaleString('es-CL')}</span>
-          </div>
-          ${autorizadoPor}
-        </div>
-      </div>
-    `;
-  }).join('');
-
-      `).join('')}
-    </div>
-  ` ; '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay clientes</p></div>';
-
-  container.innerHTML = resumenHTML + listaHTML;
-
 
 function mostrarUltimasTransacciones(ventas) {
   const container = document.getElementById('ultimasTransacciones');
@@ -1264,27 +968,13 @@ function buscarProductos(query) {
 function buscarAnfitriones(query) {
   const resultados = [];
   
-  // Primero buscar en el mapa de anfitriones desde ventas
-  const anfitrionesEnVentas = new Set();
-  ventasData.forEach(venta => {
-    const anfitrionesIds = venta.fields['Anfitrión'] || [];
-    anfitrionesIds.forEach(id => anfitrionesEnVentas.add(id));
-  });
-  
-  // Buscar en los anfitriones que están en ventas
-  anfitrionesEnVentas.forEach(id => {
-    const anfitrionData = anfitrionesMap[id];
-    if (!anfitrionData) return;
+  anfitrionesData.forEach(anfitrion => {
+    // El campo se llama "Anfitrión" en la tabla
+    let nombre = anfitrion.fields['Anfitrión'] || 
+                 anfitrion.fields.Nombre || 
+                 anfitrion.fields.Name || '';
     
-    // Probar todos los campos
-    let nombre = anfitrionData['Anfitrión'] || 
-                 anfitrionData.Nombre || 
-                 anfitrionData.Name ||
-                 anfitrionData['Nombre completo'] ||
-                 anfitrionData.nombre ||
-                 anfitrionData['Full Name'] ||
-                 anfitrionData.name;
-    
+    // Si es array, tomar el primer elemento
     if (Array.isArray(nombre)) {
       nombre = nombre[0] || '';
     }
@@ -1292,18 +982,16 @@ function buscarAnfitriones(query) {
     nombre = String(nombre).trim();
     
     if (nombre && nombre.toLowerCase().includes(query)) {
-      const stats = calcularStatsAnfitrion(id);
+      const stats = calcularStatsAnfitrion(anfitrion.id);
       resultados.push({
         nombre: nombre,
-        id: id,
+        id: anfitrion.id,
         tipo: 'anfitrion',
         totalVentas: stats.total,
         numVentas: stats.cantidad
       });
     }
   });
-  
-  console.log('🔍 Anfitriones encontrados en búsqueda:', resultados.length);
   
   return resultados.slice(0, 5);
 }
@@ -1383,15 +1071,10 @@ function mostrarResultadosBusqueda(resultados, query) {
           const nombreHighlight = resaltarTexto(cliente.nombre, query);
           return `
             <div class="result-item" onclick="abrirPerfilCliente('${cliente.nombre.replace(/'/g, "\\'")}')">
-              <div class="result-item-content">
-                <div class="result-name">${nombreHighlight}</div>
-                <div class="result-details">
-                  💰 ${Math.round(cliente.totalCompras).toLocaleString('es-CL')} • 
-                  🛍️ ${cliente.numCompras} compra${cliente.numCompras !== 1 ? 's' : ''}
-                </div>
-              </div>
-              <div class="result-action">
-                Ver perfil →
+              <div class="result-name">${nombreHighlight}</div>
+              <div class="result-details">
+                💰 ${Math.round(cliente.totalCompras).toLocaleString('es-CL')} • 
+                🛍️ ${cliente.numCompras} compra${cliente.numCompras !== 1 ? 's' : ''}
               </div>
             </div>
           `;
@@ -1408,12 +1091,10 @@ function mostrarResultadosBusqueda(resultados, query) {
         ${resultados.productos.map(producto => {
           const nombreHighlight = resaltarTexto(producto.nombre, query);
           return `
-            <div class="result-item" style="cursor: default;">
-              <div class="result-item-content">
-                <div class="result-name">${nombreHighlight}</div>
-                <div class="result-details">
-                  📊 ${producto.totalVendido} unidades vendidas
-                </div>
+            <div class="result-item">
+              <div class="result-name">${nombreHighlight}</div>
+              <div class="result-details">
+                📊 ${producto.totalVendido} unidades vendidas
               </div>
             </div>
           `;
@@ -1430,13 +1111,11 @@ function mostrarResultadosBusqueda(resultados, query) {
         ${resultados.anfitriones.map(anfitrion => {
           const nombreHighlight = resaltarTexto(anfitrion.nombre, query);
           return `
-            <div class="result-item" style="cursor: default;">
-              <div class="result-item-content">
-                <div class="result-name">${nombreHighlight}</div>
-                <div class="result-details">
-                  💰 ${Math.round(anfitrion.totalVentas).toLocaleString('es-CL')} • 
-                  🛍️ ${anfitrion.numVentas} venta${anfitrion.numVentas !== 1 ? 's' : ''}
-                </div>
+            <div class="result-item">
+              <div class="result-name">${nombreHighlight}</div>
+              <div class="result-details">
+                💰 ${Math.round(anfitrion.totalVentas).toLocaleString('es-CL')} • 
+                🛍️ ${anfitrion.numVentas} venta${anfitrion.numVentas !== 1 ? 's' : ''}
               </div>
             </div>
           `;
@@ -1649,4 +1328,3 @@ setInterval(() => {
     cargarDatos();
   }
 }, 300000); // 5 minutos
-}
