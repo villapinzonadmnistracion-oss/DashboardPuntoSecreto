@@ -1,4 +1,37 @@
-<!DOCTYPE html>
+.result-item {
+      padding: 14px;
+      background: #f9fafb;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border-left: 4px solid #10b981;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .result-item:hover {
+      background: #f0fdf4;
+      transform: translateX(4px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+
+    .result-item:active {
+      transform: translateX(2px) scale(0.98);
+    }
+
+    .result-item-content {
+      flex: 1;
+      min-width: 0;    .clasificacion-list::-webkit-scrollbar-thumb,
+    .leyenda-container::-webkit-scrollbar-thumb {
+      background: #10b981;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body><!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -193,7 +226,7 @@
     }
 
     .header {
-      background: rgb(255, 255, 255);
+      background: white;
       padding: 16px;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -256,6 +289,24 @@
       z-index: 999;
       transition: right 0.3s ease;
       overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .menu-panel::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .menu-panel::-webkit-scrollbar-track {
+      background: #f3f4f6;
+    }
+
+    .menu-panel::-webkit-scrollbar-thumb {
+      background: #10b981;
+      border-radius: 10px;
+    }
+
+    .menu-panel::-webkit-scrollbar-thumb:hover {
+      background: #059669;
     }
 
     .menu-panel.active {
@@ -265,7 +316,7 @@
     .menu-header {
       padding: 20px;
       background: linear-gradient(135deg, #10b981, #059669);
-      color: rgb(246, 240, 240);
+      color: white;
     }
 
     .menu-title {
@@ -297,7 +348,7 @@
       align-items: center;
       gap: 12px;
       padding: 14px 20px;
-      background: rgb(239, 236, 236);
+      background: white;
       border: none;
       width: 100%;
       cursor: pointer;
@@ -306,7 +357,7 @@
     }
 
     .menu-option:active {
-      background: #faf8f8;
+      background: #f9fafb;
     }
 
     .menu-option.active {
@@ -456,18 +507,32 @@
     }
 
     .result-item {
-      padding: 12px;
+      padding: 14px;
       background: #f9fafb;
-      border-radius: 8px;
+      border-radius: 10px;
       margin-bottom: 8px;
       cursor: pointer;
-      transition: all 0.2s;
-      border-left: 3px solid #10b981;
+      transition: all 0.3s;
+      border-left: 4px solid #10b981;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .result-item:hover {
+      background: #f0fdf4;
+      transform: translateX(4px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
     }
 
     .result-item:active {
-      background: #f0fdf4;
-      transform: translateX(4px);
+      transform: translateX(2px) scale(0.98);
+    }
+
+    .result-item-content {
+      flex: 1;
+      min-width: 0;
     }
 
     .result-name {
@@ -480,6 +545,25 @@
     .result-details {
       font-size: 12px;
       color: #6b7280;
+    }
+
+    .result-action {
+      flex-shrink: 0;
+      background: #10b981;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.3s;
+    }
+
+    .result-item:hover .result-action {
+      background: #059669;
+      transform: scale(1.05);
     }
 
     .highlight {
@@ -1302,7 +1386,7 @@
             autocomplete="off"
           >
           <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility()">
-            <span id="toggleIcon">👀</span>
+            <span id="toggleIcon">👁️</span>
             <span id="toggleText">Mostrar contraseña</span>
           </button>
         </div>
@@ -1508,11 +1592,6 @@
               <canvas id="chartCanvas"></canvas>
             </div>
             <div id="leyendaProductos" class="leyenda-container"></div>
-          </div>
-
-          <div class="section">
-            <div class="section-title">⏰ Horarios de Mayor Venta</div>
-            <div id="analisisHorarios"></div>
           </div>
         </div>
 
