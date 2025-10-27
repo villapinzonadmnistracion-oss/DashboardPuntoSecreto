@@ -963,31 +963,15 @@ body {
   border-radius: 10px;
 }
 /* Menú de Navegación */
-.menu-panel {
-  position: fixed;
-  top: 0;
-  right: -280px;
-  width: 280px;
-  height: 100vh;
+.menu-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
   background: white;
-  box-shadow: -4px 0 20px rgba(0,0,0,0.2);
-  z-index: 999;
-  transition: right 0.3s ease;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.menu-panel::-webkit-scrollbar {
-  width: 6px;
-}
-
-.menu-panel::-webkit-scrollbar-track {
-  background: #f3f4f6;
-}
-
-.menu-panel::-webkit-scrollbar-thumb {
-  background: #10b981;
-  border-radius: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin-bottom: 12px;
 }
 
 .menu-item {

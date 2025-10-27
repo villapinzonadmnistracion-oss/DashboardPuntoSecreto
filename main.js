@@ -1146,31 +1146,19 @@ function limpiarBusqueda() {
 function abrirPerfilCliente(nombreCliente) {
   const modal = document.getElementById('clientModal');
   
-  // Obtener todas las compras del cliente (ventas y devoluciones)
-  const comprasCliente = ventasData.filter(v => {
-    let nombre = v.fields['Nombre'];
-    if (Array.isArray(nombre)) nombre = nombre[0];
-    return nombre === nombreCliente;
-  });
+  // Obtener todas las compras del cliente
+  const comprasCliente = ventasData.filter(v => v.fields['Nombre'] === nombreCliente);
   
   if (comprasCliente.length === 0) return;
 
-  // Separar ventas reales de devoluciones
-  const ventasReales = comprasCliente.filter(v => !v.fields['Devolución'] || v.fields['Devolución'].length === 0);
-  const devoluciones = comprasCliente.filter(v => v.fields['Devolución'] && v.fields['Devolución'].length > 0);
-
   // Calcular estadísticas
-  const totalCompras = ventasReales.reduce((sum, v) => 
+  const totalCompras = comprasCliente.reduce((sum, v) => 
     sum + (v.fields['Total Neto Numerico'] || v.fields['Total de venta'] || 0), 0);
   
-  const totalDevoluciones = devoluciones.reduce((sum, v) => 
-    sum + (v.fields['Total Neto Numerico'] || v.fields['Total de venta'] || 0), 0);
-  
-  const numCompras = ventasReales.length;
-  const numDevoluciones = devoluciones.length;
+  const numCompras = comprasCliente.length;
   
   let totalProductos = 0;
-  ventasReales.forEach(venta => {
+  comprasCliente.forEach(venta => {
     Object.keys(venta.fields).forEach(campo => {
       if (campo.startsWith('Cantidad real de ventas')) {
         totalProductos += parseInt(venta.fields[campo]) || 0;
@@ -1212,7 +1200,7 @@ function abrirPerfilCliente(nombreCliente) {
       <div class="client-stats-grid">
         <div class="client-stat-card">
           <div class="stat-icon">💰</div>
-          <div class="stat-value">$${Math.round(totalCompras).toLocaleString('es-CL')}</div>
+          <div class="stat-value">${Math.round(totalCompras).toLocaleString('es-CL')}</div>
           <div class="stat-label">Total Comprado</div>
         </div>
         <div class="client-stat-card">
@@ -1227,19 +1215,10 @@ function abrirPerfilCliente(nombreCliente) {
         </div>
         <div class="client-stat-card">
           <div class="stat-icon">📈</div>
-          <div class="stat-value">$${Math.round(promedioCompra).toLocaleString('es-CL')}</div>
+          <div class="stat-value">${Math.round(promedioCompra).toLocaleString('es-CL')}</div>
           <div class="stat-label">Promedio por Compra</div>
         </div>
       </div>
-
-      ${numDevoluciones > 0 ? `
-        <div class="client-info-box" style="background: #fef2f2; border: 2px solid #ef4444; margin-bottom: 15px;">
-          <div class="info-row" style="color: #991b1b;">
-            <span class="info-label">⚠️ Devoluciones:</span>
-            <span class="info-value">${numDevoluciones} ($${Math.round(totalDevoluciones).toLocaleString('es-CL')})</span>
-          </div>
-        </div>
-      ` : ''}
 
       <div class="client-info-box">
         <div class="info-row">
@@ -1248,7 +1227,7 @@ function abrirPerfilCliente(nombreCliente) {
         </div>
       </div>
 
-      <div class="historial-title">📋 Historial Completo (${comprasOrdenadas.length})</div>
+      <div class="historial-title">📋 Historial de Compras</div>
       <div class="historial-compras">
         ${comprasOrdenadas.map((venta, index) => {
           const fechaCompra = venta.fields['Fecha de compra'];
@@ -1267,7 +1246,7 @@ function abrirPerfilCliente(nombreCliente) {
               hour12: false
             });
             fechaHoraHTML = `
-              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 8px;">
                 <span>📅 ${fechaTexto}</span>
                 <span style="color: #10b981;">🕐 ${horaTexto}</span>
               </div>
@@ -1275,15 +1254,14 @@ function abrirPerfilCliente(nombreCliente) {
           }
 
           const total = venta.fields['Total Neto Numerico'] || venta.fields['Total de venta'] || 0;
+          const items = venta.fields['Items'] || 'Sin items';
           
           // Obtener productos comprados
           let productosHTML = '';
-          let tieneProductos = false;
           Object.keys(venta.fields).forEach(campo => {
             if (campo.startsWith('Cantidad real de ventas')) {
               const cantidad = parseInt(venta.fields[campo]) || 0;
               if (cantidad > 0) {
-                tieneProductos = true;
                 const nombreProducto = campo.replace('Cantidad real de ventas ', '').trim();
                 productosHTML += `<div class="producto-item">• ${nombreProducto} <span style="color: #10b981; font-weight: 600;">(${cantidad})</span></div>`;
               }
@@ -1295,27 +1273,23 @@ function abrirPerfilCliente(nombreCliente) {
           return `
             <div class="compra-item ${esDevolucion ? 'devolucion' : ''}">
               <div class="compra-header">
-                <span class="compra-numero">${esDevolucion ? '↩️ Devolución' : '🛍️ Compra'} #${comprasOrdenadas.length - index}</span>
-                ${esDevolucion ? '<span class="badge badge-devolucion">Devuelto</span>' : '<span class="badge badge-venta">Completada</span>'}
+                <span class="compra-numero">Compra #${comprasOrdenadas.length - index}</span>
+                ${esDevolucion ? '<span class="badge badge-devolucion">Devolución</span>' : '<span class="badge badge-venta">Completada</span>'}
               </div>
               <div class="compra-fecha">${fechaHoraHTML}</div>
-              ${tieneProductos ? `
-                <div class="compra-items">
-                  <strong>📦 Productos:</strong>
-                  <div style="margin-top: 6px;">
-                    ${productosHTML}
-                  </div>
+              <div class="compra-items">
+                <strong>📦 Productos:</strong>
+                <div style="margin-top: 6px;">
+                  ${productosHTML || '<div class="producto-item">Sin productos registrados</div>'}
                 </div>
-              ` : ''}
+              </div>
               <div class="compra-total">
                 <span>Total:</span>
-                <span class="total-amount" style="${esDevolucion ? 'color: #ef4444;' : ''}">
-                  ${esDevolucion ? '-' : ''}$${Math.round(Math.abs(total)).toLocaleString('es-CL')}
-                </span>
+                <span class="total-amount">${Math.round(total).toLocaleString('es-CL')}</span>
               </div>
               ${esDevolucion && venta.fields['Box Observaciones'] ? `
                 <div class="compra-observacion">
-                  <strong>📝 Motivo:</strong> ${venta.fields['Box Observaciones']}
+                  <strong>📝 Observación:</strong> ${venta.fields['Box Observaciones']}
                 </div>
               ` : ''}
             </div>
@@ -1329,11 +1303,6 @@ function abrirPerfilCliente(nombreCliente) {
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
 }
-
-  document.getElementById('modalContent').innerHTML = perfilHTML;
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-
 
 function cerrarPerfilCliente() {
   const modal = document.getElementById('clientModal');
