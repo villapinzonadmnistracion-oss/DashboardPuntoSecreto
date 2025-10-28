@@ -115,11 +115,10 @@ let filtroTransaccionActual = "todas";
 
 function inicializarFechas() {
   const hoy = new Date();
-  const hace30dias = new Date();
-  hace30dias.setDate(hace30dias.getDate() - 30);
-
-  document.getElementById("fechaHasta").valueAsDate = hoy;
-  document.getElementById("fechaDesde").valueAsDate = hace30dias;
+  
+  // Establecer SOLO la fecha de hoy en ambos campos
+  document.getElementById('fechaHasta').valueAsDate = hoy;
+  document.getElementById('fechaDesde').valueAsDate = hoy;
 }
 
 function cambiarPeriodoRapido() {
