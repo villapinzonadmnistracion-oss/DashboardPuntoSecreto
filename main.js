@@ -57,8 +57,7 @@ function mostrarDashboard() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('dashboardApp').style.display = 'block';
   
-  // Cargar tema guardado
-  cargarTemaGuardado();
+
   
   // Inicializar el dashboard
   inicializarFechas();
@@ -1633,49 +1632,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // SISTEMA DE TEMA CLARO/OSCURO
 // ==========================================
 
-function toggleTheme() {
-  console.log('🎨 Cambiando tema...');
-  const body = document.body;
-  body.classList.toggle('dark-mode');
-  
-  const isDark = body.classList.contains('dark-mode');
-  console.log('¿Modo oscuro?', isDark);
-  
-  // Guardar preferencia (sin usar localStorage por las restricciones)
-  sessionStorage.setItem('tema', isDark ? 'dark' : 'light');
-  
-  // Actualizar ícono con animación
-  actualizarIconoTema();
-}
 
-function actualizarIconoTema() {
-  const themeIcon = document.querySelector('.theme-icon');
-  if (!themeIcon) {
-    console.error('❌ No se encontró el ícono del tema');
-    return;
-  }
-  
-  const isDark = document.body.classList.contains('dark-mode');
-  
-  // Animación de cambio
-  themeIcon.style.transform = 'scale(0)';
-  
-  setTimeout(() => {
-    themeIcon.textContent = isDark ? '☀️' : '🌙';
-    themeIcon.style.transform = 'scale(1)';
-  }, 150);
-}
-
-// Cargar tema guardado al iniciar (después del login)
-function cargarTemaGuardado() {
-  const temaGuardado = sessionStorage.getItem('tema');
-  console.log('🎨 Tema guardado:', temaGuardado);
-  
-  if (temaGuardado === 'dark') {
-    document.body.classList.add('dark-mode');
-    actualizarIconoTema();
-  }
-}
 
 // ==========================================
 // AUTO-REFRESH
