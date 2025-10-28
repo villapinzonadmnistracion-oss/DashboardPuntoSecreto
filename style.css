@@ -1105,3 +1105,26 @@ body {
     transform: translateY(0);
   }
 }
+
+/* 📱 Corrección SOLO para celular */
+@media (max-width: 480px) {
+  .filters {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .date-range {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .date-range input[type="date"] {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 14px;
+    padding: 10px;
+  }
+}
