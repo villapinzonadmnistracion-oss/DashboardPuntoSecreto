@@ -6,10 +6,11 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: white;
   padding: 12px;
   min-height: 100vh;
   box-sizing: border-box;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .container {
@@ -1129,6 +1130,42 @@ select:focus {
   color: #6b7280;
   transition: color 0.3s;
 }
+/* ===== BOTÓN DE CAMBIO DE TEMA ===== */
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 25px rgba(245, 158, 11, 0.5);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
+}
+
+.theme-icon {
+  font-size: 24px;
+  transition: transform 0.3s;
+}
+
+.theme-toggle:hover .theme-icon {
+  transform: rotate(20deg);
+}
 
 /* Secciones del contenido */
 .content-section {
@@ -1208,4 +1245,249 @@ select:focus {
   .date-range small {
     font-size: 10px;
   }
+}
+/* ===== TEMA OSCURO ===== */
+body.dark-mode {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  color: #e5e7eb;
+}
+
+body.dark-mode .header {
+  background: rgba(31, 41, 55, 0.8);
+  color: white;
+}
+
+body.dark-mode .filters {
+  background: #1f2937;
+  border: 1px solid #374151;
+}
+
+body.dark-mode .filters label {
+  color: #10b981;
+}
+
+body.dark-mode input[type="date"],
+body.dark-mode select {
+  background: #374151;
+  color: #e5e7eb;
+  border-color: #4b5563;
+}
+
+body.dark-mode input[type="date"]:focus,
+body.dark-mode select:focus {
+  border-color: #10b981;
+  background: #4b5563;
+}
+
+body.dark-mode .kpi-card,
+body.dark-mode .section {
+  background: #1f2937;
+  border: 1px solid #374151;
+  color: #e5e7eb;
+}
+
+body.dark-mode .section-title {
+  color: #10b981;
+}
+
+body.dark-mode .ranking-item,
+body.dark-mode .transaction-item,
+body.dark-mode .clasificacion-item {
+  background: #374151;
+  border-color: #4b5563;
+}
+
+body.dark-mode .ranking-name,
+body.dark-mode .result-name {
+  color: #e5e7eb;
+}
+
+body.dark-mode .product-name {
+  color: #e5e7eb;
+}
+
+body.dark-mode .bar-container {
+  background: #374151;
+}
+
+body.dark-mode .empty-state {
+  color: #9ca3af;
+}
+
+body.dark-mode .loading {
+  color: #e5e7eb;
+}
+
+body.dark-mode .menu-panel {
+  background: #1f2937;
+  border-left: 1px solid #374151;
+}
+
+body.dark-mode .menu-header {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+body.dark-mode .menu-option {
+  background: #374151;
+  color: #e5e7eb;
+}
+
+body.dark-mode .menu-option:hover {
+  background: #4b5563;
+}
+
+body.dark-mode .menu-option.active {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+body.dark-mode .menu-option-label {
+  color: #e5e7eb;
+}
+
+body.dark-mode .menu-option.active .menu-option-label {
+  color: white;
+}
+
+body.dark-mode .menu-option-desc {
+  color: #9ca3af;
+}
+
+body.dark-mode .search-container {
+  background: #1f2937;
+  border: 1px solid #374151;
+}
+
+body.dark-mode #searchInput {
+  background: #374151;
+  color: #e5e7eb;
+  border-color: #4b5563;
+}
+
+body.dark-mode #searchInput:focus {
+  background: #4b5563;
+  border-color: #10b981;
+}
+
+body.dark-mode .search-icon {
+  color: #9ca3af;
+}
+
+body.dark-mode .result-item {
+  background: #374151;
+  border-left-color: #10b981;
+}
+
+body.dark-mode .result-item:hover {
+  background: #4b5563;
+}
+
+body.dark-mode .result-details {
+  color: #9ca3af;
+}
+
+body.dark-mode .category-title {
+  color: #10b981;
+  border-bottom-color: #10b981;
+}
+
+body.dark-mode .nota-inteligente,
+body.dark-mode .tendencia-insight,
+body.dark-mode .recomendacion-card.warning {
+  background: linear-gradient(135deg, #78350f, #92400e);
+  border-color: #b45309;
+}
+
+body.dark-mode .nota-title,
+body.dark-mode .nota-text {
+  color: #fde68a;
+}
+
+body.dark-mode .clasificacion-card {
+  background: linear-gradient(135deg, #064e3b, #065f46);
+  border-color: #059669;
+}
+
+body.dark-mode .clasificacion-label {
+  color: #6ee7b7;
+}
+
+body.dark-mode .leyenda-item {
+  background: #374151;
+}
+
+body.dark-mode .leyenda-nombre {
+  color: #e5e7eb;
+}
+
+body.dark-mode .leyenda-valor {
+  color: #9ca3af;
+}
+
+body.dark-mode #modalContent {
+  background: #1f2937;
+  color: #e5e7eb;
+}
+
+body.dark-mode .modal-header {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+body.dark-mode .client-name {
+  color: #e5e7eb;
+}
+
+body.dark-mode .client-stat-card {
+  background: linear-gradient(135deg, #064e3b, #065f46);
+  border-color: #059669;
+}
+
+body.dark-mode .stat-label {
+  color: #6ee7b7;
+}
+
+body.dark-mode .client-info-box {
+  background: #374151;
+}
+
+body.dark-mode .info-label,
+body.dark-mode .info-value {
+  color: #e5e7eb;
+}
+
+body.dark-mode .historial-title {
+  color: #10b981;
+  border-bottom-color: #10b981;
+}
+
+body.dark-mode .compra-item {
+  background: #374151;
+  border-left-color: #10b981;
+}
+
+body.dark-mode .compra-item.devolucion {
+  background: #7f1d1d;
+  border-left-color: #ef4444;
+}
+
+body.dark-mode .compra-numero,
+body.dark-mode .compra-items {
+  color: #e5e7eb;
+}
+
+body.dark-mode .compra-fecha {
+  color: #9ca3af;
+}
+
+body.dark-mode .producto-item {
+  color: #d1d5db;
+}
+
+/* Ajustar botón de tema en modo oscuro */
+body.dark-mode .theme-toggle {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.4);
+}
+
+body.dark-mode .theme-toggle:hover {
+  box-shadow: 0 6px 25px rgba(251, 191, 36, 0.5);
 }

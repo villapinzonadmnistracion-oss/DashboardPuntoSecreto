@@ -1604,6 +1604,7 @@ function cerrarPerfilCliente() {
   modal.style.display = "none";
   document.body.style.overflow = "auto";
 }
+cerrarPerfilCliente
 
 // Cerrar modal al hacer click fuera
 window.onclick = function (event) {
@@ -1612,6 +1613,46 @@ window.onclick = function (event) {
     cerrarPerfilCliente();
   }
 };
+// ==========================================
+// SISTEMA DE TEMA CLARO/OSCURO
+// ==========================================
+
+// Cargar tema guardado al iniciar
+document.addEventListener('DOMContentLoaded', function() {
+  const temaGuardado = localStorage.getItem('tema');
+  if (temaGuardado === 'dark') {
+    document.body.classList.add('dark-mode');
+    actualizarIconoTema();
+  }
+});
+
+function toggleTheme() {
+  const body = document.body;
+  body.classList.toggle('dark-mode');
+  
+  // Guardar preferencia
+  if (body.classList.contains('dark-mode')) {
+    localStorage.setItem('tema', 'dark');
+  } else {
+    localStorage.setItem('tema', 'light');
+  }
+  
+  // Actualizar ícono con animación
+  actualizarIconoTema();
+}
+
+function actualizarIconoTema() {
+  const themeIcon = document.querySelector('.theme-icon');
+  const isDark = document.body.classList.contains('dark-mode');
+  
+  // Animación de cambio
+  themeIcon.style.transform = 'scale(0)';
+  
+  setTimeout(() => {
+    themeIcon.textContent = isDark ? '☀️' : '🌙';
+    themeIcon.style.transform = 'scale(1)';
+  }, 150);
+}
 
 // ==========================================
 // AUTO-REFRESH
