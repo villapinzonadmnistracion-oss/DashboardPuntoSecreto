@@ -60,7 +60,8 @@ body {
   letter-spacing: 0.5px;
 }
 
-.filters select, .filters input {
+.filters select,
+.filters input {
   width: 100%;
   padding: 10px 12px;
   border: 2px solid #e0e7ff;
@@ -82,7 +83,7 @@ body {
   margin-bottom: 0;
 }
 
-.date-range > div {
+.date-range>div {
   display: flex;
   flex-direction: column;
 }
@@ -254,8 +255,13 @@ body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .empty-state {
@@ -445,6 +451,7 @@ body {
   background: #e0e7ff;
   color: #667eea;
 }
+
 /* KPIs */
 .kpi-grid {
   display: grid;
@@ -457,7 +464,7 @@ body {
   background: white;
   padding: 16px 12px;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
@@ -652,7 +659,7 @@ body {
   height: 20px;
   border-radius: 4px;
   flex-shrink: 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .leyenda-info {
@@ -839,6 +846,7 @@ body {
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -933,6 +941,45 @@ body {
   border-color: #10b981;
 }
 
+/* Resultados de búsqueda */
+.result-item {
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-left: 3px solid #10b981;
+}
+
+.result-item:hover {
+  background: #f0fdf4;
+}
+
+.result-item:active {
+  background: #dcfce7;
+  transform: translateX(4px);
+}
+
+.result-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.result-details {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.highlight {
+  background: #fef08a;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
 /* Empty State */
 .empty-state {
   text-align: center;
@@ -962,6 +1009,7 @@ body {
   background: #10b981;
   border-radius: 10px;
 }
+
 /* Menú de Navegación */
 .menu-nav {
   display: grid;
@@ -970,7 +1018,7 @@ body {
   background: white;
   padding: 10px;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   margin-bottom: 12px;
 }
 
@@ -1033,6 +1081,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

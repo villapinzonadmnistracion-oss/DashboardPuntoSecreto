@@ -1,1567 +1,1618 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>📊 Dashboard Punto Secreto</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      padding: 12px;
-      min-height: 100vh;
-    }
-
-    /* ========================================= */
-    /* PANTALLA DE LOGIN */
-    /* ========================================= */
-    #loginScreen {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      z-index: 9999;
-      padding: 20px;
-    }
-
-    .login-container {
-      background: white;
-      padding: 40px 30px;
-      border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
-    }
-
-    .login-icon {
-      font-size: 70px;
-      margin-bottom: 20px;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    .login-title {
-      font-size: 26px;
-      font-weight: 700;
-      color: #10b981;
-      margin-bottom: 10px;
-    }
-
-    .login-subtitle {
-      font-size: 14px;
-      color: #6b7280;
-      margin-bottom: 30px;
-    }
-
-    .password-input-wrapper {
-      margin-bottom: 20px;
-      text-align: left;
-    }
-
-    #passwordInput {
-      width: 100%;
-      padding: 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 12px;
-      font-size: 16px;
-      transition: all 0.3s;
-      font-family: inherit;
-    }
-
-    #passwordInput:focus {
-      outline: none;
-      border-color: #10b981;
-      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
-    }
-
-    #passwordInput.error {
-      border-color: #ef4444;
-      animation: shake 0.5s;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-10px); }
-      75% { transform: translateX(10px); }
-    }
-
-    .toggle-password-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #f3f4f6;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      color: #6b7280;
-      cursor: pointer;
-      transition: all 0.3s;
-      margin-top: 10px;
-    }
-
-    .toggle-password-btn:hover {
-      background: #e5e7eb;
-    }
-
-    .toggle-password-btn:active {
-      transform: scale(0.95);
-    }
-
-    #loginButton {
-      width: 100%;
-      padding: 16px;
-      background: #10b981;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      margin-top: 10px;
-    }
-
-    #loginButton:hover {
-      background: #059669;
-    }
-
-    #loginButton:active {
-      transform: scale(0.98);
-    }
-
-    #loginButton:disabled {
-      background: #d1d5db;
-      cursor: not-allowed;
-    }
-
-    .error-message {
-      color: #ef4444;
-      font-size: 13px;
-      margin-top: 12px;
-      font-weight: 500;
-      display: none;
-      animation: fadeIn 0.3s;
-      padding: 10px;
-      background: #fee2e2;
-      border-radius: 8px;
-    }
-
-    .error-message.show {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-5px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .login-footer {
-      margin-top: 30px;
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    /* ========================================= */
-    /* DASHBOARD (oculto inicialmente) */
-    /* ========================================= */
-    #dashboardApp {
-      display: none;
-    }
-
-    .container {
-      max-width: 480px;
-      margin: 0 auto;
-    }
-
-    .header {
-      background: white;
-      padding: 16px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 12px;
-      text-align: center;
-      position: relative;
-    }
-
-    .header h1 {
-      color: #10b981;
-      font-size: 20px;
-      margin-bottom: 6px;
-      font-weight: 700;
-    }
-
-    #lastUpdate {
-      color: #6b7280;
-      font-size: 11px;
-    }
-
-    .menu-hamburger {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      width: 50px;
-      height: 50px;
-      background: white;
-      border: none;
-      border-radius: 50%;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-      cursor: pointer;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s;
-    }
-
-    .menu-hamburger:active {
-      transform: scale(0.95);
-    }
-
-    .menu-hamburger-icon {
-      font-size: 24px;
-      transition: transform 0.3s;
-    }
-
-    .menu-hamburger.active .menu-hamburger-icon {
-      transform: rotate(90deg);
-    }
-
-    .menu-panel {
-      position: fixed;
-      top: 0;
-      right: -280px;
-      width: 280px;
-      height: 100vh;
-      background: white;
-      box-shadow: -4px 0 20px rgba(0,0,0,0.2);
-      z-index: 999;
-      transition: right 0.3s ease;
-      overflow-y: auto;
-    }
-
-    .menu-panel.active {
-      right: 0;
-    }
-
-    .menu-header {
-      padding: 20px;
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-    }
-
-    .menu-title {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .menu-subtitle {
-      font-size: 12px;
-      opacity: 0.9;
-    }
-
-    .menu-items {
-      padding: 12px 0;
-    }
-
-    .menu-section-title {
-      padding: 12px 20px 8px;
-      font-size: 11px;
-      font-weight: 700;
-      color: #9ca3af;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .menu-option {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 20px;
-      background: white;
-      border: none;
-      width: 100%;
-      cursor: pointer;
-      transition: all 0.2s;
-      border-left: 3px solid transparent;
-    }
-
-    .menu-option:active {
-      background: #f9fafb;
-    }
-
-    .menu-option.active {
-      background: #f0fdf4;
-      border-left-color: #10b981;
-    }
-
-    .menu-option-icon {
-      font-size: 22px;
-      width: 30px;
-      text-align: center;
-    }
-
-    .menu-option-text {
-      flex: 1;
-      text-align: left;
-    }
-
-    .menu-option-label {
-      font-size: 14px;
-      font-weight: 600;
-      color: #1f2937;
-      display: block;
-      margin-bottom: 2px;
-    }
-
-    .menu-option.active .menu-option-label {
-      color: #10b981;
-    }
-
-    .menu-option-desc {
-      font-size: 11px;
-      color: #6b7280;
-      display: block;
-    }
-
-    .menu-divider {
-      height: 1px;
-      background: #e5e7eb;
-      margin: 8px 20px;
-    }
-
-    .menu-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      background: rgba(0,0,0,0.5);
-      z-index: 998;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s;
-    }
-
-    .menu-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    /* ========================================= */
-    /* BUSCADOR GLOBAL */
-    /* ========================================= */
-    .search-container {
-      background: white;
-      padding: 14px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 12px;
-      position: relative;
-    }
-
-    .search-input-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    #searchInput {
-      flex: 1;
-      padding: 12px 40px 12px 40px;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
-      font-size: 14px;
-      transition: all 0.3s;
-    }
-
-    #searchInput:focus {
-      outline: none;
-      border-color: #10b981;
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 12px;
-      font-size: 18px;
-      color: #6b7280;
-    }
-
-    #clearSearch {
-      position: absolute;
-      right: 12px;
-      background: #ef4444;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      font-size: 14px;
-      cursor: pointer;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s;
-    }
-
-    #clearSearch.show {
-      display: flex;
-    }
-
-    #clearSearch:active {
-      transform: scale(0.9);
-    }
-
-    #searchResults {
-      margin-top: 12px;
-    }
-
-    .search-results {
-      max-height: 500px;
-      overflow-y: auto;
-    }
-
-    .search-category {
-      margin-bottom: 16px;
-    }
-
-    .category-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: #10b981;
-      margin-bottom: 8px;
-      padding: 8px 0;
-      border-bottom: 2px solid #10b981;
-    }
-
-    .result-item {
-      padding: 12px;
-      background: #f9fafb;
-      border-radius: 8px;
-      margin-bottom: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-      border-left: 3px solid #10b981;
-    }
-
-    .result-item:active {
-      background: #f0fdf4;
-      transform: translateX(4px);
-    }
-
-    .result-name {
-      font-size: 14px;
-      font-weight: 600;
-      color: #1f2937;
-      margin-bottom: 4px;
-    }
-
-    .result-details {
-      font-size: 12px;
-      color: #6b7280;
-    }
-
-    .highlight {
-      background: #fef08a;
-      padding: 2px 4px;
-      border-radius: 3px;
-      font-weight: 600;
-    }
-
-    .no-results {
-      text-align: center;
-      padding: 40px 20px;
-    }
-
-    .no-results-icon {
-      font-size: 48px;
-      margin-bottom: 12px;
-      opacity: 0.5;
-    }
-
-    .no-results-text {
-      font-size: 14px;
-      color: #6b7280;
-    }
-
-    /* ========================================= */
-    /* MODAL DE PERFIL DE CLIENTE */
-    /* ========================================= */
-    #clientModal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      background: rgba(0,0,0,0.7);
-      z-index: 10000;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      overflow-y: auto;
-    }
-
-    #modalContent {
-      background: white;
-      border-radius: 16px;
-      max-width: 500px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      animation: modalSlideIn 0.3s ease-out;
-    }
-
-    @keyframes modalSlideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-30px) scale(0.95);
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>📊 Dashboard Punto Secreto</title>
+    <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+          }
+
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 12px;
+            min-height: 100vh;
+          }
+
+          /* ========================================= */
+          /* PANTALLA DE LOGIN */
+          /* ========================================= */
+          #loginScreen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            z-index: 9999;
+            padding: 20px;
+          }
+
+          .login-container {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+          }
+
+          .login-icon {
+            font-size: 70px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+          }
+
+          @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+          }
+
+          .login-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 10px;
+          }
+
+          .login-subtitle {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 30px;
+          }
+
+          .password-input-wrapper {
+            margin-bottom: 20px;
+            text-align: left;
+          }
+
+          #passwordInput {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-family: inherit;
+          }
+
+          #passwordInput:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+          }
+
+          #passwordInput.error {
+            border-color: #ef4444;
+            animation: shake 0.5s;
+          }
+
+          @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+          }
+
+          .toggle-password-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f3f4f6;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+          }
+
+          .toggle-password-btn:hover {
+            background: #e5e7eb;
+          }
+
+          .toggle-password-btn:active {
+            transform: scale(0.95);
+          }
+
+          #loginButton {
+            width: 100%;
+            padding: 16px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+          }
+
+          #loginButton:hover {
+            background: #059669;
+          }
+
+          #loginButton:active {
+            transform: scale(0.98);
+          }
+
+          #loginButton:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+          }
+
+          .error-message {
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: 12px;
+            font-weight: 500;
+            display: none;
+            animation: fadeIn 0.3s;
+            padding: 10px;
+            background: #fee2e2;
+            border-radius: 8px;
+          }
+
+          .error-message.show {
+            display: block;
+          }
+
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+
+          .login-footer {
+            margin-top: 30px;
+            font-size: 11px;
+            color: #9ca3af;
+          }
+
+          /* ========================================= */
+          /* DASHBOARD (oculto inicialmente) */
+          /* ========================================= */
+          #dashboardApp {
+            display: none;
+          }
+
+          .container {
+            max-width: 480px;
+            margin: 0 auto;
+          }
+
+          .header {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 12px;
+            text-align: center;
+            position: relative;
+          }
+
+          .header h1 {
+            color: #10b981;
+            font-size: 20px;
+            margin-bottom: 6px;
+            font-weight: 700;
+          }
+
+          #lastUpdate {
+            color: #6b7280;
+            font-size: 11px;
+          }
+
+          .menu-hamburger {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+          }
+
+          .menu-hamburger:active {
+            transform: scale(0.95);
+          }
+
+          .menu-hamburger-icon {
+            font-size: 24px;
+            transition: transform 0.3s;
+          }
+
+          .menu-hamburger.active .menu-hamburger-icon {
+            transform: rotate(90deg);
+          }
+
+          .menu-panel {
+        position: fixed;
+        top: 0;
+        right: -280px;
+        width: 280px;
+        height: 100vh;
+        background: white;
+        box-shadow: -4px 0 20px rgba(0,0,0,0.2);
+        z-index: 999;
+        transition: right 0.3s ease;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
       }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
+
+      .menu-panel::-webkit-scrollbar {
+        width: 6px;
       }
-    }
 
-    .modal-header {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      padding: 20px;
-      border-radius: 16px 16px 0 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .modal-header h2 {
-      font-size: 20px;
-      font-weight: 700;
-    }
-
-    .modal-close {
-      background: rgba(255,255,255,0.2);
-      border: none;
-      color: white;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      font-size: 24px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s;
-    }
-
-    .modal-close:hover {
-      background: rgba(255,255,255,0.3);
-    }
-
-    .modal-close:active {
-      transform: scale(0.9);
-    }
-
-    .modal-body {
-      padding: 20px;
-    }
-
-    .client-name {
-      font-size: 24px;
-      font-weight: 700;
-      color: #1f2937;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    .client-stats-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .client-stat-card {
-      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
-      padding: 16px;
-      border-radius: 12px;
-      text-align: center;
-      border: 2px solid #10b981;
-    }
-
-    .stat-icon {
-      font-size: 32px;
-      margin-bottom: 8px;
-    }
-
-    .stat-value {
-      font-size: 18px;
-      font-weight: 700;
-      color: #10b981;
-      margin-bottom: 4px;
-    }
-
-    .stat-label {
-      font-size: 11px;
-      color: #059669;
-      font-weight: 600;
-    }
-
-    .client-info-box {
-      background: #f9fafb;
-      padding: 14px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
-
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-    }
-
-    .info-label {
-      color: #6b7280;
-      font-weight: 500;
-    }
-
-    .info-value {
-      color: #1f2937;
-      font-weight: 600;
-    }
-
-    .historial-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: #10b981;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid #10b981;
-    }
-
-    .historial-compras {
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    .compra-item {
-      background: #f9fafb;
-      padding: 14px;
-      border-radius: 10px;
-      margin-bottom: 12px;
-      border-left: 4px solid #10b981;
-    }
-
-    .compra-item.devolucion {
-      border-left-color: #ef4444;
-      background: #fef2f2;
-    }
-
-    .compra-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .compra-numero {
-      font-size: 13px;
-      font-weight: 700;
-      color: #1f2937;
-    }
-
-    .compra-fecha {
-      font-size: 12px;
-      color: #6b7280;
-      margin-bottom: 10px;
-    }
-
-    .compra-items {
-      font-size: 12px;
-      color: #374151;
-      margin-bottom: 10px;
-      line-height: 1.6;
-    }
-
-    .producto-item {
-      padding: 4px 0;
-      color: #4b5563;
-    }
-
-    .compra-total {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-      padding-top: 10px;
-      border-top: 1px solid #e5e7eb;
-    }
-
-    .total-amount {
-      font-size: 16px;
-      font-weight: 700;
-      color: #10b981;
-    }
-
-    .compra-observacion {
-      margin-top: 10px;
-      padding: 10px;
-      background: #fff3cd;
-      border-radius: 6px;
-      font-size: 11px;
-      color: #856404;
-      line-height: 1.5;
-    }
-
-    .badge {
-      padding: 3px 10px;
-      border-radius: 12px;
-      font-size: 10px;
-      font-weight: 600;
-      flex-shrink: 0;
-    }
-
-    .badge-venta {
-      background: #10b981;
-      color: white;
-    }
-
-    .badge-devolucion {
-      background: #ef4444;
-      color: white;
-    }
-
-    /* Scrollbar personalizado */
-    .historial-compras::-webkit-scrollbar,
-    .search-results::-webkit-scrollbar,
-    #modalContent::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .historial-compras::-webkit-scrollbar-track,
-    .search-results::-webkit-scrollbar-track,
-    #modalContent::-webkit-scrollbar-track {
-      background: #f3f4f6;
-      border-radius: 10px;
-    }
-
-    .historial-compras::-webkit-scrollbar-thumb,
-    .search-results::-webkit-scrollbar-thumb,
-    #modalContent::-webkit-scrollbar-thumb {
-      background: #10b981;
-      border-radius: 10px;
-    }
-
-    /* ========================================= */
-    /* RESTO DE ESTILOS DEL DASHBOARD */
-    /* ========================================= */
-    .filters {
-      background: white;
-      padding: 14px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 12px;
-    }
-
-    .filters label {
-      display: block;
-      color: #10b981;
-      font-weight: 600;
-      margin-bottom: 6px;
-      margin-top: 10px;
-      font-size: 13px;
-    }
-
-    .filters label:first-child {
-      margin-top: 0;
-    }
-
-    .date-range {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
-    input[type="date"],
-    select {
-      width: 100%;
-      padding: 10px 8px;
-      border: 2px solid #e5e7eb;
-      border-radius: 8px;
-      font-size: 13px;
-      transition: all 0.3s;
-    }
-
-    input[type="date"]:focus,
-    select:focus {
-      outline: none;
-      border-color: #10b981;
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-    }
-
-    button {
-      width: 100%;
-      padding: 11px;
-      background: #10b981;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      margin-top: 10px;
-    }
-
-    button:active {
-      background: #059669;
-      transform: scale(0.98);
-    }
-
-    .loading {
-      background: white;
-      padding: 40px 20px;
-      border-radius: 12px;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    .loading-spinner {
-      width: 50px;
-      height: 50px;
-      border: 4px solid #e5e7eb;
-      border-top-color: #10b981;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 15px;
-    }
-
-    .loading p {
-      font-size: 14px;
-      color: #6b7280;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .content-section {
-      display: none;
-    }
-
-    .content-section.active {
-      display: block;
-      animation: fadeInSection 0.4s ease-in;
-    }
-
-    @keyframes fadeInSection {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
+      .menu-panel::-webkit-scrollbar-track {
+        background: #f3f4f6;
       }
-      to {
-        opacity: 1;
-        transform: translateY(0);
+
+      .menu-panel::-webkit-scrollbar-thumb {
+        background: #10b981;
+        border-radius: 10px;
       }
-    }
 
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
+          .menu-panel.active {
+            right: 0;
+          }
 
-    .kpi-card {
-      background: white;
-      padding: 16px 12px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      text-align: center;
-    }
+          .menu-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+          }
 
-    .kpi-icon {
-      font-size: 28px;
-      margin-bottom: 8px;
-    }
+          .menu-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+          }
 
-    .kpi-value {
-      font-size: 18px;
-      font-weight: 700;
-      color: #10b981;
-      margin-bottom: 4px;
-      line-height: 1.2;
-    }
+          .menu-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+          }
 
-    .kpi-label {
-      color: #6b7280;
-      font-size: 11px;
-    }
+          .menu-items {
+            padding: 12px 0;
+          }
 
-    .section {
-      background: white;
-      padding: 14px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 12px;
-    }
+          .menu-section-title {
+            padding: 12px 20px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
 
-    .section-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: #10b981;
-      margin-bottom: 12px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #10b981;
-    }
+          .menu-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            background: white;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+          }
 
-    .ranking-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 8px;
-      border-bottom: 1px solid #f3f4f6;
-    }
+          .menu-option:active {
+            background: #f9fafb;
+          }
 
-    .ranking-item:last-child {
-      border-bottom: none;
-    }
+          .menu-option.active {
+            background: #f0fdf4;
+            border-left-color: #10b981;
+          }
 
-    .ranking-name {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 500;
-      font-size: 13px;
-    }
+          .menu-option-icon {
+            font-size: 22px;
+            width: 30px;
+            text-align: center;
+          }
 
-    .ranking-medal {
-      font-size: 20px;
-    }
+          .menu-option-text {
+            flex: 1;
+            text-align: left;
+          }
 
-    .ranking-value {
-      font-size: 14px;
-      font-weight: 700;
-      color: #10b981;
-    }
+          .menu-option-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            display: block;
+            margin-bottom: 2px;
+          }
 
-    .product-bar {
-      margin-bottom: 14px;
-    }
+          .menu-option.active .menu-option-label {
+            color: #10b981;
+          }
 
-    .product-name {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 6px;
-      font-size: 13px;
-    }
+          .menu-option-desc {
+            font-size: 11px;
+            color: #6b7280;
+            display: block;
+          }
 
-    .bar-container {
-      width: 100%;
-      height: 10px;
-      background: #f3f4f6;
-      border-radius: 8px;
-      overflow: hidden;
-    }
+          .menu-divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 8px 20px;
+          }
 
-    .bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #10b981, #059669);
-      border-radius: 8px;
-      transition: width 0.5s ease;
-    }
+          .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+          }
 
-    .clasificacion-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-bottom: 16px;
-    }
+          .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+          }
 
-    .clasificacion-card {
-      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
-      padding: 12px;
-      border-radius: 10px;
-      text-align: center;
-      border: 2px solid #10b981;
-    }
+          /* ========================================= */
+          /* BUSCADOR GLOBAL */
+          /* ========================================= */
+          .search-container {
+            background: white;
+            padding: 14px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 12px;
+            position: relative;
+          }
 
-    .clasificacion-icon {
-      font-size: 28px;
-      margin-bottom: 6px;
-    }
+          .search-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
 
-    .clasificacion-count {
-      font-size: 24px;
-      font-weight: 700;
-      color: #10b981;
-      margin-bottom: 3px;
-    }
+          #searchInput {
+            flex: 1;
+            padding: 12px 40px 12px 40px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+          }
 
-    .clasificacion-label {
-      color: #059669;
-      font-weight: 600;
-      font-size: 12px;
-    }
+          #searchInput:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+          }
 
-    .clasificacion-list {
-      max-height: 320px;
-      overflow-y: auto;
-    }
+          .search-icon {
+            position: absolute;
+            left: 12px;
+            font-size: 18px;
+            color: #6b7280;
+          }
 
-    .clasificacion-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 8px;
-      border-bottom: 1px solid #f3f4f6;
-      font-size: 13px;
-    }
+          #clearSearch {
+            position: absolute;
+            right: 12px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+          }
 
-    .clasificacion-nombre {
-      display: flex;
-      align-items: center;
-      font-weight: 500;
-      flex: 1;
-      min-width: 0;
-    }
+          #clearSearch.show {
+            display: flex;
+          }
 
-    .clasificacion-nombre span:first-child {
-      margin-right: 6px;
-      flex-shrink: 0;
-    }
+          #clearSearch:active {
+            transform: scale(0.9);
+          }
 
-    .clasificacion-nombre span:last-child {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+          #searchResults {
+            margin-top: 12px;
+          }
 
-    .clasificacion-badge {
-      padding: 3px 10px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 600;
-      flex-shrink: 0;
-      margin-left: 8px;
-    }
+          .search-results {
+            max-height: 500px;
+            overflow-y: auto;
+          }
 
-    .badge-premium {
-      background: linear-gradient(135deg, #a855f7, #7c3aed);
-      color: white;
-    }
+          .search-category {
+            margin-bottom: 16px;
+          }
 
-    .badge-gold {
-      background: linear-gradient(135deg, #fbbf24, #f59e0b);
-      color: white;
-    }
+          .category-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 8px;
+            padding: 8px 0;
+            border-bottom: 2px solid #10b981;
+          }
 
-    .badge-frecuente {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-    }
+          .result-item {
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid #10b981;
+          }
 
-    .badge-normal {
-      background: #e5e7eb;
-      color: #6b7280;
-    }
+          .result-item:active {
+            background: #f0fdf4;
+            transform: translateX(4px);
+          }
 
-    .transaction-filter {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      margin-bottom: 14px;
-    }
+          .result-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+          }
 
-    .filter-btn {
-      padding: 8px 6px;
-      background: #f3f4f6;
-      color: #6b7280;
-      border: 2px solid transparent;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-top: 0;
-    }
+          .result-details {
+            font-size: 12px;
+            color: #6b7280;
+          }
 
-    .filter-btn:active {
-      transform: scale(0.95);
-    }
+          .highlight {
+            background: #fef08a;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 600;
+          }
 
-    .filter-btn.active {
-      background: #10b981;
-      color: white;
-      border-color: #059669;
-    }
+          .no-results {
+            text-align: center;
+            padding: 40px 20px;
+          }
 
-    .transaction-item {
-      background: #f9fafb;
-      padding: 12px;
-      border-radius: 10px;
-      margin-bottom: 10px;
-      border-left: 3px solid #10b981;
-    }
+          .no-results-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+          }
 
-    .transaction-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-      font-weight: 600;
-      font-size: 13px;
-    }
+          .no-results-text {
+            font-size: 14px;
+            color: #6b7280;
+          }
 
-    .transaction-header span:first-child {
-      flex: 1;
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      margin-right: 8px;
-    }
+          /* ========================================= */
+          /* MODAL DE PERFIL DE CLIENTE */
+          /* ========================================= */
+          #clientModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0,0,0,0.7);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+          }
 
-    .transaction-details {
-      font-size: 12px;
-      color: #6b7280;
-      line-height: 1.5;
-    }
+          #modalContent {
+            background: white;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease-out;
+          }
 
-    .empty-state {
-      text-align: center;
-      padding: 30px 15px;
-      color: #9ca3af;
-    }
+          @keyframes modalSlideIn {
+            from {
+              opacity: 0;
+              transform: translateY(-30px) scale(0.95);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+            }
+          }
 
-    .empty-state-icon {
-      font-size: 40px;
-      margin-bottom: 10px;
-    }
+          .modal-header {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 20px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
 
-    .empty-state p {
-      font-size: 13px;
-    }
+          .modal-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+          }
 
-    .refresh-time {
-      text-align: center;
-      color: white;
-      font-size: 11px;
-      margin-top: 12px;
-      opacity: 0.9;
-      padding-bottom: 8px;
-    }
+          .modal-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+          }
 
-    .nota-inteligente {
-      background: linear-gradient(135deg, #fef3c7, #fde68a);
-      border: 2px solid #fbbf24;
-      border-radius: 10px;
-      padding: 12px;
-      margin-bottom: 16px;
-      display: flex;
-      gap: 10px;
-      animation: fadeIn 0.5s ease-in;
-    }
+          .modal-close:hover {
+            background: rgba(255,255,255,0.3);
+          }
 
-    .nota-icon {
-      font-size: 24px;
-      flex-shrink: 0;
-    }
+          .modal-close:active {
+            transform: scale(0.9);
+          }
 
-    .nota-content {
-      flex: 1;
-    }
+          .modal-body {
+            padding: 20px;
+          }
 
-    .nota-title {
-      font-weight: 700;
-      color: #92400e;
-      font-size: 13px;
-      margin-bottom: 6px;
-    }
+          .client-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 20px;
+            text-align: center;
+          }
 
-    .nota-text {
-      font-size: 12px;
-      line-height: 1.5;
-      color: #78350f;
-    }
+          .client-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+          }
 
-    #chartCanvas {
-      max-width: 100%;
-      height: auto;
-      margin: 0 auto;
-      display: block;
-    }
+          .client-stat-card {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #10b981;
+          }
 
-    .leyenda-container {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 8px;
-      max-height: 280px;
-      overflow-y: auto;
-    }
+          .stat-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+          }
 
-    .leyenda-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px;
-      background: #f9fafb;
-      border-radius: 8px;
-      transition: background 0.2s;
-    }
+          .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 4px;
+          }
 
-    .leyenda-item:active {
-      background: #f0fdf4;
-    }
+          .stat-label {
+            font-size: 11px;
+            color: #059669;
+            font-weight: 600;
+          }
 
-    .leyenda-color {
-      width: 20px;
-      height: 20px;
-      border-radius: 4px;
-      flex-shrink: 0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
+          .client-info-box {
+            background: #f9fafb;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+          }
 
-    .leyenda-info {
-      flex: 1;
-      min-width: 0;
-    }
+          .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+          }
 
-    .leyenda-nombre {
-      font-size: 12px;
-      font-weight: 600;
-      color: #1f2937;
-      margin-bottom: 2px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+          .info-label {
+            color: #6b7280;
+            font-weight: 500;
+          }
 
-    .leyenda-valor {
-      font-size: 11px;
-      color: #6b7280;
-    }
+          .info-value {
+            color: #1f2937;
+            font-weight: 600;
+          }
 
-    .clasificacion-list::-webkit-scrollbar,
-    .leyenda-container::-webkit-scrollbar {
-      width: 4px;
-    }
+          .historial-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #10b981;
+          }
 
-    .clasificacion-list::-webkit-scrollbar-track,
-    .leyenda-container::-webkit-scrollbar-track {
-      background: #f3f4f6;
-      border-radius: 10px;
-    }
+          .historial-compras {
+            max-height: 400px;
+            overflow-y: auto;
+          }
 
-    .clasificacion-list::-webkit-scrollbar-thumb,
-    .leyenda-container::-webkit-scrollbar-thumb {
-      background: #10b981;
-      border-radius: 10px;
-    }
-  </style>
-</head>
-<body>
-  <!-- ========================================= -->
-  <!-- PANTALLA DE LOGIN -->
-  <!-- ========================================= -->
-  <div id="loginScreen">
-    <div class="login-container">
-      <div class="login-icon">🔐</div>
-      <div class="login-title">Dashboard Punto Secreto</div>
-      <div class="login-subtitle">Ingresa tu contraseña para continuar</div>
-      
-      <form onsubmit="return false;">
-        <div class="password-input-wrapper">
-          <input 
-            type="password" 
-            id="passwordInput" 
-            placeholder="Contraseña"
-            autocomplete="off"
+          .compra-item {
+            background: #f9fafb;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border-left: 4px solid #10b981;
+          }
+
+          .compra-item.devolucion {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+          }
+
+          .compra-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+          }
+
+          .compra-numero {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1f2937;
+          }
+
+          .compra-fecha {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 10px;
+          }
+
+          .compra-items {
+            font-size: 12px;
+            color: #374151;
+            margin-bottom: 10px;
+            line-height: 1.6;
+          }
+
+          .producto-item {
+            padding: 4px 0;
+            color: #4b5563;
+          }
+
+          .compra-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            padding-top: 10px;
+            border-top: 1px solid #e5e7eb;
+          }
+
+          .total-amount {
+            font-size: 16px;
+            font-weight: 700;
+            color: #10b981;
+          }
+
+          .compra-observacion {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff3cd;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #856404;
+            line-height: 1.5;
+          }
+
+          .badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            flex-shrink: 0;
+          }
+
+          .badge-venta {
+            background: #10b981;
+            color: white;
+          }
+
+          .badge-devolucion {
+            background: #ef4444;
+            color: white;
+          }
+
+          /* Scrollbar personalizado */
+          .historial-compras::-webkit-scrollbar,
+          .search-results::-webkit-scrollbar,
+          #modalContent::-webkit-scrollbar {
+            width: 6px;
+          }
+
+          .historial-compras::-webkit-scrollbar-track,
+          .search-results::-webkit-scrollbar-track,
+          #modalContent::-webkit-scrollbar-track {
+            background: #f3f4f6;
+            border-radius: 10px;
+          }
+
+          .historial-compras::-webkit-scrollbar-thumb,
+          .search-results::-webkit-scrollbar-thumb,
+          #modalContent::-webkit-scrollbar-thumb {
+            background: #10b981;
+            border-radius: 10px;
+          }
+
+          /* ========================================= */
+          /* RESTO DE ESTILOS DEL DASHBOARD */
+          /* ========================================= */
+          .filters {
+            background: white;
+            padding: 14px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 12px;
+          }
+
+          .filters label {
+            display: block;
+            color: #10b981;
+            font-weight: 600;
+            margin-bottom: 6px;
+            margin-top: 10px;
+            font-size: 13px;
+          }
+
+          .filters label:first-child {
+            margin-top: 0;
+          }
+
+          .date-range {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+          }
+
+          input[type="date"],
+          select {
+            width: 100%;
+            padding: 10px 8px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 13px;
+            transition: all 0.3s;
+          }
+
+          input[type="date"]:focus,
+          select:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+          }
+
+          button {
+            width: 100%;
+            padding: 11px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+          }
+
+          button:active {
+            background: #059669;
+            transform: scale(0.98);
+          }
+
+          .loading {
+            background: white;
+            padding: 40px 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          }
+
+          .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #10b981;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+          }
+
+          .loading p {
+            font-size: 14px;
+            color: #6b7280;
+          }
+
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+
+          .content-section {
+            display: none;
+          }
+
+          .content-section.active {
+            display: block;
+            animation: fadeInSection 0.4s ease-in;
+          }
+
+          @keyframes fadeInSection {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .kpi-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+          }
+
+          .kpi-card {
+            background: white;
+            padding: 16px 12px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+          }
+
+          .kpi-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+          }
+
+          .kpi-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 4px;
+            line-height: 1.2;
+          }
+
+          .kpi-label {
+            color: #6b7280;
+            font-size: 11px;
+          }
+
+          .section {
+            background: white;
+            padding: 14px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 12px;
+          }
+
+          .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #10b981;
+          }
+
+          .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 8px;
+            border-bottom: 1px solid #f3f4f6;
+          }
+
+          .ranking-item:last-child {
+            border-bottom: none;
+          }
+
+          .ranking-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            font-size: 13px;
+          }
+
+          .ranking-medal {
+            font-size: 20px;
+          }
+
+          .ranking-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #10b981;
+          }
+
+          .product-bar {
+            margin-bottom: 14px;
+          }
+
+          .product-name {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 13px;
+          }
+
+          .bar-container {
+            width: 100%;
+            height: 10px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            overflow: hidden;
+          }
+
+          .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            border-radius: 8px;
+            transition: width 0.5s ease;
+          }
+
+          .clasificacion-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+          }
+
+          .clasificacion-card {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #10b981;
+          }
+
+          .clasificacion-icon {
+            font-size: 28px;
+            margin-bottom: 6px;
+          }
+
+          .clasificacion-count {
+            font-size: 24px;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 3px;
+          }
+
+          .clasificacion-label {
+            color: #059669;
+            font-weight: 600;
+            font-size: 12px;
+          }
+
+          .clasificacion-list {
+            max-height: 320px;
+            overflow-y: auto;
+          }
+
+          .clasificacion-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 8px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 13px;
+          }
+
+          .clasificacion-nombre {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            flex: 1;
+            min-width: 0;
+          }
+
+          .clasificacion-nombre span:first-child {
+            margin-right: 6px;
+            flex-shrink: 0;
+          }
+
+          .clasificacion-nombre span:last-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .clasificacion-badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            flex-shrink: 0;
+            margin-left: 8px;
+          }
+
+          .badge-premium {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            color: white;
+          }
+
+          .badge-gold {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+          }
+
+          .badge-frecuente {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+          }
+
+          .badge-normal {
+            background: #e5e7eb;
+            color: #6b7280;
+          }
+
+          .transaction-filter {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-bottom: 14px;
+          }
+
+          .filter-btn {
+            padding: 8px 6px;
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0;
+          }
+
+          .filter-btn:active {
+            transform: scale(0.95);
+          }
+
+          .filter-btn.active {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+          }
+
+          .transaction-item {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid #10b981;
+          }
+
+          .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 13px;
+          }
+
+          .transaction-header span:first-child {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-right: 8px;
+          }
+
+          .transaction-details {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.5;
+          }
+
+          .empty-state {
+            text-align: center;
+            padding: 30px 15px;
+            color: #9ca3af;
+          }
+
+          .empty-state-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+          }
+
+          .empty-state p {
+            font-size: 13px;
+          }
+
+          .refresh-time {
+            text-align: center;
+            color: white;
+            font-size: 11px;
+            margin-top: 12px;
+            opacity: 0.9;
+            padding-bottom: 8px;
+          }
+
+          .nota-inteligente {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 2px solid #fbbf24;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 10px;
+            animation: fadeIn 0.5s ease-in;
+          }
+
+          .nota-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+          }
+
+          .nota-content {
+            flex: 1;
+          }
+
+          .nota-title {
+            font-weight: 700;
+            color: #92400e;
+            font-size: 13px;
+            margin-bottom: 6px;
+          }
+
+          .nota-text {
+            font-size: 12px;
+            line-height: 1.5;
+            color: #78350f;
+          }
+
+          #chartCanvas {
+            max-width: 100%;
+            height: auto;
+            margin: 0 auto;
+            display: block;
+          }
+
+          .leyenda-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            max-height: 280px;
+            overflow-y: auto;
+          }
+
+          .leyenda-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background: #f9fafb;
+            border-radius: 8px;
+            transition: background 0.2s;
+          }
+
+          .leyenda-item:active {
+            background: #f0fdf4;
+          }
+
+          .leyenda-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+
+          .leyenda-info {
+            flex: 1;
+            min-width: 0;
+          }
+
+          .leyenda-nombre {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .leyenda-valor {
+            font-size: 11px;
+            color: #6b7280;
+          }
+
+          .clasificacion-list::-webkit-scrollbar,
+          .leyenda-container::-webkit-scrollbar {
+            width: 4px;
+          }
+
+          .clasificacion-list::-webkit-scrollbar-track,
+          .leyenda-container::-webkit-scrollbar-track {
+            background: #f3f4f6;
+            border-radius: 10px;
+          }
+
+          .clasificacion-list::-webkit-scrollbar-thumb,
+          .leyenda-container::-webkit-scrollbar-thumb {
+            background: #10b981;
+            border-radius: 10px;
+          }
+    </style>
+  </head>
+  <body>
+    <!-- ========================================= -->
+    <!-- PANTALLA DE LOGIN -->
+    <!-- ========================================= -->
+    <div id="loginScreen">
+      <div class="login-container">
+        <div class="login-icon">🔐</div>
+        <div class="login-title">Dashboard Punto Secreto</div>
+        <div class="login-subtitle">Ingresa tu contraseña para continuar</div>
+
+        <form onsubmit="return false;">
+          <div class="password-input-wrapper">
+            <input
+              type="password"
+              id="passwordInput"
+              placeholder="Contraseña"
+              autocomplete="off"
+            />
+            <button
+              type="button"
+              class="toggle-password-btn"
+              onclick="togglePasswordVisibility()"
+            >
+              <span id="toggleIcon">👁️</span>
+              <span id="toggleText">Mostrar contraseña</span>
+            </button>
+          </div>
+
+          <button type="submit" id="loginButton" onclick="verificarPassword()">
+            🔓 Ingresar al Dashboard
+          </button>
+        </form>
+
+        <div class="error-message" id="errorMessage">
+          ❌ Contraseña incorrecta. Intenta nuevamente.
+        </div>
+
+        <div class="login-footer">🔒 Acceso seguro y protegido</div>
+      </div>
+    </div>
+
+    <!-- ========================================= -->
+    <!-- DASHBOARD (oculto hasta login exitoso) -->
+    <!-- ========================================= -->
+    <div id="dashboardApp">
+      <button class="menu-hamburger" onclick="toggleMenu()">
+        <span class="menu-hamburger-icon">⋮</span>
+      </button>
+
+      <div class="menu-overlay" onclick="toggleMenu()"></div>
+
+      <div class="menu-panel">
+        <div class="menu-header">
+          <div class="menu-title">📊 Dashboard</div>
+          <div class="menu-subtitle">Punto Secreto</div>
+        </div>
+
+        <div class="menu-items">
+          <div class="menu-section-title">📌 Navegación</div>
+
+          <button
+            class="menu-option active"
+            data-section="inicio"
+            onclick="cambiarSeccion('inicio')"
           >
-          <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility()">
-            <span id="toggleIcon">👁️</span>
-            <span id="toggleText">Mostrar contraseña</span>
+            <span class="menu-option-icon">🏠</span>
+            <div class="menu-option-text">
+              <span class="menu-option-label">Inicio</span>
+              <span class="menu-option-desc">Vista general y KPIs</span>
+            </div>
+          </button>
+
+          <button
+            class="menu-option"
+            data-section="buscador"
+            onclick="cambiarSeccion('buscador')"
+          >
+            <span class="menu-option-icon">🔍</span>
+            <div class="menu-option-text">
+              <span class="menu-option-label">Buscador</span>
+              <span class="menu-option-desc">Buscar clientes y datos</span>
+            </div>
+          </button>
+
+          <button
+            class="menu-option"
+            data-section="productos"
+            onclick="cambiarSeccion('productos')"
+          >
+            <span class="menu-option-icon">📦</span>
+            <div class="menu-option-text">
+              <span class="menu-option-label">Productos</span>
+              <span class="menu-option-desc">Top ventas y análisis</span>
+            </div>
+          </button>
+
+          <button
+            class="menu-option"
+            data-section="clientes"
+            onclick="cambiarSeccion('clientes')"
+          >
+            <span class="menu-option-icon">👥</span>
+            <div class="menu-option-text">
+              <span class="menu-option-label">Clientes</span>
+              <span class="menu-option-desc">Rankings y clasificación</span>
+            </div>
+          </button>
+
+          <button
+            class="menu-option"
+            data-section="transacciones"
+            onclick="cambiarSeccion('transacciones')"
+          >
+            <span class="menu-option-icon">💳</span>
+            <div class="menu-option-text">
+              <span class="menu-option-label">Transacciones</span>
+              <span class="menu-option-desc">Ventas y devoluciones</span>
+            </div>
+          </button>
+
+          <div class="menu-divider"></div>
+
+          <div class="menu-section-title">⚙️ Acciones</div>
+
+          <button class="menu-option" onclick="cargarDatos(); toggleMenu();">
+            <span class="menu-option-icon">🔄</span>
+            <div class="menu-option-text">
+              <span class="menu-option-label">Actualizar Datos</span>
+              <span class="menu-option-desc">Sincronizar con Airtable</span>
+            </div>
+          </button>
+
+          <button class="menu-option" onclick="cerrarSesion()">
+            <span class="menu-option-icon">🚪</span>
+            <div class="menu-option-text">
+              <span class="menu-option-label">Cerrar Sesión</span>
+              <span class="menu-option-desc">Salir del dashboard</span>
+            </div>
           </button>
         </div>
-
-        <button type="submit" id="loginButton" onclick="verificarPassword()">
-          🔓 Ingresar al Dashboard
-        </button>
-      </form>
-
-      <div class="error-message" id="errorMessage">
-        ❌ Contraseña incorrecta. Intenta nuevamente.
       </div>
 
-      <div class="login-footer">
-        🔒 Acceso seguro y protegido
-      </div>
-    </div>
-  </div>
-
-  <!-- ========================================= -->
-  <!-- DASHBOARD (oculto hasta login exitoso) -->
-  <!-- ========================================= -->
-  <div id="dashboardApp">
-    <button class="menu-hamburger" onclick="toggleMenu()">
-      <span class="menu-hamburger-icon">⋮</span>
-    </button>
-
-    <div class="menu-overlay" onclick="toggleMenu()"></div>
-
-    <div class="menu-panel">
-      <div class="menu-header">
-        <div class="menu-title">📊 Dashboard</div>
-        <div class="menu-subtitle">Punto Secreto</div>
-      </div>
-
-      <div class="menu-items">
-        <div class="menu-section-title">📌 Navegación</div>
-        
-        <button class="menu-option active" data-section="inicio" onclick="cambiarSeccion('inicio')">
-          <span class="menu-option-icon">🏠</span>
-          <div class="menu-option-text">
-            <span class="menu-option-label">Inicio</span>
-            <span class="menu-option-desc">Vista general y KPIs</span>
-          </div>
-        </button>
-
-        <button class="menu-option" data-section="buscador" onclick="cambiarSeccion('buscador')">
-          <span class="menu-option-icon">🔍</span>
-          <div class="menu-option-text">
-            <span class="menu-option-label">Buscador</span>
-            <span class="menu-option-desc">Buscar clientes y datos</span>
-          </div>
-        </button>
-
-        <button class="menu-option" data-section="productos" onclick="cambiarSeccion('productos')">
-          <span class="menu-option-icon">📦</span>
-          <div class="menu-option-text">
-            <span class="menu-option-label">Productos</span>
-            <span class="menu-option-desc">Top ventas y análisis</span>
-          </div>
-        </button>
-
-        <button class="menu-option" data-section="clientes" onclick="cambiarSeccion('clientes')">
-          <span class="menu-option-icon">👥</span>
-          <div class="menu-option-text">
-            <span class="menu-option-label">Clientes</span>
-            <span class="menu-option-desc">Rankings y clasificación</span>
-          </div>
-        </button>
-
-        <button class="menu-option" data-section="transacciones" onclick="cambiarSeccion('transacciones')">
-          <span class="menu-option-icon">💳</span>
-          <div class="menu-option-text">
-            <span class="menu-option-label">Transacciones</span>
-            <span class="menu-option-desc">Ventas y devoluciones</span>
-          </div>
-        </button>
-
-        <div class="menu-divider"></div>
-
-        <div class="menu-section-title">⚙️ Acciones</div>
-
-        <button class="menu-option" onclick="cargarDatos(); toggleMenu();">
-          <span class="menu-option-icon">🔄</span>
-          <div class="menu-option-text">
-            <span class="menu-option-label">Actualizar Datos</span>
-            <span class="menu-option-desc">Sincronizar con Airtable</span>
-          </div>
-        </button>
-
-        <button class="menu-option" onclick="cerrarSesion()">
-          <span class="menu-option-icon">🚪</span>
-          <div class="menu-option-text">
-            <span class="menu-option-label">Cerrar Sesión</span>
-            <span class="menu-option-desc">Salir del dashboard</span>
-          </div>
-        </button>
-      </div>
-    </div>
-
-    <div class="container">
-      <div class="header">
-        <h1>📊 Dashboard Punto Secreto</h1>
-        <p id="lastUpdate">Cargando datos...</p>
-      </div>
-
-      <div class="filters">
-        <label>📅 Rango de Fechas</label>
-        <div class="date-range">
-          <div>
-            <input type="date" id="fechaDesde" onchange="aplicarFiltros()">
-            <small style="color: #666; font-size: 10px;">Desde</small>
-          </div>
-          <div>
-            <input type="date" id="fechaHasta" onchange="aplicarFiltros()">
-            <small style="color: #666; font-size: 10px;">Hasta</small>
-          </div>
+      <div class="container">
+        <div class="header">
+          <h1>📊 Dashboard Punto Secreto</h1>
+          <p id="lastUpdate">Cargando datos...</p>
         </div>
 
-        <label>⚡ Accesos Rápidos</label>
-        <select id="filterPeriodo" onchange="cambiarPeriodoRapido()">
-          <option value="">Selecciona período...</option>
-          <option value="hoy">Hoy</option>
-          <option value="7dias">Últimos 7 días</option>
-          <option value="30dias">Últimos 30 días</option>
-          <option value="mes">Este mes</option>
-          <option value="year">Este año</option>
-          <option value="all">Todo el tiempo</option>
-        </select>
-
-        <label>👤 Anfitrión</label>
-        <select id="filterAnfitrion" onchange="aplicarFiltros()">
-          <option value="">Todos los anfitriones</option>
-        </select>
-      </div>
-
-      <div id="loading" class="loading">
-        <div class="loading-spinner"></div>
-        <p>Cargando estadísticas...</p>
-      </div>
-
-      <div id="content" style="display: none;">
-        <!-- Sección INICIO -->
-        <div class="content-section active" id="section-inicio">
-          <div class="kpi-grid">
-            <div class="kpi-card">
-              <div class="kpi-icon">💰</div>
-              <div class="kpi-value" id="kpiTotalVentas">$0</div>
-              <div class="kpi-label">Total Ventas</div>
+        <div class="filters">
+          <label>📅 Rango de Fechas</label>
+          <div class="date-range">
+            <div>
+              <input type="date" id="fechaDesde" onchange="aplicarFiltros()" />
+              <small style="color: #666; font-size: 10px;">Desde</small>
             </div>
-            <div class="kpi-card">
-              <div class="kpi-icon">📈</div>
-              <div class="kpi-value" id="kpiPromedioVenta">$0</div>
-              <div class="kpi-label">Promedio</div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-icon">🛍️</div>
-              <div class="kpi-value" id="kpiNumVentas">0</div>
-              <div class="kpi-label">Transacciones</div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-icon">↩️</div>
-              <div class="kpi-value" id="kpiTasaDevolucion">0%</div>
-              <div class="kpi-label">Devoluciones</div>
+            <div>
+              <input type="date" id="fechaHasta" onchange="aplicarFiltros()" />
+              <small style="color: #666; font-size: 10px;">Hasta</small>
             </div>
           </div>
 
-          <div class="section">
-            <div class="section-title">🏆 Top Anfitriones</div>
-            <div id="rankingAnfitriones"></div>
-          </div>
+          <label>⚡ Accesos Rápidos</label>
+          <select id="filterPeriodo" onchange="cambiarPeriodoRapido()">
+            <option value="">Selecciona período...</option>
+            <option value="hoy">Hoy</option>
+            <option value="7dias">Últimos 7 días</option>
+            <option value="30dias">Últimos 30 días</option>
+            <option value="mes">Este mes</option>
+            <option value="year">Este año</option>
+            <option value="all">Todo el tiempo</option>
+          </select>
+
+          <label>👤 Anfitrión</label>
+          <select id="filterAnfitrion" onchange="aplicarFiltros()">
+            <option value="">Todos los anfitriones</option>
+          </select>
         </div>
 
-        <!-- Sección BUSCADOR -->
-        <div class="content-section" id="section-buscador">
-          <div class="search-container">
-            <div class="search-input-wrapper">
-              <span class="search-icon">🔍</span>
-              <input 
-                type="text" 
-                id="searchInput" 
-                placeholder="Buscar clientes, productos o anfitriones..." 
-                oninput="buscarGlobal()"
-                onkeypress="if(event.key === 'Enter') buscarGlobal()"
+        <div id="loading" class="loading">
+          <div class="loading-spinner"></div>
+          <p>Cargando estadísticas...</p>
+        </div>
+
+        <div id="content" style="display: none;">
+          <!-- Sección INICIO -->
+          <div class="content-section active" id="section-inicio">
+            <div class="kpi-grid">
+              <div class="kpi-card">
+                <div class="kpi-icon">💰</div>
+                <div class="kpi-value" id="kpiTotalVentas">$0</div>
+                <div class="kpi-label">Total Ventas</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-icon">📈</div>
+                <div class="kpi-value" id="kpiPromedioVenta">$0</div>
+                <div class="kpi-label">Promedio</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-icon">🛍️</div>
+                <div class="kpi-value" id="kpiNumVentas">0</div>
+                <div class="kpi-label">Transacciones</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-icon">↩️</div>
+                <div class="kpi-value" id="kpiTasaDevolucion">0%</div>
+                <div class="kpi-label">Devoluciones</div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-title">🏆 Top Anfitriones</div>
+              <div id="rankingAnfitriones"></div>
+            </div>
+          </div>
+
+          <!-- Sección BUSCADOR -->
+          <div class="content-section" id="section-buscador">
+            <div class="search-container">
+              <div class="search-input-wrapper">
+                <span class="search-icon">🔍</span>
+                <input
+                  type="text"
+                  id="searchInput"
+                  placeholder="Buscar clientes, productos o anfitriones..."
+                  oninput="buscarGlobal()"
+                  onkeypress="if(event.key === 'Enter') buscarGlobal()"
+                />
+                <button id="clearSearch" onclick="limpiarBusqueda()">✕</button>
+              </div>
+              <div id="searchResults"></div>
+            </div>
+          </div>
+
+          <!-- Sección PRODUCTOS -->
+          <div class="content-section" id="section-productos">
+            <div class="section">
+              <div class="section-title">📦 Productos Más Vendidos</div>
+              <div id="topProductos"></div>
+            </div>
+
+            <div class="section">
+              <div class="section-title">
+                🎯 Distribución de Ventas por Producto
+              </div>
+              <div id="notaInteligente"></div>
+              <div
+                id="graficoProductos"
+                style="text-align: center; margin: 20px 0;"
               >
-              <button id="clearSearch" onclick="limpiarBusqueda()">✕</button>
+                <canvas id="chartCanvas"></canvas>
+              </div>
+              <div id="leyendaProductos" class="leyenda-container"></div>
             </div>
-            <div id="searchResults"></div>
-          </div>
-        </div>
-
-        <!-- Sección PRODUCTOS -->
-        <div class="content-section" id="section-productos">
-          <div class="section">
-            <div class="section-title">📦 Productos Más Vendidos</div>
-            <div id="topProductos"></div>
           </div>
 
-          <div class="section">
-            <div class="section-title">🎯 Distribución de Ventas por Producto</div>
-            <div id="notaInteligente"></div>
-            <div id="graficoProductos" style="text-align: center; margin: 20px 0;">
-              <canvas id="chartCanvas"></canvas>
+          <!-- Sección CLIENTES -->
+          <div class="content-section" id="section-clientes">
+            <div class="section">
+              <div class="section-title">👥 Top Clientes</div>
+              <div id="topClientes"></div>
             </div>
-            <div id="leyendaProductos" class="leyenda-container"></div>
-          </div>
 
-          <div class="section">
-            <div class="section-title">⏰ Horarios de Mayor Venta</div>
-            <div id="analisisHorarios"></div>
-          </div>
-        </div>
-
-        <!-- Sección CLIENTES -->
-        <div class="content-section" id="section-clientes">
-          <div class="section">
-            <div class="section-title">👥 Top Clientes</div>
-            <div id="topClientes"></div>
-          </div>
-
-          <div class="section">
-            <div class="section-title">⭐ Clasificación de Clientes</div>
-            <div id="clasificacionClientes"></div>
-          </div>
-        </div>
-
-        <!-- Sección TRANSACCIONES -->
-        <div class="content-section" id="section-transacciones">
-          <div class="section">
-            <div class="section-title">🕐 Últimas Transacciones</div>
-            
-            <div class="transaction-filter">
-              <button class="filter-btn active" data-filter="todas" onclick="filtrarTransacciones('todas')">
-                Todas
-              </button>
-              <button class="filter-btn" data-filter="ventas" onclick="filtrarTransacciones('ventas')">
-                🛍️ Ventas
-              </button>
-              <button class="filter-btn" data-filter="devoluciones" onclick="filtrarTransacciones('devoluciones')">
-                ↩️ Devol.
-              </button>
+            <div class="section">
+              <div class="section-title">⭐ Clasificación de Clientes</div>
+              <div id="clasificacionClientes"></div>
             </div>
-            
-            <div id="ultimasTransacciones"></div>
+          </div>
+
+          <!-- Sección TRANSACCIONES -->
+          <div class="content-section" id="section-transacciones">
+            <div class="section">
+              <div class="section-title">🕐 Últimas Transacciones</div>
+
+              <div class="transaction-filter">
+                <button
+                  class="filter-btn active"
+                  data-filter="todas"
+                  onclick="filtrarTransacciones('todas')"
+                >
+                  Todas
+                </button>
+                <button
+                  class="filter-btn"
+                  data-filter="ventas"
+                  onclick="filtrarTransacciones('ventas')"
+                >
+                  🛍️ Ventas
+                </button>
+                <button
+                  class="filter-btn"
+                  data-filter="devoluciones"
+                  onclick="filtrarTransacciones('devoluciones')"
+                >
+                  ↩️ Devol.
+                </button>
+              </div>
+
+              <div id="ultimasTransacciones"></div>
+            </div>
           </div>
         </div>
+
+        <div class="refresh-time" id="refreshTime"></div>
       </div>
-
-      <div class="refresh-time" id="refreshTime"></div>
     </div>
-  </div>
 
-  <!-- ========================================= -->
-  <!-- MODAL DE PERFIL DE CLIENTE -->
-  <!-- ========================================= -->
-  <div id="clientModal">
-    <div id="modalContent"></div>
-  </div>
+    <!-- ========================================= -->
+    <!-- MODAL DE PERFIL DE CLIENTE -->
+    <!-- ========================================= -->
+    <div id="clientModal">
+      <div id="modalContent"></div>
+    </div>
 
-  <script src="main.js"></script>
-</body>
+    <script src="main.js"></script>
+  </body>
 </html>
