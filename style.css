@@ -5,16 +5,18 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  padding: 12px;
   min-height: 100vh;
-  padding: 20px 10px;
-  color: #333;
+  box-sizing: border-box;
 }
 
 .container {
-  max-width: 600px;
+  max-width: 480px;
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .header {
@@ -44,89 +46,96 @@ body {
 
 .filters {
   background: white;
-  border-radius: 15px;
-  padding: 15px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 14px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin-bottom: 12px;
+  overflow: hidden;
 }
 
 .filters label {
   display: block;
-  font-size: 11px;
+  color: #10b981;
   font-weight: 600;
-  color: #667eea;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  margin-top: 10px;
+  font-size: 13px;
 }
 
-.filters select,
-.filters input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 2px solid #e0e7ff;
-  border-radius: 10px;
-  font-size: 14px;
-  margin-bottom: 12px;
-  background: white;
-  color: #333;
+.filters label:first-child {
+  margin-top: 0;
 }
 
 .date-range {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 8px;
-  width: 100%;
-
 }
 
-.date-range>div {
+.date-range > div {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
   min-width: 0;
-}
-
-.date-range input[type="date"] {
-  width: 100%;
-  padding: 6px;
-  font-size: 13px;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 8px;
-  box-sizing: border-box;
-}
-
-.date-range input[type="date"]:focus {
-  outline: none;
-  border-color: #10b981;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+  overflow: hidden;
 }
 
 .date-range small {
-
-  margin-top: 4px;
+  display: block;
+  margin-bottom: 4px;
   font-size: 10px;
   color: #6b7280;
-}
-
-
-.filters button {
-  width: 100%;
-  padding: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
   font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s;
-  margin-top: 10px;
 }
 
-.filters button:active {
-  transform: scale(0.98);
+input[type="date"] {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 8px 4px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 12px;
+  transition: all 0.3s;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+  padding: 0;
+  margin: 0;
+  width: 16px;
+  height: 16px;
+}
+
+input[type="date"]:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+select {
+  width: 100%;
+  max-width: 100%;
+  padding: 10px 8px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 13px;
+  transition: all 0.3s;
+  box-sizing: border-box;
+  background: white;
+}
+
+select:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
 .kpi-grid {
@@ -1105,26 +1114,60 @@ body {
     transform: translateY(0);
   }
 }
-
-/* 📱 Corrección SOLO para celular */
-@media (max-width: 480px) {
+/* Ajustes específicos para móvil */
+@media screen and (max-width: 480px) {
   .filters {
-    width: 100%;
-    box-sizing: border-box;
     padding: 12px;
-    border-radius: 10px;
-    overflow: hidden;
   }
+  
+  .date-range {
+    gap: 8px;
+  }
+  
+  input[type="date"] {
+    font-size: 11px;
+    padding: 10px 6px;
+    min-height: 38px;
+  }
+  
+  .date-range small {
+    font-size: 9px;
+  }
+  
+  .container {
+    padding: 0 4px;
+  }
+  
+  body {
+    padding: 8px;
+  }
+  
+  .header {
+    padding: 14px;
+  }
+  
+  .header h1 {
+    font-size: 18px;
+  }
+  
+  #lastUpdate {
+    font-size: 10px;
+  }
+}
 
+/* Para pantallas muy pequeñas */
+@media screen and (max-width: 360px) {
   .date-range {
     grid-template-columns: 1fr;
-    width: 100%;
+    gap: 10px;
   }
-
-  .date-range input[type="date"] {
-    width: 100%;
-    box-sizing: border-box;
-    font-size: 14px;
-    padding: 10px;
+  
+  input[type="date"] {
+    font-size: 12px;
+    padding: 10px 8px;
+  }
+  
+  .date-range small {
+    font-size: 10px;
   }
 }
