@@ -521,7 +521,7 @@ select:focus {
   color: #667eea;
 }
 
-/* KPIs */
+/* KPIs Principales */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -529,30 +529,53 @@ select:focus {
   margin-bottom: 12px;
 }
 
-.kpi-card {
+/* KPIs Secundarios */
+.kpi-grid-secondary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.kpi-card-small {
   background: white;
-  padding: 16px 12px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  padding: 12px 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.2s;
+  cursor: pointer;
 }
 
-.kpi-icon {
-  font-size: 28px;
-  margin-bottom: 8px;
+.kpi-card-small:active {
+  transform: scale(0.97);
 }
 
-.kpi-value {
-  font-size: 18px;
+.kpi-small-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.kpi-small-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.kpi-small-value {
+  font-size: 16px;
   font-weight: 700;
   color: #10b981;
-  margin-bottom: 4px;
-  line-height: 1.2;
+  margin-bottom: 2px;
+  line-height: 1;
 }
 
-.kpi-label {
+.kpi-small-label {
+  font-size: 9px;
   color: #6b7280;
-  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 /* Rankings */
@@ -560,30 +583,24 @@ select:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 8px;
-  border-bottom: 1px solid #f3f4f6;
+  padding: 12px;
+  background: #f8f9ff;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: 2px solid transparent;
 }
 
-.ranking-item:last-child {
-  border-bottom: none;
+.ranking-item:hover {
+  background: #f0fdf4;
+  border-color: #10b981;
+  transform: translateX(4px);
 }
 
-.ranking-name {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-  font-size: 13px;
-}
-
-.ranking-medal {
-  font-size: 20px;
-}
-
-.ranking-value {
-  font-size: 14px;
-  font-weight: 700;
-  color: #10b981;
+.ranking-item:active {
+  background: #dcfce7;
+  transform: scale(0.98);
 }
 
 /* Productos */
@@ -1154,6 +1171,122 @@ select:focus {
   transition: all 0.3s;
 }
 
+/* Productos Destacados */
+.producto-destacado {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-left: 4px solid #10b981;
+}
+
+.producto-destacado:hover {
+  background: #f0fdf4;
+  transform: translateX(4px);
+}
+
+.producto-destacado:active {
+  transform: scale(0.98);
+}
+
+.producto-icono {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.producto-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.producto-nombre {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.producto-stats {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.producto-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Actividad Reciente */
+.actividad-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  transition: background 0.2s;
+}
+
+.actividad-item:hover {
+  background: #f0fdf4;
+}
+
+.actividad-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #dcfce7, #d1fae5);
+  border-radius: 10px;
+}
+
+.actividad-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.actividad-titulo {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.actividad-detalle {
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.actividad-tiempo {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+/* Gráfico de Ventas */
+#chartVentasDias {
+  position: relative;
+  width: 100%;
+}
+
+#chartVentasDiasCanvas {
+  max-width: 100%;
+  height: auto !important;
+}
 
 
 /* Secciones del contenido */
@@ -1236,5 +1369,32 @@ select:focus {
   }
 }
 
+#clientModal,
+#anfitrionModal,
+#productoModal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
 
-
+#modalContent,
+#anfitrionModalContent,
+#productoModalContent {
+  background: white;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease-out;
+}

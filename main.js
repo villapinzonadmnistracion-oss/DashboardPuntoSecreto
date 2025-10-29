@@ -54,11 +54,9 @@ function verificarPassword() {
 }
 
 function mostrarDashboard() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('dashboardApp').style.display = 'block';
-  
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("dashboardApp").style.display = "block";
 
-  
   // Inicializar el dashboard
   inicializarFechas();
   cargarDatos();
@@ -117,10 +115,10 @@ let filtroTransaccionActual = "todas";
 
 function inicializarFechas() {
   const hoy = new Date();
-  
+
   // Establecer SOLO la fecha de hoy en ambos campos
-  document.getElementById('fechaHasta').valueAsDate = hoy;
-  document.getElementById('fechaDesde').valueAsDate = hoy;
+  document.getElementById("fechaHasta").valueAsDate = hoy;
+  document.getElementById("fechaDesde").valueAsDate = hoy;
 }
 
 function cambiarPeriodoRapido() {
@@ -346,6 +344,24 @@ function calcularEstadisticas(ventas) {
   const tasaDevolucion =
     ventas.length > 0 ? (devoluciones.length / ventas.length) * 100 : 0;
 
+  // Calcular clientes únicos
+  const clientesUnicos = new Set();
+  ventas.forEach((v) => {
+    const clienteIds = v.fields["Cliente"] || [];
+    clienteIds.forEach((id) => clientesUnicos.add(id));
+  });
+
+  // Calcular productos vendidos
+  let totalProductos = 0;
+  ventasReales.forEach((venta) => {
+    Object.keys(venta.fields).forEach((campo) => {
+      if (campo.startsWith("Cantidad real de ventas")) {
+        totalProductos += parseInt(venta.fields[campo]) || 0;
+      }
+    });
+  });
+
+  // Actualizar KPIs principales
   document.getElementById("kpiTotalVentas").textContent = `$${Math.round(
     totalVentas
   ).toLocaleString("es-CL")}`;
@@ -357,7 +373,18 @@ function calcularEstadisticas(ventas) {
     "kpiTasaDevolucion"
   ).textContent = `${tasaDevolucion.toFixed(1)}%`;
 
+  // Actualizar KPIs secundarios
+  document.getElementById("kpiTotalClientes").textContent = clientesUnicos.size;
+  document.getElementById("kpiProductosVendidos").textContent = totalProductos;
+  document.getElementById("kpiTicketPromedio").textContent = `$${Math.round(
+    promedioVenta
+  ).toLocaleString("es-CL")}`;
+
+  // Actualizar dashboard
+  mostrarGraficoVentasDias(ventasReales);
   mostrarTopAnfitriones(ventasReales);
+  mostrarProductosDestacados(ventasReales);
+  mostrarActividadReciente(ventas);
   mostrarTopProductos(ventasReales);
   mostrarGraficoProductos(ventasReales);
   mostrarTopClientes(ventasReales);
@@ -402,32 +429,24 @@ function mostrarTopAnfitriones(ventas) {
     .map((anf, index) => {
       const anfitrionData = anfitrionesMap[anf.id];
 
-      // Intentar diferentes campos posibles para el nombre
       let nombre =
         anfitrionData?.Nombre ||
         anfitrionData?.Name ||
+        anfitrionData?.["Anfitrión"] ||
         anfitrionData?.["Nombre completo"] ||
-        anfitrionData?.["Nombre del anfitrión"] ||
-        anfitrionData?.nombre ||
-        anfitrionData?.["Full Name"];
+        "Anfitrión";
 
-      // Si es array, tomar el primer elemento
       if (Array.isArray(nombre)) {
         nombre = nombre[0];
       }
 
-      // Si no hay nombre, usar un valor por defecto
-      if (!nombre) {
-        nombre = "Anfitrión desconocido";
-      }
-
       return `
-      <div class="ranking-item">
+      <div class="ranking-item" onclick="abrirPerfilAnfitrion('${anf.id}')">
         <div class="ranking-name">
           <span class="ranking-medal">${medals[index]}</span>
           <span>${nombre}</span>
         </div>
-        <div class="ranking-value">${Math.round(anf.total).toLocaleString(
+        <div class="ranking-value">$${Math.round(anf.total).toLocaleString(
           "es-CL"
         )}</div>
       </div>
@@ -1606,13 +1625,22 @@ function cerrarPerfilCliente() {
   modal.style.display = "none";
   document.body.style.overflow = "auto";
 }
-cerrarPerfilCliente
+cerrarPerfilCliente;
 
 // Cerrar modal al hacer click fuera
 window.onclick = function (event) {
-  const modal = document.getElementById("clientModal");
-  if (event.target === modal) {
+  const clientModal = document.getElementById("clientModal");
+  const anfitrionModal = document.getElementById("anfitrionModal");
+  const productoModal = document.getElementById("productoModal");
+
+  if (event.target === clientModal) {
     cerrarPerfilCliente();
+  }
+  if (event.target === anfitrionModal) {
+    cerrarPerfilAnfitrion();
+  }
+  if (event.target === productoModal) {
+    cerrarPerfilProducto();
   }
 };
 // ==========================================
@@ -1620,10 +1648,10 @@ window.onclick = function (event) {
 // ==========================================
 
 // Cargar tema guardado al iniciar
-document.addEventListener('DOMContentLoaded', function() {
-  const temaGuardado = localStorage.getItem('tema');
-  if (temaGuardado === 'dark') {
-    document.body.classList.add('dark-mode');
+document.addEventListener("DOMContentLoaded", function () {
+  const temaGuardado = localStorage.getItem("tema");
+  if (temaGuardado === "dark") {
+    document.body.classList.add("dark-mode");
     actualizarIconoTema();
   }
 });
@@ -1632,11 +1660,554 @@ document.addEventListener('DOMContentLoaded', function() {
 // SISTEMA DE TEMA CLARO/OSCURO
 // ==========================================
 
-
-
 // ==========================================
 // AUTO-REFRESH
 // ==========================================
+// ==========================================
+// NUEVAS FUNCIONES DEL DASHBOARD
+// ==========================================
+
+function mostrarGraficoVentasDias(ventas) {
+  const hoy = new Date();
+  const ultimos7Dias = [];
+
+  // Generar últimos 7 días
+  for (let i = 6; i >= 0; i--) {
+    const fecha = new Date(hoy);
+    fecha.setDate(fecha.getDate() - i);
+    ultimos7Dias.push({
+      fecha: fecha,
+      dia: fecha.toLocaleDateString("es-CL", { weekday: "short" }),
+      total: 0,
+    });
+  }
+
+  // Calcular ventas por día
+  ventas.forEach((venta) => {
+    const fechaVenta = new Date(venta.fields["Fecha de compra"]);
+    const total =
+      venta.fields["Total Neto Numerico"] ||
+      venta.fields["Total de venta"] ||
+      0;
+
+    ultimos7Dias.forEach((dia) => {
+      if (fechaVenta.toDateString() === dia.fecha.toDateString()) {
+        dia.total += total;
+      }
+    });
+  });
+
+  // Crear gráfico con canvas
+  const canvas = document.getElementById("chartVentasDiasCanvas");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+
+  const dpr = window.devicePixelRatio || 1;
+  const width = canvas.parentElement.clientWidth;
+  const height = 200;
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  canvas.style.width = width + "px";
+  canvas.style.height = height + "px";
+  ctx.scale(dpr, dpr);
+
+  // Limpiar canvas
+  ctx.clearRect(0, 0, width, height);
+
+  // Configuración
+  const padding = { top: 20, right: 20, bottom: 40, left: 50 };
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+
+  const maxTotal = Math.max(...ultimos7Dias.map((d) => d.total), 1);
+  const barWidth = chartWidth / ultimos7Dias.length;
+
+  // Dibujar barras
+  ultimos7Dias.forEach((dia, index) => {
+    const barHeight = (dia.total / maxTotal) * chartHeight;
+    const x = padding.left + index * barWidth + barWidth * 0.1;
+    const y = padding.top + (chartHeight - barHeight);
+    const w = barWidth * 0.8;
+
+    // Gradiente
+    const gradient = ctx.createLinearGradient(0, y, 0, y + barHeight);
+    gradient.addColorStop(0, "#10b981");
+    gradient.addColorStop(1, "#059669");
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(x, y, w, barHeight);
+
+    // Etiqueta día
+    ctx.fillStyle = "#6b7280";
+    ctx.font = "11px -apple-system, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(dia.dia, x + w / 2, height - 10);
+
+    // Valor
+    if (dia.total > 0) {
+      ctx.fillStyle = "#1f2937";
+      ctx.font = "bold 10px -apple-system, sans-serif";
+      ctx.fillText("$" + Math.round(dia.total / 1000) + "k", x + w / 2, y - 5);
+    }
+  });
+
+  // Línea base
+  ctx.strokeStyle = "#e5e7eb";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(padding.left, padding.top + chartHeight);
+  ctx.lineTo(width - padding.right, padding.top + chartHeight);
+  ctx.stroke();
+}
+
+function mostrarProductosDestacados(ventas) {
+  const productosCount = {};
+  const productosVentas = {};
+
+  ventas.forEach((venta) => {
+    const total =
+      venta.fields["Total Neto Numerico"] ||
+      venta.fields["Total de venta"] ||
+      0;
+
+    Object.keys(venta.fields).forEach((campo) => {
+      if (campo.startsWith("Cantidad real de ventas")) {
+        const cantidad = parseInt(venta.fields[campo]) || 0;
+
+        if (cantidad > 0) {
+          const nombreProducto = campo
+            .replace("Cantidad real de ventas ", "")
+            .trim();
+          productosCount[nombreProducto] =
+            (productosCount[nombreProducto] || 0) + cantidad;
+
+          const numProductos = Object.keys(venta.fields).filter(
+            (k) =>
+              k.startsWith("Cantidad real de ventas") &&
+              parseInt(venta.fields[k]) > 0
+          ).length;
+
+          productosVentas[nombreProducto] =
+            (productosVentas[nombreProducto] || 0) + total / numProductos;
+        }
+      }
+    });
+  });
+
+  const ranking = Object.entries(productosCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  const container = document.getElementById("productosDestacados");
+  if (ranking.length === 0) {
+    container.innerHTML =
+      '<div class="empty-state"><div class="empty-state-icon">📦</div><p>No hay productos</p></div>';
+    return;
+  }
+
+  const iconos = ["🥇", "🥈", "🥉", "📦", "📦"];
+
+  container.innerHTML = ranking
+    .map(([producto, cantidad], index) => {
+      const ventas = Math.round(productosVentas[producto] || 0);
+      return `
+      <div class="producto-destacado" onclick="abrirPerfilProducto('${producto.replace(
+        /'/g,
+        "\\'"
+      )}')">
+        <div class="producto-icono">${iconos[index]}</div>
+        <div class="producto-info">
+          <div class="producto-nombre">${producto}</div>
+          <div class="producto-stats">
+            <span class="producto-stat">📊 ${cantidad} unid.</span>
+            <span class="producto-stat">💰 $${ventas.toLocaleString(
+              "es-CL"
+            )}</span>
+          </div>
+        </div>
+      </div>
+    `;
+    })
+    .join("");
+}
+
+function mostrarActividadReciente(ventas) {
+  const actividades = ventas.slice(0, 5).map((venta) => {
+    const cliente = Array.isArray(venta.fields["Nombre"])
+      ? venta.fields["Nombre"][0]
+      : venta.fields["Nombre"] || "Cliente";
+    const total =
+      venta.fields["Total Neto Numerico"] ||
+      venta.fields["Total de venta"] ||
+      0;
+    const esDevolucion =
+      venta.fields["Devolución"] && venta.fields["Devolución"].length > 0;
+    const fecha = venta.fields["Fecha de compra"];
+
+    let tiempoTexto = "Hace un momento";
+    if (fecha) {
+      const fechaVenta = new Date(fecha);
+      const ahora = new Date();
+      const diff = ahora - fechaVenta;
+      const minutos = Math.floor(diff / 60000);
+      const horas = Math.floor(minutos / 60);
+      const dias = Math.floor(horas / 24);
+
+      if (dias > 0) tiempoTexto = `Hace ${dias} día${dias > 1 ? "s" : ""}`;
+      else if (horas > 0)
+        tiempoTexto = `Hace ${horas} hora${horas > 1 ? "s" : ""}`;
+      else if (minutos > 0)
+        tiempoTexto = `Hace ${minutos} minuto${minutos > 1 ? "s" : ""}`;
+    }
+
+    return {
+      icono: esDevolucion ? "↩️" : "🛍️",
+      titulo: esDevolucion ? "Devolución" : "Nueva venta",
+      detalle: `${cliente} - $${Math.round(total).toLocaleString("es-CL")}`,
+      tiempo: tiempoTexto,
+    };
+  });
+
+  const container = document.getElementById("actividadReciente");
+  if (actividades.length === 0) {
+    container.innerHTML =
+      '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay actividad</p></div>';
+    return;
+  }
+
+  container.innerHTML = actividades
+    .map(
+      (act) => `
+    <div class="actividad-item">
+      <div class="actividad-icon">${act.icono}</div>
+      <div class="actividad-content">
+        <div class="actividad-titulo">${act.titulo}</div>
+        <div class="actividad-detalle">${act.detalle}</div>
+        <div class="actividad-tiempo">${act.tiempo}</div>
+      </div>
+    </div>
+  `
+    )
+    .join("");
+}
+
+// ==========================================
+// MODAL DE PERFIL DE ANFITRIÓN
+// ==========================================
+
+function abrirPerfilAnfitrion(anfitrionId) {
+  const modal = document.getElementById("anfitrionModal");
+  const anfitrionData = anfitrionesMap[anfitrionId];
+
+  if (!anfitrionData) return;
+
+  // Obtener nombre
+  let nombre =
+    anfitrionData.Nombre ||
+    anfitrionData.Name ||
+    anfitrionData["Anfitrión"] ||
+    "Anfitrión";
+
+  if (Array.isArray(nombre)) nombre = nombre[0];
+
+  // Calcular estadísticas
+  const ventasAnfitrion = ventasData.filter((v) => {
+    const anfitriones = v.fields["Anfitrión"] || [];
+    return anfitriones.includes(anfitrionId);
+  });
+
+  const ventasReales = ventasAnfitrion.filter(
+    (v) => !v.fields["Devolución"] || v.fields["Devolución"].length === 0
+  );
+
+  const totalVentas = ventasReales.reduce(
+    (sum, v) =>
+      sum +
+      (v.fields["Total Neto Numerico"] || v.fields["Total de venta"] || 0),
+    0
+  );
+
+  const numVentas = ventasReales.length;
+  const promedio = numVentas > 0 ? totalVentas / numVentas : 0;
+
+  // Contar clientes únicos
+  const clientesUnicos = new Set();
+  ventasAnfitrion.forEach((v) => {
+    const clientes = v.fields["Cliente"] || [];
+    clientes.forEach((c) => clientesUnicos.add(c));
+  });
+
+  // Productos vendidos
+  let totalProductos = 0;
+  ventasReales.forEach((venta) => {
+    Object.keys(venta.fields).forEach((campo) => {
+      if (campo.startsWith("Cantidad real de ventas")) {
+        totalProductos += parseInt(venta.fields[campo]) || 0;
+      }
+    });
+  });
+
+  const perfilHTML = `
+    <div class="modal-header">
+      <h2>🏆 Perfil de Anfitrión</h2>
+      <button class="modal-close" onclick="cerrarPerfilAnfitrion()">✕</button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="client-name">${nombre}</div>
+      
+      <div class="client-stats-grid">
+        <div class="client-stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-value">$${Math.round(totalVentas).toLocaleString(
+            "es-CL"
+          )}</div>
+          <div class="stat-label">Total Vendido</div>
+        </div>
+        <div class="client-stat-card">
+          <div class="stat-icon">🛍️</div>
+          <div class="stat-value">${numVentas}</div>
+          <div class="stat-label">Ventas</div>
+        </div>
+        <div class="client-stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-value">${clientesUnicos.size}</div>
+          <div class="stat-label">Clientes</div>
+        </div>
+        <div class="client-stat-card">
+          <div class="stat-icon">📦</div>
+          <div class="stat-value">${totalProductos}</div>
+          <div class="stat-label">Productos</div>
+        </div>
+      </div>
+
+      <div class="client-info-box">
+        <div class="info-row">
+          <span class="info-label">📈 Promedio por Venta:</span>
+          <span class="info-value">$${Math.round(promedio).toLocaleString(
+            "es-CL"
+          )}</span>
+        </div>
+      </div>
+
+      <div class="historial-title">📋 Últimas Ventas (${
+        ventasAnfitrion.slice(0, 10).length
+      })</div>
+      <div class="historial-compras">
+        ${ventasAnfitrion
+          .slice(0, 10)
+          .map((venta, index) => {
+            const fechaCompra = venta.fields["Fecha de compra"];
+            let fechaTexto = "Sin fecha";
+
+            if (fechaCompra) {
+              const fecha = new Date(fechaCompra);
+              fechaTexto = fecha.toLocaleDateString("es-CL", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              });
+            }
+
+            const total =
+              venta.fields["Total Neto Numerico"] ||
+              venta.fields["Total de venta"] ||
+              0;
+            const cliente = Array.isArray(venta.fields["Nombre"])
+              ? venta.fields["Nombre"][0]
+              : venta.fields["Nombre"] || "Sin cliente";
+            const esDevolucion =
+              venta.fields["Devolución"] &&
+              venta.fields["Devolución"].length > 0;
+
+            return `
+            <div class="compra-item ${esDevolucion ? "devolucion" : ""}">
+              <div class="compra-header">
+                <span class="compra-numero">${
+                  esDevolucion ? "↩️ Devolución" : "🛍️ Venta"
+                } #${index + 1}</span>
+                ${
+                  esDevolucion
+                    ? '<span class="badge badge-devolucion">Devuelto</span>'
+                    : '<span class="badge badge-venta">Completada</span>'
+                }
+              </div>
+              <div class="compra-fecha">📅 ${fechaTexto}</div>
+              <div class="compra-items" style="margin-top: 8px;">
+                <strong>👤 Cliente:</strong> ${cliente}
+              </div>
+              <div class="compra-total">
+                <span>Total:</span>
+                <span class="total-amount" style="${
+                  esDevolucion ? "color: #ef4444;" : ""
+                }">
+                  ${esDevolucion ? "-" : ""}$${Math.round(
+              Math.abs(total)
+            ).toLocaleString("es-CL")}
+                </span>
+              </div>
+            </div>
+          `;
+          })
+          .join("")}
+      </div>
+    </div>
+  `;
+
+  document.getElementById("anfitrionModalContent").innerHTML = perfilHTML;
+  modal.style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+
+function cerrarPerfilAnfitrion() {
+  const modal = document.getElementById("anfitrionModal");
+  modal.style.display = "none";
+  document.body.style.overflow = "auto";
+}
+
+// ==========================================
+// MODAL DE PERFIL DE PRODUCTO
+// ==========================================
+
+function abrirPerfilProducto(nombreProducto) {
+  const modal = document.getElementById("productoModal");
+
+  // Calcular estadísticas del producto
+  let totalUnidades = 0;
+  let totalVentas = 0;
+  let numTransacciones = 0;
+  const ventasPorDia = {};
+
+  ventasData.forEach((venta) => {
+    const esDevolucion =
+      venta.fields["Devolución"] && venta.fields["Devolución"].length > 0;
+    if (esDevolucion) return;
+
+    Object.keys(venta.fields).forEach((campo) => {
+      if (campo.startsWith("Cantidad real de ventas")) {
+        const producto = campo.replace("Cantidad real de ventas ", "").trim();
+
+        if (producto === nombreProducto) {
+          const cantidad = parseInt(venta.fields[campo]) || 0;
+          if (cantidad > 0) {
+            totalUnidades += cantidad;
+            numTransacciones++;
+
+            const total =
+              venta.fields["Total Neto Numerico"] ||
+              venta.fields["Total de venta"] ||
+              0;
+            const numProductos = Object.keys(venta.fields).filter(
+              (k) =>
+                k.startsWith("Cantidad real de ventas") &&
+                parseInt(venta.fields[k]) > 0
+            ).length;
+
+            totalVentas += total / numProductos;
+
+            // Agrupar por día
+            const fecha = venta.fields["Fecha de compra"];
+            if (fecha) {
+              const dia = new Date(fecha).toLocaleDateString("es-CL");
+              ventasPorDia[dia] = (ventasPorDia[dia] || 0) + cantidad;
+            }
+          }
+        }
+      }
+    });
+  });
+
+  const precioPromedio =
+    numTransacciones > 0 ? totalVentas / numTransacciones : 0;
+  const unidadesPorVenta =
+    numTransacciones > 0 ? totalUnidades / numTransacciones : 0;
+
+  // Día con más ventas
+  const mejorDia = Object.entries(ventasPorDia).sort(
+    (a, b) => b[1] - a[1]
+  )[0] || ["N/A", 0];
+
+  const perfilHTML = `
+    <div class="modal-header">
+      <h2>📦 Detalle de Producto</h2>
+      <button class="modal-close" onclick="cerrarPerfilProducto()">✕</button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="client-name">${nombreProducto}</div>
+      
+      <div class="client-stats-grid">
+        <div class="client-stat-card">
+          <div class="stat-icon">📊</div>
+          <div class="stat-value">${totalUnidades}</div>
+          <div class="stat-label">Unidades Vendidas</div>
+        </div>
+        <div class="client-stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-value">$${Math.round(totalVentas).toLocaleString(
+            "es-CL"
+          )}</div>
+          <div class="stat-label">Total Generado</div>
+        </div>
+        <div class="client-stat-card">
+          <div class="stat-icon">🛍️</div>
+          <div class="stat-value">${numTransacciones}</div>
+          <div class="stat-label">Transacciones</div>
+        </div>
+        <div class="client-stat-card">
+          <div class="stat-icon">💵</div>
+          <div class="stat-value">$${Math.round(precioPromedio).toLocaleString(
+            "es-CL"
+          )}</div>
+          <div class="stat-label">Precio Promedio</div>
+        </div>
+      </div>
+
+      <div class="client-info-box">
+        <div class="info-row" style="margin-bottom: 8px;">
+          <span class="info-label">📦 Unidades por Venta:</span>
+          <span class="info-value">${unidadesPorVenta.toFixed(1)}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">🎯 Mejor Día:</span>
+          <span class="info-value">${mejorDia[0]} (${mejorDia[1]} unid.)</span>
+        </div>
+      </div>
+
+      <div class="nota-inteligente">
+        <div class="nota-icon">💡</div>
+        <div class="nota-content">
+          <div class="nota-title">Análisis</div>
+          <div class="nota-text">
+            Este producto ha generado <strong>$${Math.round(
+              totalVentas
+            ).toLocaleString("es-CL")}</strong> en ventas
+            con un promedio de <strong>${unidadesPorVenta.toFixed(
+              1
+            )} unidades por transacción</strong>.
+            ${
+              totalUnidades > 10
+                ? "Es uno de los productos más populares."
+                : "Tiene potencial de crecimiento."
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("productoModalContent").innerHTML = perfilHTML;
+  modal.style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+
+function cerrarPerfilProducto() {
+  const modal = document.getElementById("productoModal");
+  modal.style.display = "none";
+  document.body.style.overflow = "auto";
+}
 
 setInterval(() => {
   const sesionActiva = sessionStorage.getItem("dashboardAutenticado");

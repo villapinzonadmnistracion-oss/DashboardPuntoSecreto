@@ -1378,7 +1378,7 @@
       <button class="menu-hamburger" onclick="toggleMenu()">
         <span class="menu-hamburger-icon">⋮</span>
       </button>
-      
+
       <div class="menu-overlay" onclick="toggleMenu()"></div>
 
       <div class="menu-panel">
@@ -1516,6 +1516,7 @@
         <div id="content" style="display: none;">
           <!-- Sección INICIO -->
           <div class="content-section active" id="section-inicio">
+            <!-- KPIs Principales -->
             <div class="kpi-grid">
               <div class="kpi-card">
                 <div class="kpi-icon">💰</div>
@@ -1539,9 +1540,58 @@
               </div>
             </div>
 
+            <!-- KPIs Secundarios -->
+            <div class="kpi-grid-secondary">
+              <div class="kpi-card-small">
+                <div class="kpi-small-icon">👥</div>
+                <div class="kpi-small-content">
+                  <div class="kpi-small-value" id="kpiTotalClientes">0</div>
+                  <div class="kpi-small-label">Clientes</div>
+                </div>
+              </div>
+              <div class="kpi-card-small">
+                <div class="kpi-small-icon">📦</div>
+                <div class="kpi-small-content">
+                  <div class="kpi-small-value" id="kpiProductosVendidos">0</div>
+                  <div class="kpi-small-label">Productos</div>
+                </div>
+              </div>
+              <div class="kpi-card-small">
+                <div class="kpi-small-icon">🎯</div>
+                <div class="kpi-small-content">
+                  <div class="kpi-small-value" id="kpiTicketPromedio">$0</div>
+                  <div class="kpi-small-label">Ticket Prom.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gráfico de Ventas por Día -->
+            <div class="section">
+              <div class="section-title">📊 Ventas de los Últimos 7 Días</div>
+              <div
+                id="chartVentasDias"
+                style="height: 200px; position: relative;"
+              >
+                <canvas id="chartVentasDiasCanvas"></canvas>
+              </div>
+            </div>
+
+            <!-- Top Anfitriones (Clickeable) -->
             <div class="section">
               <div class="section-title">🏆 Top Anfitriones</div>
               <div id="rankingAnfitriones"></div>
+            </div>
+
+            <!-- Productos Destacados (Clickeable) -->
+            <div class="section">
+              <div class="section-title">⭐ Productos Destacados</div>
+              <div id="productosDestacados"></div>
+            </div>
+
+            <!-- Actividad Reciente -->
+            <div class="section">
+              <div class="section-title">🕐 Actividad Reciente</div>
+              <div id="actividadReciente"></div>
             </div>
           </div>
 
@@ -1639,8 +1689,25 @@
     <!-- ========================================= -->
     <!-- MODAL DE PERFIL DE CLIENTE -->
     <!-- ========================================= -->
+    <!-- ========================================= -->
+    <!-- MODAL DE PERFIL DE CLIENTE -->
+    <!-- ========================================= -->
     <div id="clientModal">
       <div id="modalContent"></div>
+    </div>
+
+    <!-- ========================================= -->
+    <!-- MODAL DE PERFIL DE ANFITRIÓN -->
+    <!-- ========================================= -->
+    <div id="anfitrionModal">
+      <div id="anfitrionModalContent"></div>
+    </div>
+
+    <!-- ========================================= -->
+    <!-- MODAL DE DETALLE DE PRODUCTO -->
+    <!-- ========================================= -->
+    <div id="productoModal">
+      <div id="productoModalContent"></div>
     </div>
 
     <script src="main.js"></script>
