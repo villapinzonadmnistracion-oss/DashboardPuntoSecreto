@@ -766,7 +766,7 @@ function mostrarTopClientes(ventas) {
           <span class="ranking-medal">${medals[index]}</span>
           <span>${cli.nombre}</span>
         </div>
-        <div class="ranking-value">${Math.round(cli.total).toLocaleString(
+        <div class="ranking-value">$${Math.round(cli.total).toLocaleString(
           "es-CL"
         )}</div>
       </div>
@@ -937,7 +937,7 @@ function mostrarUltimasTransacciones(ventas) {
           <div style="margin-bottom: 3px;">📦 ${items}</div>
           <div style="display: flex; justify-content: space-between;">
             <span>📅 ${fechaHoraTexto}</span>
-            <span style="font-weight: 600; color: #10b981;">${Math.round(
+            <span style="font-weight: 600; color: #10b981;">$${Math.round(
               total
             ).toLocaleString("es-CL")}</span>
           </div>
@@ -1364,16 +1364,12 @@ function abrirPerfilCliente(nombreCliente) {
 
   // Calcular estadísticas
   const totalCompras = ventasReales.reduce(
-    (sum, v) =>
-      sum +
-      (v.fields["Total Neto Numerico"] || v.fields["Total de venta"] || 0),
+    (sum, v) => sum + (v.fields["Total Neto Numerico"] || 0),
     0
   );
 
   const totalDevoluciones = devoluciones.reduce(
-    (sum, v) =>
-      sum +
-      (v.fields["Total Neto Numerico"] || v.fields["Total de venta"] || 0),
+    (sum, v) => sum + (v.fields["Total Neto Numerico"] || 0),
     0
   );
 
