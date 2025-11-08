@@ -391,6 +391,12 @@ function mostrarTopAnfitriones(ventas) {
     .slice(0, 5);
 
   const container = document.getElementById("rankingAnfitriones");
+  
+  if (!container) {
+    console.warn("Container rankingAnfitriones no encontrado");
+    return;
+  }
+
   if (ranking.length === 0) {
     container.innerHTML =
       '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay datos</p></div>';
@@ -402,7 +408,7 @@ function mostrarTopAnfitriones(ventas) {
     .map((anf, index) => {
       const anfitrionData = anfitrionesMap[anf.id];
 
-      // Intentar diferentes campos posibles para el nombre
+
       let nombre =
         anfitrionData?.Nombre ||
         anfitrionData?.Name ||
@@ -411,12 +417,12 @@ function mostrarTopAnfitriones(ventas) {
         anfitrionData?.nombre ||
         anfitrionData?.["Full Name"];
 
-      // Si es array, tomar el primer elemento
+
       if (Array.isArray(nombre)) {
         nombre = nombre[0];
       }
 
-      // Si no hay nombre, usar un valor por defecto
+
       if (!nombre) {
         nombre = "Anfitrión desconocido";
       }
@@ -435,6 +441,7 @@ function mostrarTopAnfitriones(ventas) {
     })
     .join("");
 }
+  
 
 function mostrarTopProductos(ventas) {
   const productosCount = {};
@@ -460,6 +467,12 @@ function mostrarTopProductos(ventas) {
     .slice(0, 5);
 
   const container = document.getElementById("topProductos");
+  
+  if (!container) {
+    console.warn("Container topProductos no encontrado");
+    return;
+  }
+
   if (ranking.length === 0) {
     container.innerHTML =
       '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay productos registrados</p></div>';
@@ -518,10 +531,18 @@ function mostrarGraficoProductos(ventas) {
     (a, b) => b[1] - a[1]
   );
 
+  // VERIFICACIÓN AGREGADA
+  const graficoContainer = document.getElementById("graficoProductos");
+  const notaContainer = document.getElementById("notaInteligente");
+
   if (productosArray.length === 0) {
-    document.getElementById("graficoProductos").innerHTML =
-      '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay datos</p></div>';
-    document.getElementById("notaInteligente").innerHTML = "";
+    if (graficoContainer) {
+      graficoContainer.innerHTML =
+        '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay datos</p></div>';
+    }
+    if (notaContainer) {
+      notaContainer.innerHTML = "";
+    }
     return;
   }
 
@@ -620,9 +641,17 @@ function mostrarGraficoProductos(ventas) {
     </div>
   `;
 
-  document.getElementById("notaInteligente").innerHTML = notaHTML;
+  if (notaContainer) {
+    notaContainer.innerHTML = notaHTML;
+  }
 
+  // VERIFICACIÓN CRÍTICA DEL CANVAS
   const canvas = document.getElementById("chartCanvas");
+  if (!canvas) {
+    console.warn("Canvas no encontrado - la sección de productos no está visible");
+    return;
+  }
+
   const ctx = canvas.getContext("2d");
 
   const dpr = window.devicePixelRatio || 1;
@@ -731,7 +760,10 @@ function mostrarGraficoProductos(ventas) {
     })
     .join("");
 
-  document.getElementById("leyendaProductos").innerHTML = leyendaHTML;
+  const leyendaContainer = document.getElementById("leyendaProductos");
+  if (leyendaContainer) {
+    leyendaContainer.innerHTML = leyendaHTML;
+  }
 }
 
 function mostrarTopClientes(ventas) {
@@ -760,6 +792,12 @@ function mostrarTopClientes(ventas) {
     .slice(0, 5);
 
   const container = document.getElementById("topClientes");
+  
+  if (!container) {
+    console.warn("Container topClientes no encontrado");
+    return;
+  }
+
   if (ranking.length === 0) {
     container.innerHTML =
       '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay datos</p></div>';
@@ -818,6 +856,11 @@ function mostrarClasificacionClientes(ventas) {
   });
 
   const container = document.getElementById("clasificacionClientes");
+  
+  if (!container) {
+    console.warn("Container clasificacionClientes no encontrado");
+    return;
+  }
 
   const resumenHTML = `
     <div class="clasificacion-grid">
@@ -894,6 +937,12 @@ function mostrarClasificacionClientes(ventas) {
 
 function mostrarUltimasTransacciones(ventas) {
   const container = document.getElementById("ultimasTransacciones");
+  
+  if (!container) {
+    console.warn("Container ultimasTransacciones no encontrado");
+    return;
+  }
+
   if (ventas.length === 0) {
     container.innerHTML =
       '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No hay transacciones</p></div>';
