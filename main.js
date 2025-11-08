@@ -1210,7 +1210,7 @@ function calcularStatsAnfitrion(anfitrionId) {
   ventasData.forEach((venta) => {
     const anfitriones = venta.fields["Anfitrión"] || [];
     if (anfitriones.includes(anfitrionId)) {
-      total += venta.fields["Total Neto Numerico"] || 0;
+      total += venta.fields["Total neto numerico"] || 0;
       cantidad++;
     }
   });
