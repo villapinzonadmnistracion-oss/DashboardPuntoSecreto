@@ -54,11 +54,9 @@ function verificarPassword() {
 }
 
 function mostrarDashboard() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('dashboardApp').style.display = 'block';
-  
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("dashboardApp").style.display = "block";
 
-  
   // Inicializar el dashboard
   inicializarFechas();
   cargarDatos();
@@ -117,10 +115,10 @@ let filtroTransaccionActual = "todas";
 
 function inicializarFechas() {
   const hoy = new Date();
-  
+
   // Establecer SOLO la fecha de hoy en ambos campos
-  document.getElementById('fechaHasta').valueAsDate = hoy;
-  document.getElementById('fechaDesde').valueAsDate = hoy;
+  document.getElementById("fechaHasta").valueAsDate = hoy;
+  document.getElementById("fechaDesde").valueAsDate = hoy;
 }
 
 function cambiarPeriodoRapido() {
@@ -336,9 +334,9 @@ function calcularEstadisticas(ventas) {
   );
 
   const totalVentas = ventasReales.reduce((sum, v) => {
-  const total = v.fields["Total Neto Numerico"] || 0;
-  return sum + total;
-}, 0);
+    const total = v.fields["Total Neto Numerico"] || 0;
+    return sum + total;
+  }, 0);
 
   const numVentas = ventasReales.length;
   const promedioVenta = numVentas > 0 ? totalVentas / numVentas : 0;
@@ -1178,10 +1176,7 @@ function calcularTotalCliente(nombreCliente) {
       if (Array.isArray(nombre)) nombre = nombre[0];
       return nombre === nombreCliente;
     })
-    .reduce(
-  (sum, v) => sum + (v.fields["Total Neto Numerico"] || 0),
-  0
-);
+    .reduce((sum, v) => sum + (v.fields["Total Neto Numerico"] || 0), 0);
 }
 
 function contarComprasCliente(nombreCliente) {
@@ -1369,14 +1364,18 @@ function abrirPerfilCliente(nombreCliente) {
 
   // Calcular estadísticas
   const totalCompras = ventasReales.reduce(
-  (sum, v) => sum + (v.fields["Total Neto Numerico"] || 0),
-  0
-);
+    (sum, v) =>
+      sum +
+      (v.fields["Total Neto Numerico"] || v.fields["Total de venta"] || 0),
+    0
+  );
 
-const totalDevoluciones = devoluciones.reduce(
-  (sum, v) => sum + (v.fields["Total Neto Numerico"] || 0),
-  0
-);
+  const totalDevoluciones = devoluciones.reduce(
+    (sum, v) =>
+      sum +
+      (v.fields["Total Neto Numerico"] || v.fields["Total de venta"] || 0),
+    0
+  );
 
   const numCompras = ventasReales.length;
   const numDevoluciones = devoluciones.length;
@@ -1587,7 +1586,7 @@ function cerrarPerfilCliente() {
   modal.style.display = "none";
   document.body.style.overflow = "auto";
 }
-cerrarPerfilCliente
+cerrarPerfilCliente;
 
 // Cerrar modal al hacer click fuera
 window.onclick = function (event) {
@@ -1601,10 +1600,10 @@ window.onclick = function (event) {
 // ==========================================
 
 // Cargar tema guardado al iniciar
-document.addEventListener('DOMContentLoaded', function() {
-  const temaGuardado = localStorage.getItem('tema');
-  if (temaGuardado === 'dark') {
-    document.body.classList.add('dark-mode');
+document.addEventListener("DOMContentLoaded", function () {
+  const temaGuardado = localStorage.getItem("tema");
+  if (temaGuardado === "dark") {
+    document.body.classList.add("dark-mode");
     actualizarIconoTema();
   }
 });
@@ -1612,8 +1611,6 @@ document.addEventListener('DOMContentLoaded', function() {
 // ==========================================
 // SISTEMA DE TEMA CLARO/OSCURO
 // ==========================================
-
-
 
 // ==========================================
 // AUTO-REFRESH
