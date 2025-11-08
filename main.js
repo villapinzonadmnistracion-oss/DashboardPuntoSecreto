@@ -369,7 +369,10 @@ function mostrarTopAnfitriones(ventas) {
 
   ventas.forEach((venta) => {
     const anfitrionesIds = venta.fields["Anfitrión"] || [];
-    const total = venta.fields["Total Neto Numerico"] || 0;
+    const total =
+      venta.fields["Total Neto Numerico"] ||
+      venta.fields["Total de venta"] ||
+      0;
 
     anfitrionesIds.forEach((id) => {
       if (!anfitrionesStats[id]) {
@@ -733,7 +736,10 @@ function mostrarTopClientes(ventas) {
 
   ventas.forEach((venta) => {
     const nombreCliente = venta.fields["Nombre"] || "Cliente desconocido";
-    const total = venta.fields["Total Neto Numerico"] || 0;
+    const total =
+      venta.fields["Total Neto Numerico"] ||
+      venta.fields["Total de venta"] ||
+      0;
 
     if (!clientesStats[nombreCliente]) {
       clientesStats[nombreCliente] = {
@@ -766,7 +772,7 @@ function mostrarTopClientes(ventas) {
           <span class="ranking-medal">${medals[index]}</span>
           <span>${cli.nombre}</span>
         </div>
-        <div class="ranking-value">$${Math.round(cli.total).toLocaleString(
+        <div class="ranking-value">${Math.round(cli.total).toLocaleString(
           "es-CL"
         )}</div>
       </div>
@@ -894,7 +900,10 @@ function mostrarUltimasTransacciones(ventas) {
   container.innerHTML = ventas
     .map((venta) => {
       const nombreCliente = venta.fields["Nombre"] || "Sin cliente";
-      const total = venta.fields["Total Neto Numerico"] || 0;
+      const total =
+        venta.fields["Total Neto Numerico"] ||
+        venta.fields["Total de venta"] ||
+        0;
       const items = venta.fields["Items"] || "Sin items";
 
       let fechaHoraTexto = "Sin fecha";
@@ -937,7 +946,7 @@ function mostrarUltimasTransacciones(ventas) {
           <div style="margin-bottom: 3px;">📦 ${items}</div>
           <div style="display: flex; justify-content: space-between;">
             <span>📅 ${fechaHoraTexto}</span>
-            <span style="font-weight: 600; color: #10b981;">$${Math.round(
+            <span style="font-weight: 600; color: #10b981;">${Math.round(
               total
             ).toLocaleString("es-CL")}</span>
           </div>
@@ -1176,7 +1185,12 @@ function calcularTotalCliente(nombreCliente) {
       if (Array.isArray(nombre)) nombre = nombre[0];
       return nombre === nombreCliente;
     })
-    .reduce((sum, v) => sum + (v.fields["Total Neto Numerico"] || 0), 0);
+    .reduce(
+      (sum, v) =>
+        sum +
+        (v.fields["Total Neto Numerico"] || v.fields["Total de venta"] || 0),
+      0
+    );
 }
 
 function contarComprasCliente(nombreCliente) {
@@ -1209,7 +1223,10 @@ function calcularStatsAnfitrion(anfitrionId) {
   ventasData.forEach((venta) => {
     const anfitriones = venta.fields["Anfitrión"] || [];
     if (anfitriones.includes(anfitrionId)) {
-      total += venta.fields["Total Neto Numerico"] || 0;
+      total +=
+        venta.fields["Total Neto Numerico"] ||
+        venta.fields["Total de venta"] ||
+        0;
       cantidad++;
     }
   });
