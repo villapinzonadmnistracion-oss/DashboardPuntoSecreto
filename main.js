@@ -336,10 +336,9 @@ function calcularEstadisticas(ventas) {
   );
 
   const totalVentas = ventasReales.reduce((sum, v) => {
-    const total =
-      v.fields["Total Neto Numerico"] || v.fields["Total de venta"] || 0;
-    return sum + total;
-  }, 0);
+  const total = v.fields["Total neto numerico"] || 0;
+  return sum + total;
+}, 0);
 
   const numVentas = ventasReales.length;
   const promedioVenta = numVentas > 0 ? totalVentas / numVentas : 0;
@@ -372,10 +371,7 @@ function mostrarTopAnfitriones(ventas) {
 
   ventas.forEach((venta) => {
     const anfitrionesIds = venta.fields["Anfitrión"] || [];
-    const total =
-      venta.fields["Total Neto Numerico"] ||
-      venta.fields["Total de venta"] ||
-      0;
+    const total = venta.fields["Total neto numerico"] || 0;
 
     anfitrionesIds.forEach((id) => {
       if (!anfitrionesStats[id]) {
@@ -739,10 +735,7 @@ function mostrarTopClientes(ventas) {
 
   ventas.forEach((venta) => {
     const nombreCliente = venta.fields["Nombre"] || "Cliente desconocido";
-    const total =
-      venta.fields["Total Neto Numerico"] ||
-      venta.fields["Total de venta"] ||
-      0;
+    const total = venta.fields["Total neto numerico"] || 0;
 
     if (!clientesStats[nombreCliente]) {
       clientesStats[nombreCliente] = {
@@ -903,10 +896,7 @@ function mostrarUltimasTransacciones(ventas) {
   container.innerHTML = ventas
     .map((venta) => {
       const nombreCliente = venta.fields["Nombre"] || "Sin cliente";
-      const total =
-        venta.fields["Total Neto Numerico"] ||
-        venta.fields["Total de venta"] ||
-        0;
+      const total = venta.fields["Total neto numerico"] || 0;
       const items = venta.fields["Items"] || "Sin items";
 
       let fechaHoraTexto = "Sin fecha";
@@ -1181,20 +1171,14 @@ function buscarAnfitriones(query) {
   return resultados.slice(0, 5);
 }
 
-function calcularTotalCliente(nombreCliente) {
-  return ventasData
-    .filter((v) => {
-      let nombre = v.fields["Nombre"];
-      if (Array.isArray(nombre)) nombre = nombre[0];
-      return nombre === nombreCliente;
-    })
-    .reduce(
-      (sum, v) =>
-        sum +
-        (v.fields["Total Neto Numerico"] || v.fields["Total de venta"] || 0),
-      0
-    );
-}
+return ventasData
+  .filter((v) => {
+    let nombre = v.fields["Nombre"];
+    if (Array.isArray(nombre)) nombre = nombre[0];
+    return nombre === nombreCliente;
+  })
+  .reduce((sum, v) => sum + (v.fields["Total neto numerico"] || 0), 0);
+
 
 function contarComprasCliente(nombreCliente) {
   return ventasData.filter((v) => {
@@ -1226,10 +1210,7 @@ function calcularStatsAnfitrion(anfitrionId) {
   ventasData.forEach((venta) => {
     const anfitriones = venta.fields["Anfitrión"] || [];
     if (anfitriones.includes(anfitrionId)) {
-      total +=
-        venta.fields["Total Neto Numerico"] ||
-        venta.fields["Total de venta"] ||
-        0;
+      total += venta.fields["Total Neto Numerico"] || 0;
       cantidad++;
     }
   });
@@ -1384,18 +1365,14 @@ function abrirPerfilCliente(nombreCliente) {
 
   // Calcular estadísticas
   const totalCompras = ventasReales.reduce(
-    (sum, v) =>
-      sum +
-      (v.fields["Total Neto Numerico"] || v.fields["Total de venta"] || 0),
-    0
-  );
+  (sum, v) => sum + (v.fields["Total neto numerico"] || 0),
+  0
+);
 
-  const totalDevoluciones = devoluciones.reduce(
-    (sum, v) =>
-      sum +
-      (v.fields["Total Neto Numerico"] || v.fields["Total de venta"] || 0),
-    0
-  );
+const totalDevoluciones = devoluciones.reduce(
+  (sum, v) => sum + (v.fields["Total neto numerico"] || 0),
+  0
+);
 
   const numCompras = ventasReales.length;
   const numDevoluciones = devoluciones.length;
@@ -1519,10 +1496,7 @@ function abrirPerfilCliente(nombreCliente) {
             `;
             }
 
-            const total =
-              venta.fields["Total Neto Numerico"] ||
-              venta.fields["Total de venta"] ||
-              0;
+            const total = venta.fields["Total neto numerico"] || 0;
 
             // Obtener productos comprados
             let productosHTML = "";
