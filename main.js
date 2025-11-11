@@ -336,8 +336,7 @@ function calcularEstadisticas(ventas) {
   );
 
   const totalVentas = ventasReales.reduce((sum, v) => {
-    const total =
-      v.fields["Total Neto Numerico"] || v.fields["Total de venta"] || 0;
+    const total = v.fields["Total Neto Numerico"] || 0;
     return sum + total;
   }, 0);
 
